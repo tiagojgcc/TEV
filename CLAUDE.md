@@ -12,7 +12,15 @@ Ler também `_fonte/ESTADO-E-CONVENCOES.md` (histórico, convenções de linguag
 - Mensagem de commit curta, em pt-PT, a dizer o que mudou clinicamente (ex.: "TVP distal: duração 3 meses (ESVS 2021)").
 - "Sem alterar" ou "discute" significa: analisar e propor, sem tocar nos ficheiros, e esperar a decisão.
 - Texto fornecido pelo Tiago aplica-se verbatim (sem "melhorias").
-- Ficheiros com dados privados (PDFs de bibliografia, a ferramenta "TEV Consulta") vivem no repositório privado `tiagojgcc/tev-bibliografia`, nunca neste. Não copiar nada desse repositório para aqui.
+- Ficheiros com dados privados (PDFs de bibliografia, a ferramenta "TEV Consulta") vivem no repositório privado `tiagojgcc/tev-bibliografia`, nunca neste. Não copiar nada desse repositório para aqui, com a única exceção descrita em "Os dois repositórios" (o `consulta.html` construído, e só quando o Tiago o pedir).
+
+## Os dois repositórios e as duas ferramentas
+
+Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV` (público) e `tiagojgcc/tev-bibliografia` (privado).
+
+1. **TEV na Prática** (este repositório). Fontes em `TEV/_fonte` (`g1` a `g5`); `bash _fonte/build.sh` gera `TEV/index.html`. Cada alteração aprovada pelo Tiago é construída, verificada (build sem erros, renderização em Playwright) e enviada com commit direto para o `main`, ficando online em https://tiagojgcc.github.io/TEV/ cerca de um minuto depois.
+2. **TEV Consulta** (ferramenta privada). Fontes em `tev-bibliografia/consulta` (`c1`, `c2`, `c3` e as imagens); `bash consulta/build-consulta.sh` gera `TEV Consulta.html` na raiz do repositório privado. As alterações à Consulta fazem-se e ficam apenas no `tev-bibliografia`. Nunca vai para o `TEV` até o Tiago dizer "põe a Consulta online". Nessa altura, e só nessa altura, copia-se o ficheiro construído para `TEV/consulta.html`, faz-se commit no `main` do `TEV` e a ferramenta fica em https://tiagojgcc.github.io/TEV/consulta.html. Enquanto essa ordem não for dada, o `TEV` não contém nenhum ficheiro da Consulta.
+3. **Bibliografia**. Os PDFs (guidelines, ensaios, UpToDate, etc.) estão em `tev-bibliografia/bibliografia`. É por eles que se verifica cada afirmação clínica, dose, classe e nível de recomendação, antes de a escrever em qualquer uma das ferramentas. Quando a fonte não estiver na bibliografia nem for verificável de outra forma, dizê-lo ("❕Unsure about answer❕") em vez de afirmar.
 
 ## Regras de texto (não regredir)
 
