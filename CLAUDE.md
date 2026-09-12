@@ -55,7 +55,12 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Reperfusão dirigida por cateter: são **duas** modalidades, trombólise dirigida por cateter e trombectomia mecânica, e a indicação é por categoria (`cdtCat` em g5): A a C1 não recomendadas; C2 e C3 benefício incerto (2b, C-LD); D1 e D2 podem ser consideradas (2b, B-NR); E1 razoáveis (2a). Nunca escrever "candidato a trombólise dirigida por cateter" sozinho.
 - Gravidez, imagem torácica: a **angio-TC com protocolo de dose reduzida é a primeira linha** (AHA/ACC 2026, secção 3.1.2, recomendação 4, Classe 2a B-NR). A cintigrafia de perfusão é a alternativa quando a angio-TC está indisponível ou contraindicada. A radiografia de tórax faz-se para procurar diagnóstico alternativo, já não para escolher o exame.
 - A via da grávida está acessível nos dois lados: a partir do ecrã da probabilidade (suspeita) e a partir do painel "TEV confirmado" (`conf_grav`).
-- Enoxaparina: a nota leva sempre a **dose decidida em mg**, nunca a regra condicional. Quem a escolhe passa pelo ecrã `ac_hbpm` (peso obrigatório, Cockcroft-Gault opcional).
+- Enoxaparina: a nota leva sempre a **dose decidida em mg**, nunca a regra condicional. Quem a escolhe passa pelo ecrã `ac_hbpm` (peso obrigatório, Cockcroft-Gault opcional). Formato fixado pelo Tiago: `enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia)`, com a frequência repetida dentro dos parênteses (`enoxFrase`).
+- Consulta na nota: na via da TVP é "Pedido de consulta de Medicina Interna e cirurgia vascular."; na via do TEP é "Pedido de consulta de Medicina Interna - TEV."; na grávida com TVP é "Plano discutido com Obstetrícia." e não há linha de consulta.
+- Grávida com TVP: o título leva "(Grávida)", não há linha a explicar a via, e a **abordagem é a própria dose** de enoxaparina (`_hbpmDose`), sem linha "Anticoagulação:" separada.
+- Falência: uma só linha, com a abordagem e a dose (`falenciaTxt`). O estudo (adesão, INR, anticorpos antifosfolipídicos, rastreio de neoplasia) fica no ecrã, não na nota.
+- Contraindicação à anticoagulação: uma só linha de abordagem, "com contraindicação à anticoagulação - internamento (ponderar filtro da veia cava inferior - a discutir com cirurgia vascular)".
+- TVS ≥5 cm e ≥3 cm da junção: o ecrã `tvp_tvs45` obriga a escolher entre fondaparinux e rivaroxabano, e a nota leva o que foi escolhido.
 - Nota do doente instável, texto fixado pelo Tiago: título "# Suspeita de TEP" e a linha "- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI".
 - Escrita da nota: usar sempre `fim()` (ponto final), `plural()` (1 ponto / 2 pontos) e `maiusc()` (inicial maiúscula). Não repetir a frequência da dose, e não repetir na "Abordagem" o que já vai numa linha própria.
 

@@ -8,7 +8,8 @@ SCREENS.conf_tipo = { crumb:"Confirmado", html: () => `
     <button class="opt" onclick="ST.data.via='tep';ST.data.ctpa='pos';go('tep_pos','TEP')"><b>🫁 TEP</b><small>Estratificar (ESC + AHA) &gt; internar ou dar alta &gt; iniciar anticoagulação</small></button>
     <button class="opt" onclick="ST.data.via='tvp';ST.data.tvpConf=true;go('tvp_eco','TVP')"><b>🦵 TVP</b><small>Classificar (proximal / distal / TVS) &gt; tratar &gt; referenciar</small></button>
   </div>
-  <button class="swlink" style="margin-top:12px" onclick="ST.data.gravida=true;go('conf_grav','Gravidez')">Grávida ou pós-parto ≤6 semanas: via própria</button>
+  <div class="warnband" style="margin-top:14px"><b>Grávida ou no pós-parto?</b> O tratamento é diferente: HBPM, sem DOAC nem AVK.
+    <div style="margin-top:10px"><button class="go sec blk" style="margin:0" onclick="ST.data.gravida=true;go('conf_grav','Gravidez')">Ir para a via da grávida</button></div></div>
 `};
 SCREENS.conf_grav = { crumb:"Gravidez", html: () => `
   <p class="kick">TEV confirmado · gravidez</p>
@@ -299,15 +300,17 @@ function destGo(){
         : "internamento em enfermaria");
   ST.data.cdtNote = cdt ? cdt.nota
     : (ia ? "Indicação de reperfusão dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
-  ST.data.regime = enoxRegime(w);
+  if (ST.data.falencia){ ST.data.falenciaLinha = falenciaTxt(enoxFrase(w)); delete ST.data.regime; }
+  else ST.data.regime = enoxRegime(w);
   go("conf_fim","Plano");
 }
-/* frase da enoxaparina para a nota: a dose decidida, sem repetir a frequência */
-function enoxRegime(w){
+/* frase da enoxaparina para a nota, no formato fixado pelo Tiago: "1 mg/kg 2x/dia (80 mg 2x/dia)" */
+function enoxFrase(w){
   const e = enoxTxt(w);
-  if (!w) return "enoxaparina 1 mg/kg "+e.f+".";
-  return "enoxaparina 1 mg/kg "+e.f+" ("+e.mg+" mg)"+(e.low? ", dose reduzida por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"")+".";
+  if (!w) return "enoxaparina 1 mg/kg "+e.f;
+  return "enoxaparina 1 mg/kg "+e.f+" ("+e.mg+" mg "+e.f+")"+(e.low? ", dose reduzida por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"");
 }
+function enoxRegime(w){ return enoxFrase(w)+"."; }
 const HESTIA = [
   ["Instável hemodinamicamente?","PAS <100 mmHg com FC >100 bpm, necessidade de cuidados intensivos, ou por juízo clínico."],
   ["Necessita de trombólise ou embolectomia?","Por motivo diferente da instabilidade hemodinâmica."],

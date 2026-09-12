@@ -111,7 +111,7 @@ SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
 `};
 function noiteGo(){
   ST.data.ecoNoite = true;
-  ST.data.ecoConduta = "decidir com o resultado da eco-doppler das primeiras 24 h";
+  ST.data.ecoConduta = "a definir após eco-doppler";
   go('tvp_fim','Plano');
 }
 SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
@@ -135,7 +135,7 @@ function proxGo(dest){
     ST.data.ecoConduta = "anticoagulação em dose de tratamento, em ambulatório.";
     ST.data.acCtx = 'amb';
   } else {
-    ST.data.ecoConduta = "anticoagulação em dose de tratamento, com internamento (ver os motivos de orientação especializada precoce).";
+    ST.data.ecoConduta = "internamento";
     delete ST.data.acCtx;
   }
   go('ac_pick','Anticoagulação');
@@ -166,10 +166,10 @@ SCREENS.tvp_distal = { crumb:"Distal", html: () => `
 `};
 function distalGo(ac){
   if (ac){
-    ST.data.ecoConduta = "TVP distal isolada > anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta)";
+    ST.data.ecoConduta = "anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta)";
     ST.data.acCtx='amb'; go("ac_pick","Anticoagulação");
   } else {
-    ST.data.ecoConduta = "TVP distal isolada com risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14; anticoagular se extensão); decisão documentada e reavaliação marcada";
+    ST.data.ecoConduta = "risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14)";
     go("tvp_fim","Plano");
   }
 }
@@ -186,7 +186,7 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   <h2>A distância à junção decide: não o aspeto</h2>
   <div class="opts">
     <button class="opt" onclick="ST.data.ecoConduta='TVS a <3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
-    <button class="opt" onclick="ST.data.tvs45=true;ST.data.ecoConduta='TVS ≥5 cm e ≥3 cm da junção > fondaparinux 2,5 mg sc 1x/dia × 45 dias (alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias).';go('tvp_fim','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
+    <button class="opt" onclick="ST.data.tvs45=true;go('tvp_tvs45','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
     <button class="opt" onclick="ST.data.ecoConduta='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
   </div>
   ${info("Evidência que sustenta os 45 dias",`
@@ -200,6 +200,22 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   ${situInfo()}
   ${ciAC()}
 `};
+SCREENS.tvp_tvs45 = { crumb:"45 dias", html: () => `
+  <p class="kick">Trombose venosa superficial · ≥5 cm e ≥3 cm da junção</p>
+  <h2>Qual dos dois vai fazer?</h2>
+  <p class="sub">São 45 dias em qualquer dos casos. A nota leva o que escolher aqui.</p>
+  <button class="go blk" onclick="tvs45Go('fonda')">Fondaparinux 2,5 mg sc 1x/dia durante 45 dias</button>
+  <button class="go sec blk" onclick="tvs45Go('riva')">Rivaroxabano 10 mg 1x/dia durante 45 dias</button>
+  <p class="mini" style="margin-top:14px">O fondaparinux é a recomendação formal (ESVS 2021, Classe I B, com base no CALISTO). O rivaroxabano apoia-se num único ensaio de não-inferioridade (SURPRISE), em TVS acima do joelho com pelo menos um fator de risco, e <b>não tem esta indicação aprovada</b>. A HBPM em dose intermédia é a outra alternativa (ESVS IIa B).</p>
+  ${situInfo()}
+  ${ciAC()}
+`};
+function tvs45Go(k){
+  ST.data.ecoConduta = k==="fonda"
+    ? "TVS ≥5 cm e ≥3 cm da junção: fondaparinux 2,5 mg sc 1x/dia durante 45 dias"
+    : "TVS ≥5 cm e ≥3 cm da junção: rivaroxabano 10 mg 1x/dia durante 45 dias (fora da indicação aprovada)";
+  go("tvp_fim","Plano");
+}
 SCREENS.tvp_tvs_ac = { crumb:"Anticoagular", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>Anticoagular</h2>
@@ -291,12 +307,19 @@ function hbpmBtn(){
                            : '<div class="verdict v-blu">Indique o peso para calcular a dose.</div>';
 }
 function hbpmGo(){
-  const w = ST.data._pw, e = enoxTxt(w);
-  const dose = "enoxaparina 1 mg/kg "+e.f+" ("+e.mg+" mg)"+(e.low? ", dose reduzida por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"");
+  const dose = enoxFrase(ST.data._pw);
+  ST.data._hbpmDose = dose;
   if (ST.data._hbpmFrom==="alta"){
     ST.data._altaDrug = "eno";
     ST.data.altaInt = ["Alta medicado com "+dose+" até à consulta", "Marcada consulta Medicina Interna - TEV em 3 meses"];
     go("alta_fim","Concluído");
+  } else if (ST.data._hbpmFrom==="falencia"){
+    if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica - "+dose;
+    else { ST.data.local = "internamento (TEP diagnosticado sob anticoagulação)"; ST.data.falenciaLinha = falenciaTxt(dose); }
+    drawNote();
+    go("ac_falencia","Falência");
+  } else if (ST.data.gravidaTvp){
+    go("ac_fim","Plano");
   } else {
     ST.data.regime = dose+", manter até à consulta.";
     go("ac_fim","Plano");
@@ -315,9 +338,10 @@ SCREENS.ac_fim = { crumb:"Concluído", html: () => `
 `};
 function contraGo(){
   ST.data.contraAC = true;
-  delete ST.data.regime; delete ST.data.acCtx;
-  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" com contraindicação à anticoagulação > internamento.";
-  else ST.data.local = "internamento (anticoagulação contraindicada)";
+  delete ST.data.regime; delete ST.data.acCtx; delete ST.data._hbpmDose;
+  const plano = " com contraindicação à anticoagulação - internamento (ponderar filtro da veia cava inferior - a discutir com cirurgia vascular)";
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+plano;
+  else ST.data.local = "TEP"+plano;
   drawNote();
   go('ac_contra','Contraindicação');
 }
@@ -342,11 +366,9 @@ SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
 `};
 function falenciaGo(){
   ST.data.falencia = true;
-  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica.";
-  else ST.data.local = "internamento (TEP diagnosticado sob anticoagulação)";
-  ST.data.regime = "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min); não reiniciar o fármaco que falhou.";
-  drawNote();
-  go("ac_falencia","Falência");
+  delete ST.data.acCtx; delete ST.data.regime;
+  ST.data._hbpmFrom = "falencia";
+  go("ac_hbpm","Dose");
 }
 SCREENS.ac_falencia = { crumb:"Falência", html: () => `
   <p class="kick">TEV sob anticoagulação · falência</p>

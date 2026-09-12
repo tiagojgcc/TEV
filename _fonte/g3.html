@@ -219,7 +219,7 @@ function gwCalc(){
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
-  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
+  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
   drawNote();
   go("grav_fim","Concluído");
 }
@@ -287,10 +287,9 @@ SCREENS.tep_prob = { crumb:"Probabilidade", html: () => {
   <p class="kick">Suspeita de TEP · passo 2</p>
   <h2>Probabilidade clínica: antes de qualquer exame</h2>
   <p class="sub">Score por defeito: <b>Genebra revisto</b> (100% objetivo, mais reprodutível).</p>
-  <div style="display:flex;flex-wrap:wrap;gap:7px">
   ${tool==="geneva"?'<button class="swlink" onclick="ST.data.probTool=\'wells\';render(\'tep_prob\')">Prefiro o Wells</button>':'<button class="swlink" onclick="ST.data.probTool=\'geneva\';render(\'tep_prob\')">Voltar ao Genebra revisto</button>'}
-  <button class="swlink" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')">Grávida ou pós-parto ≤6 semanas: via própria</button>
-  </div>
+  <div class="warnband"><b>Grávida ou no pós-parto?</b> Não usar o Genebra nem o Wells: a via é o YEARS adaptado à gravidez.
+    <div style="margin-top:10px"><button class="go sec blk" style="margin:0" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')">Ir para a via da grávida</button></div></div>
   <div id="probitems">${items}</div>
   <div class="verdict v-ac" id="probout" style="display:none"></div>
   <button class="go" onclick="probGo()">Continuar</button>

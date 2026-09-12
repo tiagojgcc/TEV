@@ -99,10 +99,10 @@ function buildNote(){
     else if (!d.sspeExcl) { let m = marchaTEP(d); if (m){ m = m.charAt(0).toUpperCase()+m.slice(1); L.push("- "+m+"."); } }
   }
   if (d.via==="tvp"){
-    if (d.eco && d.eco!=="neg") L.push("# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1)+(d.falencia? " sob anticoagulação":""));
-    else if (d.eco==="neg" || (d.tvpdd&&d.tvpdd.excl)) L.push("# Suspeita de TVP: excluída");
-    else L.push("# Suspeita de TVP");
-    if (d.gravidaTvp) L.push("- Grávida > eco-doppler de todo o membro diretamente, sem Wells nem D-dímeros.");
+    const gr = !!d.gravidaTvp;
+    if (d.eco && d.eco!=="neg") L.push("# "+maiusc(d.ecoTxt)+(gr?" (Grávida)":"")+(d.falencia? " sob anticoagulação":""));
+    else if (d.eco==="neg" || (d.tvpdd&&d.tvpdd.excl)) L.push("# Suspeita de TVP: excluída"+(gr?" (Grávida)":""));
+    else L.push("# Suspeita de TVP"+(gr?" (Grávida)":""));
     if (d.wtvp!=null){
       let m = "Wells de TVP "+plural(d.wtvp,"ponto","pontos")+" ("+(d.wtvp>=2?"provável":"improvável")+")";
       if (d.tvpdd) m += " > D-dímeros "+ddFmt(d.tvpdd.val)+" (limiar "+(d.tvpdd.ageAdj?"ajustado à idade ":"")+ddFmt(d.tvpdd.thr)+")"+(d.tvpdd.excl? " > TVP excluída sem imagem":"");
@@ -110,7 +110,9 @@ function buildNote(){
       L.push("- "+m+".");
     } else if (d.eco) L.push("- Eco-doppler de todo o membro: "+fim(d.ecoFull||d.ecoTxt));
     if (d.ecoNoite) L.push("- Eco indisponível de imediato > TVP provável > anticoagulação empírica iniciada; eco-doppler nas primeiras 24 h.");
-    if (d.ecoConduta) L.push("- Abordagem: "+fim(d.ecoConduta));
+    /* na grávida o tratamento é sempre HBPM: a abordagem é a própria dose */
+    if (gr && d._hbpmDose) L.push("- Abordagem: "+fim(d._hbpmDose));
+    else if (d.ecoConduta) L.push("- Abordagem: "+fim(d.ecoConduta));
   }
   if (tep && (d.confCls||d.stratTxt||d.local)){
     if (d.stratTxt) L.push("- Estratificação: "+d.stratTxt+".");
@@ -118,10 +120,10 @@ function buildNote(){
   }
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
   if (d.cdtNote) L.push("- "+fim(maiusc(d.cdtNote)));
-  if (d.falencia) L.push("- "+FALENCIA_TXT);
-  if (d.contraAC) L.push("- "+CONTRA_TXT);
-  if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
-  if (d.regime) L.push("- Anticoagulação: "+d.regime);
+  if (d.falenciaLinha) L.push("- "+fim(d.falenciaLinha));
+  if (d.gravidaTvp) L.push("- Plano discutido com Obstetrícia.");
+  else if (d.acCtx) L.push(d.via==="tvp"? "- Pedido de consulta de Medicina Interna e cirurgia vascular." : "- Pedido de consulta de Medicina Interna - TEV.");
+  if (d.regime && !d.gravidaTvp) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
     if (d.via==="alta" && !L.length) L.push("# Passagem a anticoagulante oral (TEV)");
     d.altaInt.forEach? d.altaInt.forEach(x=>L.push("- "+fim(x))) : L.push("- "+fim(d.altaInt));
@@ -149,9 +151,8 @@ function fallbackCopy(t){
 /* dose de enoxaparina (1 mg/kg) arredondada aos 5 mg */
 function enoxDose(w){ return Math.round(w/5)*5; }
 /* linha da nota quando o TEV surge sob anticoagulação (falência); usada nas vias TEP e TVP */
-const FALENCIA_TXT = "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.";
-/* linha da nota quando a anticoagulação está contraindicada */
-const CONTRA_TXT = "Anticoagulação contraindicada: registar qual é a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível e quando será reavaliada. Ponderado filtro da veia cava inferior removível; anticoagulação a retomar e filtro a remover logo que a contraindicação se resolva.";
+/* linha da nota na falência: o detalhe do estudo fica no ecrã, a nota leva a abordagem e a dose */
+function falenciaTxt(dose){ return "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica "+dose; }
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }
