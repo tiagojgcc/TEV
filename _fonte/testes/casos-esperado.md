@@ -3,7 +3,7 @@
 Gerado a partir de `_fonte/testes/casos.js`. Cada bloco tem o caso clínico, o percurso na ferramenta e a nota que deve sair.
 Se uma alteração mudar algum destes resultados, a mudança tem de ser intencional e este ficheiro atualiza-se no mesmo commit.
 
-Última atualização: 2026-09-12. Casos: 22.
+Última atualização: 2026-09-12. Casos: 26.
 
 ## C1 · Suspeita TEP, probabilidade baixa, PERC 0
 
@@ -39,10 +39,10 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Prob. alta > Angio-TC > TEP
 # TEP de risco intermédio-alto (AHA/ACC: C3R)
 - Probabilidade clínica (Genebra revisto): 16 pontos - alta.
 - Angio-TC direta: TEP confirmado.
-- Estratificação: sem instabilidade HD, sob O₂ suplementar, disfunção do VD, troponina positiva, sPESI 0.
+- Estratificação: sem instabilidade HD, sob O₂ suplementar, com disfunção do VD, troponina positiva, sPESI 0.
 - Abordagem: internamento com monitorização.
-- Candidato a trombólise dirigida por cateter (AHA/ACC C3R) a discutir precocemente com centro de referência se deterioração incipiente.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (70 mg 2x/dia).
+- Reperfusão dirigida por cateter de benefício incerto nesta categoria (AHA/ACC C3R, 2b): a discutir com centro de referência se houver deterioração.
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (70 mg).
 ```
 
 ## C4 · TEP confirmado, baixo risco, Hestia 0, apixabano
@@ -71,7 +71,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 1.
 - Abordagem: internamento em enfermaria.
-- Anticoagulação: enoxaparina 1 mg/kg 1x/dia (55 mg 1x/dia); dose renal por ClCr ≈ 23 mL/min (Cockcroft-Gault).
+- Anticoagulação: enoxaparina 1 mg/kg 1x/dia (55 mg), dose reduzida por ClCr ≈ 23 mL/min (Cockcroft-Gault).
 ```
 
 ## C6 · TEP subsegmentar isolado confirmado na releitura, Hestia 0, rivaroxabano
@@ -95,8 +95,8 @@ Homem, 61 anos, síncope, TA 78/40 persistente, lactato 4, ecocardiograma com VD
 Percurso: Início > Alto risco  [tep_inst_sim]  ·  1 toques
 
 ```
-# Suspeita de TEP: instável
-- Instabilidade hemodinâmica > ETT à cabeceira; contacto imediato com Medicina Interna/UCI; anticoagulação parentérica se sem contraindicação.
+# Suspeita de TEP
+- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI
 ```
 
 ## C8 · Grávida, suspeita de TEP, YEARS 0, D-dímeros 0,85
@@ -118,8 +118,8 @@ Percurso: Início > Suspeita > TVP > D-dímeros > Eco-doppler > Distal > Anticoa
 
 ```
 # TVP distal isolada
-- Wells de TVP 1 pontos (improvável) > D-dímeros 0,70 mg/L (limiar ajustado à idade 0,68 mg/L) > eco-doppler: TVP distal isolada.
-- Abordagem: TVP distal isolada > anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta)
+- Wells de TVP 1 ponto (improvável) > D-dímeros 0,70 mg/L (limiar ajustado à idade 0,68 mg/L) > eco-doppler: TVP distal isolada.
+- Abordagem: TVP distal isolada > anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta).
 - Pedido de consulta de Medicina Interna - TEV.
 - Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
 ```
@@ -148,7 +148,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem 
 - Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 0.
 - Abordagem: internamento em enfermaria.
 - TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia).
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg).
 ```
 
 ## C13 · sPESI 0, troponina negativa, VD não avaliado
@@ -158,11 +158,11 @@ Mulher, 40 anos, TEP lobar, estável, SpO2 96%. Troponina negativa. Radiologista
 Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  9 toques
 
 ```
-# TEP de risco intermédio
+# TEP de não-alto risco
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, VD não avaliado, troponina negativa, sPESI 0.
-- Abordagem: internamento até completar estratificação (VD/troponina).
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (60 mg 2x/dia).
+- Abordagem: internamento até completar a estratificação (ecocardiograma ou ecoscopia; se indisponíveis, pedir ao radiologista o rácio VD/VE no corte de 4 câmaras da angio-TC; troponina).
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (60 mg).
 ```
 
 ## C14 · AHA ligada: hipotensão transitória (respondeu a fluidos), sPESI 0, VD e troponina negativos
@@ -172,12 +172,12 @@ Homem, 55 anos, TEP bilateral central. TA 85/50 à entrada, 118/70 após 500 mL 
 Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  12 toques
 
 ```
-# TEP de risco intermédio-baixo (AHA/ACC: D1)
+# TEP de baixo risco (AHA/ACC: D1)
 - Angio-TC: TEP confirmado.
 - Estratificação: hipotensão transitória sem hipoperfusão, sem disfunção do VD, troponina negativa, sPESI 0.
 - Abordagem: internamento com monitorização.
-- Candidato a trombólise dirigida por cateter (AHA/ACC D1) a discutir precocemente com centro de referência se deterioração incipiente.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (85 mg 2x/dia).
+- Candidato a reperfusão dirigida por cateter (AHA/ACC D1): trombólise dirigida por cateter ou trombectomia mecânica podem ser consideradas (2b), a discutir precocemente com centro de referência.
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (85 mg).
 ```
 
 ## C15 · TVP distal isolada com risco hemorrágico elevado: vigilância
@@ -189,7 +189,7 @@ Percurso: Início > Confirmado > TVP > Distal > Plano  [tvp_fim]  ·  4 toques
 ```
 # TVP distal isolada
 - Eco-doppler de todo o membro: TVP distal isolada.
-- Abordagem: TVP distal isolada com risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14; anticoagular se extensão); decisão documentada e reavaliação marcada
+- Abordagem: TVP distal isolada com risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14; anticoagular se extensão); decisão documentada e reavaliação marcada.
 ```
 
 ## C16 · TVP proximal em doente já anticoagulado (falência)
@@ -211,7 +211,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Falência  
 
 Mulher, 29 anos, 24 semanas de gestação, edema e dor da perna esquerda. Eco de todo o membro: TVP femoral.
 
-Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação > Plano  [ac_fim]  ·  6 toques
+Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação > Dose  [ac_hbpm]  ·  6 toques
 
 ```
 # TVP proximal
@@ -219,7 +219,6 @@ Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação >
 - Eco-doppler de todo o membro: TVP proximal.
 - Abordagem: anticoagulação em dose de tratamento, em ambulatório.
 - Pedido de consulta de Medicina Interna - TEV.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min; manter até à consulta).
 ```
 
 ## C12b · TEP sob anticoagulação, Hestia+: ver falência e voltar para concluir
@@ -234,7 +233,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem 
 - Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 0.
 - Abordagem: internamento em enfermaria.
 - TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia).
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg).
 ```
 
 ## C17 · Gravidez, TEP confirmado, 68 kg: arredondamento da dose
@@ -245,8 +244,8 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > Eco MI > YEARS >
 
 ```
 # TEP na gravidez
-- sintomas de TVP > eco-doppler dos MI negativa > YEARS adaptado à gravidez 2 critério(s), D-dímeros 1,40 mg/L (limiar 0,50 mg/L) > cintigrafia de perfusão (Rx tórax normal): positiva.
-- HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia (70 mg 2x/dia); DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).
+- Sintomas de TVP > eco-doppler dos MI negativa > YEARS adaptado à gravidez 2 critérios, D-dímeros 1,40 mg/L (limiar 0,50 mg/L) > angio-TC pulmonar com protocolo de dose reduzida: positiva.
+- Abordagem: HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia (70 mg); DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).
 ```
 
 ## C18 · TVP proximal com contraindicação à anticoagulação
@@ -258,7 +257,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Contraindic
 ```
 # TVP proximal
 - Eco-doppler de todo o membro: TVP proximal.
-- Abordagem: TVP proximal com contraindicação à anticoagulação > filtro da veia cava inferior removível, se não houver contraindicação; internamento e reavaliação da contraindicação.
+- Abordagem: TVP proximal com contraindicação à anticoagulação > internamento.
 - Anticoagulação contraindicada: registar qual é a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível e quando será reavaliada. Ponderado filtro da veia cava inferior removível; anticoagulação a retomar e filtro a remover logo que a contraindicação se resolva.
 ```
 
@@ -272,20 +271,19 @@ Percurso: Início > Suspeita > TVP > Eco-doppler > Sem eco > Plano  [tvp_fim]  �
 # Suspeita de TVP
 - Wells de TVP 2 pontos (provável).
 - Eco indisponível de imediato > TVP provável > anticoagulação empírica iniciada; eco-doppler nas primeiras 24 h.
-- Abordagem: a abordagem definitiva decide-se com o resultado da eco-doppler das primeiras 24 h
+- Abordagem: decidir com o resultado da eco-doppler das primeiras 24 h.
 ```
 
 ## C20 · TVP proximal iliofemoral que justifica internamento
 
 Homem, 55 anos, TVP iliofemoral sintomática com 5 dias de evolução, membro muito edemaciado.
 
-Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Plano  [ac_fim]  ·  5 toques
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose  [ac_hbpm]  ·  5 toques
 
 ```
 # TVP proximal
 - Eco-doppler de todo o membro: TVP proximal.
 - Abordagem: anticoagulação em dose de tratamento, com internamento (ver os motivos de orientação especializada precoce).
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min; manter até à consulta).
 ```
 
 ## C21 · TEP internado: passar a oral pelo botão do cabeçalho mantém a nota
@@ -297,9 +295,57 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano > Para c
 ```
 # TEP de risco intermédio-baixo
 - Angio-TC: TEP confirmado.
-- Estratificação: sem instabilidade HD, disfunção do VD, troponina negativa, sPESI 0.
+- Estratificação: sem instabilidade HD, com disfunção do VD, troponina negativa, sPESI 0.
 - Abordagem: internamento em enfermaria.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia).
-- Alta medicado com edoxabano 60 mg 1x/dia até à consulta (parentérico ≥5 dias cumprido no internamento)
-- Marcada consulta Medicina Interna - TEV em 3 meses
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg).
+- Alta medicado com edoxabano 60 mg 1x/dia até à consulta (parentérico ≥5 dias cumprido no internamento).
+- Marcada consulta Medicina Interna - TEV em 3 meses.
+```
+
+## C22 · Grávida com TEP já confirmado, entrada pelo painel do confirmado
+
+Mulher, 34 anos, 26 semanas, angio-TC já feita noutro hospital com TEP segmentar. Peso 72 kg.
+
+Percurso: Início > Confirmado > Gravidez > Tratar > Concluído  [grav_fim]  ·  5 toques
+
+```
+# TEP na gravidez
+- Abordagem: HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia (70 mg); DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).
+```
+
+## C23 · Enoxaparina escolhida no ecrã do fármaco: a nota leva a dose decidida
+
+Homem, 62 anos, 90 kg, TVP proximal, neoplasia gástrica ativa. Creatinina 1,0 mg/dL.
+
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  11 toques
+
+```
+# TVP proximal
+- Eco-doppler de todo o membro: TVP proximal.
+- Abordagem: anticoagulação em dose de tratamento, em ambulatório.
+- Pedido de consulta de Medicina Interna - TEV.
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (90 mg), manter até à consulta.
+```
+
+## C24 · Alta do internado mantendo enoxaparina: dose calculada na nota
+
+Mulher, 77 anos, 58 kg, neoplasia do cólon, 4 dias de enoxaparina no internamento. Creatinina 1,4 mg/dL.
+
+Percurso: Início > Para casa > Dose > Concluído  [alta_fim]  ·  9 toques
+
+```
+# Passagem a anticoagulante oral (TEV)
+- Alta medicado com enoxaparina 1 mg/kg 2x/dia (60 mg) até à consulta.
+- Marcada consulta Medicina Interna - TEV em 3 meses.
+```
+
+## C25 · Grávida, cintigrafia como alternativa à angio-TC
+
+Mulher, 31 anos, 22 semanas, alergia grave prévia ao contraste iodado. YEARS 1, D-dímeros 1,6.
+
+Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Imagem > Resultado > Excluído  [grav_excl]  ·  10 toques
+
+```
+# Suspeita de TEP na gravidez: excluída
+- YEARS adaptado à gravidez 1 critério, D-dímeros 1,60 mg/L (limiar 0,50 mg/L) > cintigrafia de perfusão (angio-TC indisponível ou contraindicada): negativa, TEP excluído.
 ```

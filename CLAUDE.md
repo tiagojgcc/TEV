@@ -50,6 +50,14 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - TEV diagnosticado sob anticoagulação (falência): a nota leva sempre a linha `FALENCIA_TXT` (HBPM, internamento, estudo de SAF e neoplasia), quer se chegue pelo botão "Já estava anticoagulado" quer pelo critério de Hestia.
 - Contraindicação à anticoagulação: a nota leva sempre a linha `CONTRA_TXT` (fundamentação, filtro removível, reavaliação) e a abordagem deixa de dizer "anticoagulação em ambulatório".
 - Edoxabano: reduzir a 30 mg 1x/dia se peso ≤60 kg, ClCr 15 a 50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol (rótulo e suplemento da ESC 2019).
+- Ventrículo direito não avaliado: o TEP classifica-se como **"NÃO-ALTO RISCO"**, nunca como intermédio. A abordagem é ecocardiograma ou ecoscopia à cabeceira e, se não houver, pedir ao radiologista a avaliação da sobrecarga do VD na angio-TC já feita (rácio VD/VE >1,0 no corte de 4 câmaras). O ecrã da angio-TC lembra que o pedido deve referir a suspeita de TEP e solicitar essa avaliação.
+- Hipotensão transitória não altera a classe da ESC: com sPESI 0, VD normal e troponina negativa o doente é de **baixo risco pela ESC**. Quem manda internar com monitorização é a categoria D da AHA/ACC, e `stratGo` encaminha por ela.
+- Reperfusão dirigida por cateter: são **duas** modalidades, trombólise dirigida por cateter e trombectomia mecânica, e a indicação é por categoria (`cdtCat` em g5): A a C1 não recomendadas; C2 e C3 benefício incerto (2b, C-LD); D1 e D2 podem ser consideradas (2b, B-NR); E1 razoáveis (2a). Nunca escrever "candidato a trombólise dirigida por cateter" sozinho.
+- Gravidez, imagem torácica: a **angio-TC com protocolo de dose reduzida é a primeira linha** (AHA/ACC 2026, secção 3.1.2, recomendação 4, Classe 2a B-NR). A cintigrafia de perfusão é a alternativa quando a angio-TC está indisponível ou contraindicada. A radiografia de tórax faz-se para procurar diagnóstico alternativo, já não para escolher o exame.
+- A via da grávida está acessível nos dois lados: a partir do ecrã da probabilidade (suspeita) e a partir do painel "TEV confirmado" (`conf_grav`).
+- Enoxaparina: a nota leva sempre a **dose decidida em mg**, nunca a regra condicional. Quem a escolhe passa pelo ecrã `ac_hbpm` (peso obrigatório, Cockcroft-Gault opcional).
+- Nota do doente instável, texto fixado pelo Tiago: título "# Suspeita de TEP" e a linha "- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI".
+- Escrita da nota: usar sempre `fim()` (ponto final), `plural()` (1 ponto / 2 pontos) e `maiusc()` (inicial maiúscula). Não repetir a frequência da dose, e não repetir na "Abordagem" o que já vai numa linha própria.
 
 ## Regras de percurso (não regredir)
 

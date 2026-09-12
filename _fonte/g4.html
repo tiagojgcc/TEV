@@ -81,10 +81,19 @@ SCREENS.tvp_eco = { crumb:"Eco-doppler", html: () => `
     <button class="opt" onclick="ecoSet('neg');go('tvp_econeg','Negativa')"><b>Negativa</b></button>
     <button class="opt" onclick="go('tvp_noite','Sem eco')"><b>Eco não disponível de imediato</b><small>Noite / fim-de-semana sem ecografista</small></button>
   </div>
+  <details class="paste" id="ecoBox" ${ST.data.ecoFull?"open":""}>
+    <summary>Colar aqui a parte relevante do relatório da eco-doppler <small>(opcional)</small></summary>
+    <div class="db">
+      <p class="mini" style="margin:0 0 8px"><b>Substitui</b> a descrição simples na nota (para incluir a veia, o lado e a extensão).</p>
+      <textarea id="ecoFullIn" rows="2" style="width:100%;font:inherit;font-size:15px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical" placeholder="ex.: trombose da veia femoral comum e femoral à esquerda, sem extensão ilíaca">${esc(ST.data.ecoFull||"")}</textarea>
+    </div>
+  </details>
 `};
 function ecoSet(v){
   ST.data.eco=v;
   ST.data.ecoTxt = {proximal:"TVP proximal",distal:"TVP distal isolada",tvs:"trombose venosa superficial",neg:"sem trombose"}[v];
+  const full = (($("ecoFullIn")||{}).value||"").trim();
+  ST.data.ecoFull = full || null;
 }
 SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
   <p class="kick">TVP · imagem indisponível</p>
@@ -102,7 +111,7 @@ SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
 `};
 function noiteGo(){
   ST.data.ecoNoite = true;
-  ST.data.ecoConduta = "a abordagem definitiva decide-se com o resultado da eco-doppler das primeiras 24 h";
+  ST.data.ecoConduta = "decidir com o resultado da eco-doppler das primeiras 24 h";
   go('tvp_fim','Plano');
 }
 SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
@@ -219,7 +228,7 @@ const AC = {
   riva: "rivaroxabano 15 mg 2x/dia × 21 dias, depois 20 mg 1x/dia, com alimentos (manter até à consulta)",
   edox: "edoxabano 60 mg 1x/dia, após 5 dias de enoxaparina (manter até à consulta)",
   dabi: "dabigatrano 150 mg 2x/dia, após 5 dias de enoxaparina (manter até à consulta)",
-  hbpm: "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min; manter até à consulta)",
+  hbpm: "enoxaparina em dose de tratamento (manter até à consulta)",
   avk:  "AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia ≥5 dias e até INR ≥2 (×2); referenciar a consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0–3,0)"
 };
 const AC_KEY = {apix:"apix",riva:"riva",edox:"edox",dabi:"dabi",hbpm:"hbpm",avk:"avk"};
@@ -243,9 +252,55 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
   ${ciAC()}
 `};
 function acGo(k){
-  ST.data.regime = AC[k]+".";
   ST.data.acDrug = k;
+  if (k==="hbpm"){ ST.data._hbpmFrom="ac"; go("ac_hbpm","Dose"); return; }
+  ST.data.regime = AC[k]+".";
   go("ac_fim","Plano");
+}
+/* a enoxaparina precisa do peso (e da função renal) para a nota levar a dose decidida, e não a regra */
+SCREENS.ac_hbpm = { crumb:"Dose", html: () => `
+  <p class="kick">Enoxaparina</p>
+  <h2>Dose pelo peso e pela função renal</h2>
+  <p class="sub">A nota leva a dose decidida, por isso o peso é obrigatório. A função renal é opcional, mas é ela que decide entre 2x/dia e 1x/dia.</p>
+  <div class="row2">
+    <div class="field"><label>Peso (kg)</label><input type="number" id="pw" min="30" max="250" value="${ST.data._pw!=null?ST.data._pw:''}" oninput="pwCalc()"></div>
+    <div style="align-self:end;padding-bottom:14px"><span id="pwout" class="mini" style="font-size:14px"></span></div>
+  </div>
+  <details class="paste" id="crclBox" ${ST.data._crclOpen?"open":""}>
+    <summary>Calcular a função renal (Cockcroft-Gault) <small>(opcional)</small></summary>
+    <div class="db">
+      <div class="row2">
+        <div class="field"><label>Idade (anos)</label><input type="number" id="cgAge" min="18" max="120" value="${ST.data._cgAge!=null?ST.data._cgAge:''}" oninput="cgCalc()"></div>
+        <div class="field"><label>Creatinina (mg/dL)</label><input type="number" step="0.01" id="cgCr" min="0.2" max="20" value="${ST.data._cgCr!=null?ST.data._cgCr:''}" oninput="cgCalc()"></div>
+      </div>
+      <p style="font-size:13.5px;font-weight:700;margin:10px 0 4px">Sexo</p>
+      <div class="radio3" id="cgSex">
+        <label data-v="M"${ST.data._cgSex==='M'?' class="on"':''} onclick="cgSexSel('M')"><input type="radio">Masculino</label>
+        <label data-v="F"${ST.data._cgSex==='F'?' class="on"':''} onclick="cgSexSel('F')"><input type="radio">Feminino</label>
+      </div>
+      <div class="verdict" id="cgOut" style="margin-top:10px"></div>
+    </div>
+  </details>
+  <div id="hbpmbtn"></div>
+  ${situInfo()}
+  ${ciAC()}
+`, after: ()=>{ const cb=$("crclBox"); if(cb) cb.addEventListener("toggle",()=>{ ST.data._crclOpen=cb.open; destSnap(); }); pwCalc(); cgCalc(); hbpmBtn(); }};
+function hbpmBtn(){
+  const b=$("hbpmbtn"); if(!b) return;
+  b.innerHTML = ST.data._pw? '<button class="go blk" onclick="hbpmGo()">Concluir com esta dose</button>'
+                           : '<div class="verdict v-blu">Indique o peso para calcular a dose.</div>';
+}
+function hbpmGo(){
+  const w = ST.data._pw, e = enoxTxt(w);
+  const dose = "enoxaparina 1 mg/kg "+e.f+" ("+e.mg+" mg)"+(e.low? ", dose reduzida por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"");
+  if (ST.data._hbpmFrom==="alta"){
+    ST.data._altaDrug = "eno";
+    ST.data.altaInt = ["Alta medicado com "+dose+" até à consulta", "Marcada consulta Medicina Interna - TEV em 3 meses"];
+    go("alta_fim","Concluído");
+  } else {
+    ST.data.regime = dose+", manter até à consulta.";
+    go("ac_fim","Plano");
+  }
 }
 SCREENS.ac_fim = { crumb:"Concluído", html: () => `
   <p class="kick">Concluído</p>
@@ -261,8 +316,8 @@ SCREENS.ac_fim = { crumb:"Concluído", html: () => `
 function contraGo(){
   ST.data.contraAC = true;
   delete ST.data.regime; delete ST.data.acCtx;
-  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" com contraindicação à anticoagulação > filtro da veia cava inferior removível, se não houver contraindicação; internamento e reavaliação da contraindicação.";
-  else ST.data.local = "contraindicação à anticoagulação: internamento, filtro da veia cava inferior removível se não houver contraindicação";
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" com contraindicação à anticoagulação > internamento.";
+  else ST.data.local = "internamento (anticoagulação contraindicada)";
   drawNote();
   go('ac_contra','Contraindicação');
 }

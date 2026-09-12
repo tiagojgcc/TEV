@@ -46,6 +46,12 @@ document.addEventListener("click",e=>{ if(e.target.classList&&e.target.classList
 window.addEventListener("beforeunload",e=>{ if(ST.trail.length>1){ e.preventDefault(); e.returnValue=""; }});
 
 /* ============ nota clínica (formato v2) ============ */
+/* fecha a frase com ponto final quando ainda não tem */
+function fim(s){ s=String(s).trim(); return /[.!?]$/.test(s)? s : s+"."; }
+/* concordância de número: "1 ponto" / "2 pontos" */
+function plural(n, sing, plur){ return n+" "+(Math.abs(n)===1? sing : plur); }
+/* primeira letra em maiúscula */
+function maiusc(s){ return s? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function marchaTEP(d){
   const seg = [];
   if (d.percN!=null) seg.push("PERC "+d.percN+"/8");
@@ -71,24 +77,24 @@ function buildNote(){
     /* título */
     if (d.sspeExcl) L.push("# Suspeita de TEP subsegmentar: não confirmada (sem TEV)");
     else if (d.ctpa==="pos" && d.sspe) L.push("# TEP subsegmentar isolado");
-    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : "risco "+cl; L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":"")); }
-    else if (d.ctpa==="pos") L.push("# TEP");
-    else if (d.instavel==="sim") L.push("# Suspeita de TEP: instável");
+    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : (cl==="não-alto risco"? "não-alto risco" : "risco "+cl); L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":"")); }
     else if (d.gravida){
       L.push(d.gravRes==="tvp"? "# TVP proximal na gravidez"
            : d.gravRes==="tep"? "# TEP na gravidez"
            : d.gravRes==="excl"? "# Suspeita de TEP na gravidez: excluída"
            : "# Suspeita de TEP: gravidez");
     }
+    else if (d.ctpa==="pos") L.push("# TEP");
+    else if (d.instavel==="sim") L.push("# Suspeita de TEP");
     else if (d.percN===0 || (d.dd&&d.dd.excl) || d.ctpa==="neg") L.push("# Suspeita de TEP: excluída");
     else L.push("# Suspeita de TEP");
-    if (d.instavel==="sim") L.push("- Instabilidade hemodinâmica > ETT à cabeceira; contacto imediato com Medicina Interna/UCI; anticoagulação parentérica se sem contraindicação.");
+    if (d.instavel==="sim") L.push("- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI");
     if (d.gravida){
-      if (d.gravMarch) L.push("- "+d.gravMarch+".");
-      else L.push("- Grávida > via própria: YEARS adaptado à gravidez + eco-doppler se sintomas de TVP; cintigrafia de perfusão preferida se Rx tórax normal; HBPM; discutir com Medicina Interna/Obstetrícia.");
-      if (d.gravPlan) L.push("- "+d.gravPlan);
+      if (d.gravMarch) L.push("- "+fim(maiusc(d.gravMarch)));
+      else if (!d.gravConf) L.push("- Grávida > via própria: YEARS adaptado à gravidez + eco-doppler dos MI se sintomas do membro; angio-TC de dose reduzida como imagem torácica de primeira linha; HBPM; discutir com Medicina Interna/Obstetrícia.");
+      if (d.gravPlan) L.push("- Abordagem: "+fim(d.gravPlan));
     }
-    if (d.probScore!=null) L.push("- Probabilidade clínica ("+(d.probTool==="wells"?"Wells":"Genebra revisto")+"): "+d.probScore+" pontos - "+d.probCls+".");
+    if (d.probScore!=null) L.push("- Probabilidade clínica ("+(d.probTool==="wells"?"Wells":"Genebra revisto")+"): "+plural(d.probScore,"ponto","pontos")+" - "+d.probCls+".");
     if (d.percN===0) L.push("- PERC 0/8 > TEP excluído sem D-dímeros. Alta com sinais de alarme explicados.");
     else if (!d.sspeExcl) { let m = marchaTEP(d); if (m){ m = m.charAt(0).toUpperCase()+m.slice(1); L.push("- "+m+"."); } }
   }
@@ -98,27 +104,27 @@ function buildNote(){
     else L.push("# Suspeita de TVP");
     if (d.gravidaTvp) L.push("- Grávida > eco-doppler de todo o membro diretamente, sem Wells nem D-dímeros.");
     if (d.wtvp!=null){
-      let m = "Wells de TVP "+d.wtvp+" pontos ("+(d.wtvp>=2?"provável":"improvável")+")";
+      let m = "Wells de TVP "+plural(d.wtvp,"ponto","pontos")+" ("+(d.wtvp>=2?"provável":"improvável")+")";
       if (d.tvpdd) m += " > D-dímeros "+ddFmt(d.tvpdd.val)+" (limiar "+(d.tvpdd.ageAdj?"ajustado à idade ":"")+ddFmt(d.tvpdd.thr)+")"+(d.tvpdd.excl? " > TVP excluída sem imagem":"");
-      if (d.eco) m += " > eco-doppler: "+d.ecoTxt;
+      if (d.eco) m += " > eco-doppler: "+(d.ecoFull||d.ecoTxt);
       L.push("- "+m+".");
-    } else if (d.eco) L.push("- Eco-doppler de todo o membro: "+d.ecoTxt+".");
+    } else if (d.eco) L.push("- Eco-doppler de todo o membro: "+fim(d.ecoFull||d.ecoTxt));
     if (d.ecoNoite) L.push("- Eco indisponível de imediato > TVP provável > anticoagulação empírica iniciada; eco-doppler nas primeiras 24 h.");
-    if (d.ecoConduta) L.push("- Abordagem: "+d.ecoConduta);
+    if (d.ecoConduta) L.push("- Abordagem: "+fim(d.ecoConduta));
   }
   if (tep && (d.confCls||d.stratTxt||d.local)){
     if (d.stratTxt) L.push("- Estratificação: "+d.stratTxt+".");
     if (d.local) L.push("- Abordagem: "+d.local+".");
   }
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
-  if (d.cdtNote) L.push("- "+d.cdtNote+".");
+  if (d.cdtNote) L.push("- "+fim(maiusc(d.cdtNote)));
   if (d.falencia) L.push("- "+FALENCIA_TXT);
   if (d.contraAC) L.push("- "+CONTRA_TXT);
   if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
     if (d.via==="alta" && !L.length) L.push("# Passagem a anticoagulante oral (TEV)");
-    d.altaInt.forEach? d.altaInt.forEach(x=>L.push("- "+x)) : L.push("- "+d.altaInt);
+    d.altaInt.forEach? d.altaInt.forEach(x=>L.push("- "+fim(x))) : L.push("- "+fim(d.altaInt));
   }
   return L.length? L.join("\n") : "Percorra o algoritmo: a nota constrói-se automaticamente.";
 }

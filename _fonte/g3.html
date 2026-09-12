@@ -175,15 +175,16 @@ function gravDdCalc(){
 }
 SCREENS.grav_img = { crumb:"Imagem", html: () => `
   <p class="kick">Gravidez · imagem torácica</p>
-  <h2>A radiografia de tórax é normal?</h2>
-  <p class="sub">É o Rx que escolhe o exame: a cintigrafia de perfusão irradia menos a mama e rende mais com parênquima normal.</p>
-  <div class="opts">
-    <button class="opt" onclick="ST.data.grav.imgName='cintigrafia de perfusão (Rx tórax normal)';ST.data.grav.imgShort='Cintigrafia de perfusão';go('grav_imgres','Resultado')"><b>Normal → cintigrafia de perfusão</b><small>Preferida na gravidez; perfusão normal exclui</small></button>
-    <button class="opt" onclick="ST.data.grav.imgName='angio-TC com protocolo de dose reduzida (Rx anormal ou cintigrafia indisponível)';ST.data.grav.imgShort='Angio-TC (dose reduzida)';go('grav_imgres','Resultado')"><b>Anormal, ou cintigrafia indisponível → angio-TC</b><small>Com protocolo de dose reduzida</small></button>
-  </div>
-  ${info("O que conta como radiografia de tórax anormal",`Considera-se anormal qualquer <b>doença do parênquima ou da pleura</b> capaz de degradar a cintigrafia de perfusão: consolidação ou infiltrado, derrame pleural, atelectasia significativa, edema pulmonar ou massa. Nestes casos surgem defeitos de perfusão <b>não atribuíveis ao TEP</b>, e a cintigrafia torna-se indeterminada. A angio-TC não tem esta limitação e permite ainda identificar um diagnóstico alternativo. Alterações mínimas (ligeira elevação da cúpula diafragmática, discreta acentuação da trama) não invalidam a cintigrafia.`,"ESC 2019; ISTH gravidez")}
+  <h2><span class="tag t-ac">ANGIO-TC</span> O exame de primeira linha também na grávida</h2>
+  <p class="sub">Pedir a radiografia de tórax na mesma: serve para procurar um diagnóstico alternativo, já não para escolher o exame.</p>
+  <button class="go blk" onclick="ST.data.grav.imgName='angio-TC pulmonar com protocolo de dose reduzida';ST.data.grav.imgShort='Angio-TC (dose reduzida)';go('grav_imgres','Resultado')">Angio-TC pulmonar com protocolo de dose reduzida</button>
+  <button class="go sec blk" onclick="ST.data.grav.imgName='cintigrafia de perfusão (angio-TC indisponível ou contraindicada)';ST.data.grav.imgShort='Cintigrafia de perfusão';go('grav_imgres','Resultado')">Cintigrafia de perfusão: angio-TC indisponível ou contraindicada</button>
+  ${info("Porque é a angio-TC a primeira escolha na gravidez",`
+    <p style="margin:0 0 6px">A AHA/ACC 2026 recomenda que, na grávida com sintomas, critérios YEARS sugestivos e <b>radiografia de tórax normal</b>, a angio-TC com protocolo de dose reduzida seja preferida à cintigrafia de perfusão de baixa dose (Classe 2a, nível B-NR). Com radiografia alterada, a angio-TC já era a escolha na ESC 2019. Na prática, é a angio-TC em ambos os casos.</p>
+    <p style="margin:0 0 6px">As duas modalidades mostram sensibilidade e valor preditivo negativo elevados, e a frequência de exames inconclusivos é semelhante; a revisão Cochrane não conseguiu apurar qual tem maior exatidão. O que decide é o resto: a angio-TC está disponível a qualquer hora, avalia o ventrículo direito (rácio VD/VE) e identifica diagnósticos alternativos, coisas que a cintigrafia de perfusão isolada não faz.</p>
+    <p style="margin:0"><b>A radiação deixou de ser o argumento.</b> Com os protocolos modernos de dose reduzida, a dose absorvida pela mama materna, pelo útero e a dose efetiva materna são muito inferiores às publicadas em séries antigas. A dose fetal de qualquer dos exames fica muito abaixo do limiar de risco. O exame necessário nunca se adia por a doente estar grávida.</p>`,"AHA/ACC 2026, secção 3.1.2, recomendação 4 (Classe 2a, B-NR) e texto de apoio; ESC 2019")}
   ${info("“Angio-TC de dose reduzida”: o que é e o que pedir",`É o <b>mesmo exame</b>, não uma referenciação diferente: pede-se a angio-TC pulmonar e <b>assinala-se a gravidez</b> para o serviço aplicar o protocolo próprio. “Dose reduzida” refere-se à <b>radiação</b> (menos kV/mAs, cobertura em z limitada): a dose fetal é ínfima (&lt;0,1 mGy) e o objetivo é sobretudo poupar a mama materna. O <b>contraste iodado dá-se normalmente</b> (por vezes ajusta-se o débito/timing pelo aumento fisiológico do débito cardíaco/volume plasmático, que pode diluir o contraste). Não há blindagem de mama recomendada.`,"ESC 2019; protocolos de radiologia em gravidez")}
-  <p class="mini">Ambas as opções têm dose fetal muito abaixo do limiar de risco: o exame necessário nunca se adia por estar grávida.</p>
+  <p class="mini">Quando a cintigrafia é a via possível, a radiografia de tórax volta a pesar: parênquima ou pleura alterados (consolidação, derrame, atelectasia, edema, massa) produzem defeitos de perfusão não atribuíveis ao TEP e tornam o exame indeterminado.</p>
 `};
 SCREENS.grav_imgres = { crumb:"Resultado", html: () => `
   <p class="kick">Gravidez · ${esc(ST.data.grav.imgShort||"imagem")}</p>
@@ -218,7 +219,7 @@ function gwCalc(){
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
-  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
+  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
   drawNote();
   go("grav_fim","Concluído");
 }
@@ -249,10 +250,10 @@ function gravSetNote(res){
   if (g.tvpSx) seg.push("sintomas de TVP > eco-doppler dos MI "+(g.eco==="pos"?"positiva (TVP proximal)":"negativa"));
   if (g.eco==="pos"){ seg.push("tratar sem imagem torácica"); }
   else if (g.dd){
-    seg.push("YEARS adaptado à gravidez "+(g.years>=1? g.years+" critério(s)":"0 critérios")+", D-dímeros "+ddFmt(g.dd.val)+" (limiar "+ddFmt(g.dd.thr)+")");
+    seg.push("YEARS adaptado à gravidez "+plural(g.years||0,"critério","critérios")+", D-dímeros "+ddFmt(g.dd.val)+" (limiar "+ddFmt(g.dd.thr)+")");
     if (g.dd.excl) seg.push("TEP excluído sem imagem");
   }
-  if (g.imgName) seg.push(g.imgName+": "+(g.imgRes==="pos"?"positiva":"negativa: TEP excluído"));
+  if (g.imgName) seg.push(g.imgName+": "+(g.imgRes==="pos"?"positiva":"negativa, TEP excluído"));
   ST.data.gravRes=res;
   ST.data.gravMarch=seg.join(" > ");
 }
@@ -474,6 +475,10 @@ SCREENS.tep_excl = { crumb:"Excluído", html: () => `
 SCREENS.tep_ctpa = { crumb:"Angio-TC", html: () => `
   <p class="kick">Suspeita de TEP</p>
   <h2>Resultado da angio-TC pulmonar</h2>
+  <div class="callout">
+    <p class="h">No pedido, escrever duas coisas</p>
+    <p>Suspeita de tromboembolismo pulmonar, e <b>avaliação da sobrecarga do ventrículo direito (rácio VD/VE no corte de 4 câmaras)</b>. É esse rácio que permite estratificar o risco sem esperar por um ecocardiograma.</p>
+  </div>
   <div class="opts">
     <button class="opt" onclick="ST.data.ctpa='pos';go('tep_pos','TEP+')"><b>Positiva: TEP confirmado</b></button>
     <button class="opt" onclick="ST.data.ctpa='neg';go('tep_ctpaneg','Negativa')"><b>Negativa</b></button>

@@ -8,6 +8,18 @@ SCREENS.conf_tipo = { crumb:"Confirmado", html: () => `
     <button class="opt" onclick="ST.data.via='tep';ST.data.ctpa='pos';go('tep_pos','TEP')"><b>🫁 TEP</b><small>Estratificar (ESC + AHA) &gt; internar ou dar alta &gt; iniciar anticoagulação</small></button>
     <button class="opt" onclick="ST.data.via='tvp';ST.data.tvpConf=true;go('tvp_eco','TVP')"><b>🦵 TVP</b><small>Classificar (proximal / distal / TVS) &gt; tratar &gt; referenciar</small></button>
   </div>
+  <button class="swlink" style="margin-top:12px" onclick="ST.data.gravida=true;go('conf_grav','Gravidez')">Grávida ou pós-parto ≤6 semanas: via própria</button>
+`};
+SCREENS.conf_grav = { crumb:"Gravidez", html: () => `
+  <p class="kick">TEV confirmado · gravidez</p>
+  <h2>O que está confirmado?</h2>
+  <p class="sub">Na gravidez o tratamento é o mesmo nos dois casos: HBPM em dose de tratamento ajustada ao peso.</p>
+  <div class="opts">
+    <button class="opt" onclick="ST.data.via='tep';ST.data.gravConf=true;ST.data.grav={};gravSetNote('tep');go('grav_trat','Tratar')"><b>🫁 TEP</b></button>
+    <button class="opt" onclick="ST.data.via='tep';ST.data.gravConf=true;ST.data.grav={};gravSetNote('tvp');go('grav_trat','Tratar')"><b>🦵 TVP proximal</b></button>
+  </div>
+  <div class="warnband"><b>Instável?</b> Choque, hipotensão persistente ou paragem: a gravidez não muda a via do alto risco.
+    <div style="margin-top:10px"><button class="go sec" style="margin:0" onclick="ST.data.instavel='sim';go('tep_inst_sim','Alto risco')">Ir para a via do alto risco</button></div></div>
 `};
 function radioRow(id, opts, sel){
   return '<div class="radio3" id="'+id+'">'+opts.map((o,i)=>
@@ -37,7 +49,7 @@ SCREENS.conf_strat = { crumb:"Estratificação", html: () => `
       <tr><td>Ecocardiograma</td><td>VD/VE ≥1,0, TAPSE &lt;16 mm, hipocinésia da parede livre, sinal de McConnell, sinal 60/60, ou septo em D (achatamento septal)</td></tr>
       <tr><td>Relatório</td><td>“Disfunção do VD” reportada pelo ecocardiografista</td></tr>
     </table>`,"ESC 2019, Figura 3")}
-  <div class="warnband" id="w_vd" style="display:none">⚠ Sem VD avaliado não se pode classificar como baixo risco. <b>A angio-TC que fez o diagnóstico quase sempre permite medir o rácio VD/VE</b>: pedir ao radiologista ou medir no corte de 4 câmaras. Se de todo impossível: internar como intermédio no mínimo e completar.</div>
+  <div class="warnband" id="w_vd" style="display:none">⚠ Sem o VD avaliado, o TEP classifica-se apenas como <b>não-alto risco</b>: não se separa o baixo do intermédio. Fazer <b>ecocardiograma ou ecoscopia à cabeceira</b>; se não houver na urgência, <b>pedir ao radiologista a avaliação da sobrecarga do VD na angio-TC já feita</b> (rácio VD/VE &gt;1,0 no corte de 4 câmaras). Até lá, internar e completar.</div>
   <p style="font-size:14.5px;font-weight:700;margin:14px 0 4px">4 · Troponina</p>
   ${radioRow("q_tp",[["pos","Positiva"],["neg","Negativa"],["nd","Não doseada"]],null)}
   <div class="warnband" id="w_tp" style="display:none">⚠ <b>Pedir troponina: é necessária para fechar a estratificação</b> (distingue intermédio-alto de intermédio-baixo e é condição do baixo risco).</div>
@@ -99,9 +111,8 @@ function stratCalc(){
   if (inst==="sim"){ esc="ALTO"; det="instabilidade hemodinâmica"; }
   else if (sp===0 && vdKnown && tpKnown && !vdPos && !tpPos){ esc="BAIXO"; det="sPESI 0, sem disfunção do VD, troponina negativa"; }
   else if (vdPos && tpPos){ esc="INTERMÉDIO-ALTO"; det="disfunção do VD + troponina positiva"+(sp>0?" (sPESI "+sp+")":" (apesar de sPESI 0)"); }
-  else if (!vdKnown || !tpKnown){ esc="INTERMÉDIO (a completar)"; det="faltam "+(!vdKnown?"avaliação do VD":"")+(!vdKnown&&!tpKnown?" e ":"")+(!tpKnown?"troponina":"")+": não pode ser baixo risco"; }
+  else if (!vdKnown || !tpKnown){ esc="NÃO-ALTO RISCO (a completar)"; det="falta "+(!vdKnown?"a avaliação do VD":"")+(!vdKnown&&!tpKnown?" e ":"")+(!tpKnown?"a troponina":"")+": sem isso não se separa o baixo do intermédio"; }
   else { esc="INTERMÉDIO-BAIXO"; det= sp>0? "sPESI "+sp+", um (ou nenhum) marcador positivo" : (vdPos?"disfunção do VD":"troponina positiva")+" apesar de sPESI 0"; }
-  if (ahaOn && inst!=="sim" && ht==="sim" && esc==="BAIXO"){ esc = hp==="sim"? "INTERMÉDIO-ALTO":"INTERMÉDIO-BAIXO"; det="hipotensão transitória"+(hp==="sim"?" com hipoperfusão (choque normotensivo)":"")+": nunca baixo risco"; }
   /* --- AHA (opcional) --- */
   let aha=null;
   if (ahaOn){
@@ -127,21 +138,22 @@ function stratCalc(){
   }
   if (ahaOn && resp!=="nenhum") parts.push(respTxt[resp]);
   if (inst!=="sim"){
-    parts.push(vdKnown?(vdPos?"disfunção do VD":"sem disfunção do VD"):"VD não avaliado");
+    parts.push(vdKnown?(vdPos?"com disfunção do VD":"sem disfunção do VD"):"VD não avaliado");
     parts.push(tpKnown?("troponina "+(tpPos?"positiva":"negativa")):"troponina não doseada");
     parts.push("sPESI "+sp);
   }
   ST.data._strat = {esc, aha, det, txt:parts.join(", "), sp, ht:ahaOn?ht:null, hp, resp};
   o.style.display="block";
-  o.className = "verdict "+(esc==="ALTO"?"v-red":esc==="BAIXO"?"v-grn":esc==="INTERMÉDIO-ALTO"?"v-amb":"v-blu");
+  o.className = "verdict "+(esc==="ALTO"?"v-red":(esc==="BAIXO"&&!(aha&&/^D/.test(aha)))?"v-grn":esc==="INTERMÉDIO-ALTO"?"v-amb":"v-blu");
   o.innerHTML = "<h3>Risco "+esc+" (ESC)"+(aha? " · AHA/ACC: "+aha:"")+"</h3>"+det+".";
   b.innerHTML = '<button class="go" onclick="stratGo()">Continuar</button>';
 }
 function stratGo(){
   const s=ST.data._strat;
   ST.data.confCls=s.esc.replace(" (a completar)",""); ST.data.ahaCat=s.aha||null; ST.data.stratTxt=s.txt;
+  const catD = !!(s.aha && /^D/.test(s.aha)); /* pré-falência cardiopulmonar da AHA: monitorização, mesmo com classe ESC baixa */
   if (s.esc==="ALTO") go("conf_alto","Alto risco");
-  else if (s.esc==="BAIXO") go("conf_hestia","Alta precoce?");
+  else if (s.esc==="BAIXO" && !catD) go("conf_hestia","Alta precoce?");
   else go("conf_dest","Abordagem");
 }
 SCREENS.conf_alto = { crumb:"Alto risco", html: () => `
@@ -158,21 +170,47 @@ SCREENS.conf_alto = { crumb:"Alto risco", html: () => `
   <button class="go" onclick="ST.data.local='UCI; reperfusão primária (trombólise sistémica); anticoagulação parentérica com HNF na fase aguda/peri-lise (reversível, semivida curta), com transição para HBPM após a lise/estabilização; contactado centro de referência com capacidade de reperfusão.';drawNote();$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="ST.data.local=ST.data.local||'UCI; reperfusão primária (trombólise sistémica); anticoagulação parentérica.';restart()">⟳ Novo doente</button>
 `};
+/* indicação de reperfusão por cateter por categoria AHA/ACC 2026 (secções 4.4.2 e 4.4.3) */
+function cdtCat(cat){
+  const c = String(cat||"").replace(/R$/,"");
+  if (/^E1/.test(c)) return {
+    ecra:"<b>Razoável</b> associar à anticoagulação a <b>trombólise dirigida por cateter</b> (2a, C-LD) ou a <b>trombectomia mecânica</b> (2a, B-NR). Contactar o centro de referência de imediato.",
+    nota:"reperfusão dirigida por cateter razoável (AHA/ACC "+cat+"): trombólise dirigida por cateter (2a) ou trombectomia mecânica (2a); centro de referência contactado" };
+  if (/^D[12]/.test(c)) return {
+    ecra:"Quando se pondera terapêutica avançada, a <b>trombólise dirigida por cateter</b> e a <b>trombectomia mecânica</b> <b>podem ser consideradas</b> em vez da anticoagulação isolada (ambas 2b, B-NR). Discutir <b>precocemente</b> com um centro de referência.",
+    nota:"candidato a reperfusão dirigida por cateter (AHA/ACC "+cat+"): trombólise dirigida por cateter ou trombectomia mecânica podem ser consideradas (2b), a discutir precocemente com centro de referência" };
+  if (/^C[23]/.test(c)) return {
+    ecra:"<b>Benefício incerto</b> nesta categoria (ambas 2b, C-LD). Num doente estável apenas com anticoagulação, a AHA/ACC não indica reperfusão. Discutir com o centro de referência <b>se houver sinais de deterioração</b>.",
+    nota:"reperfusão dirigida por cateter de benefício incerto nesta categoria (AHA/ACC "+cat+", 2b): a discutir com centro de referência se houver deterioração" };
+  return null;
+}
 SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   const cat = ST.data.ahaCat||"";
   const isD = cat.startsWith("D");
-  const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="INTERMÉDIO", hf = ST.data.hestiaFail;
+  const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="NÃO-ALTO RISCO", hf = ST.data.hestiaFail;
   const ahaDone = ia && !!cat && !/^C\?/.test(cat);
+  const cdt = ahaDone ? cdtCat(cat) : null;
   /* a etiqueta diz a classe ESC do doente; quando a monitorização vem da categoria D da AHA, é essa que se mostra */
   const tagIA = ST.data.confCls==="INTERMÉDIO-ALTO" ? "INTERMÉDIO-ALTO" : "AHA/ACC "+esc(cat);
   return `
   <p class="kick">${ST.data.sspe? "TEP subsegmentar isolado" : "TEP · "+esc((ST.data.confCls||"").toLowerCase())}${hf?" · Hestia positivo":""}</p>
-  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">A COMPLETAR</span> Internar até completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
-  ${ahaDone ? `<div class="verdict v-ac" style="border-width:2px"><h3>➤ Candidato a trombólise dirigida por cateter <span class="mini">(AHA/ACC ${esc(cat)})</span></h3>Discutir <b>precocemente</b> com um centro de referência com trombólise dirigida por cateter <b>se sinais de deterioração incipiente</b>.${info("Porquê a trombólise dirigida por cateter (evidência)",`Foi a classificação AHA/ACC 2026 que identificou este doente como candidato. No ensaio HI-PEITHO (2026), que avaliou a trombólise dirigida por cateter (e não a trombólise sistémica), a intervenção precoce reduziu a descompensação numa população selecionada (disfunção do ventrículo direito, troponina elevada e critérios de gravidade clínica), com um número necessário para tratar de 16 e sem excesso de hemorragia. Estes resultados não devem ser extrapolados a todo o TEP de risco intermédio-alto.`,"HI-PEITHO, NEJM 2026")}</div>` : ""}
+  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">NÃO-ALTO RISCO</span> Internar e completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
+  ${cdt ? `<div class="verdict v-ac" style="border-width:2px"><h3>➤ Reperfusão dirigida por cateter <span class="mini">(AHA/ACC ${esc(cat)})</span></h3>${cdt.ecra}${info("Trombólise dirigida por cateter e trombectomia mecânica: o que diz a AHA/ACC 2026",`
+    <table class="itb"><tr><th>Categoria</th><th>Trombólise dirigida por cateter</th><th>Trombectomia mecânica</th></tr>
+      <tr><td>A a C1</td><td>Não recomendada (3: sem benefício)</td><td>Não recomendada (3: sem benefício)</td></tr>
+      <tr><td>C2 e C3</td><td>Benefício incerto (2b, C-LD)</td><td>Benefício incerto (2b, C-LD)</td></tr>
+      <tr><td>D1 e D2</td><td>Pode ser considerada (2b, B-NR)</td><td>Pode ser considerada (2b, B-NR)</td></tr>
+      <tr><td>E1</td><td>Razoável (2a, C-LD)</td><td>Razoável (2a, B-NR)</td></tr>
+    </table>
+    <p style="margin:8px 0 0">Nas categorias C2 e C3 a AHA/ACC é explícita: um doente estável apenas com anticoagulação tem baixo risco de deterioração, e por isso uma estratégia de reperfusão, que acarreta risco, não está indicada. A contrapartida é o ensaio HI-PEITHO (2026), que avaliou a trombólise dirigida por cateter facilitada por ultrassom numa população selecionada de risco intermédio-alto (disfunção do ventrículo direito, troponina elevada e critérios de gravidade clínica) e mostrou menos descompensação, com um número necessário para tratar de 16 e sem excesso de hemorragia. Estes resultados não se extrapolam a todo o risco intermédio-alto.</p>
+    <p style="margin:8px 0 0">Entre as duas modalidades não há comparação direta. Em D1 a E1, qualquer delas pode ser preferida à trombólise sistémica para reduzir a hemorragia major, com eficácia relativa ainda incerta.</p>`,"AHA/ACC 2026, secções 4.4.2 e 4.4.3; HI-PEITHO, NEJM 2026")}</div>` : ""}
   <div class="verdict ${ia?'v-amb':'v-blu'}"><h3>Abordagem</h3><ul>
     ${ia?`<li>Internamento com <b>monitorização 48–72 h</b> (é a janela da descompensação).</li>
     <li><b>Trombólise sistémica apenas de resgate</b> se deterioração hemodinâmica (ESC I B): não de rotina.</li>`
-    :inc?`<li>Internar; <b>medir o rácio VD/VE na angio-TC e/ou pedir troponina</b>: sem eles não há baixo risco nem alta.</li>`
+    :inc?`<li><b>Sem a avaliação do ventrículo direito não se separa o baixo do intermédio</b>: o doente fica classificado como TEP de não-alto risco e interna-se até completar.</li>
+    <li><b>Ecocardiograma ou ecoscopia à cabeceira</b>, se houver na urgência.</li>
+    <li>Se não houver, <b>pedir ao radiologista a avaliação da sobrecarga do VD na angio-TC já feita</b>: rácio VD/VE &gt;1,0 no corte de 4 câmaras.</li>
+    <li><b>Pedir troponina</b> se ainda não foi doseada.</li>`
     :``}
     <li><b>Iniciar enoxaparina 1 mg/kg 2x/dia</b> <span class="mini">(peso em baixo para a dose; se ClCr &lt;30 mL/min → 1 mg/kg 1x/dia)</span>${ia?"":": em selecionados, DOAC desde o início é alternativa"}.</li>
   </ul></div>
@@ -181,14 +219,14 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
     <li>Confirmar adesão e dose; no AVK, o INR no evento (um INR subterapêutico traduz subdosagem, não falência).</li>
     <li>Colher já anti-cardiolipina e anti-β2-glicoproteína I (o anticoagulante lúpico fica adiado). Rastreio de neoplasia adequado à idade e sexo.</li>
   </ul><button class="go sec" style="margin:8px 0 0" onclick="go('ac_falencia','Falência')">Ver a abordagem completa da falência</button></div>` : ""}
-  ${ia && !ahaDone ? `<div class="warnband">⚠ <b>Sem a classificação AHA/ACC 2026 não é possível determinar se este doente é candidato a trombólise dirigida por cateter</b>, uma vez que é essa classificação que identifica o fenótipo estudado no HI-PEITHO. Volte à estratificação e abra a secção da AHA/ACC; o que já preencheu mantém-se.
+  ${ia && !ahaDone ? `<div class="warnband">⚠ <b>Sem a classificação AHA/ACC 2026 não é possível dizer se há indicação para reperfusão dirigida por cateter</b>, porque é por categoria (C2-3, D1-2, E1) que essa indicação está definida. Volte à estratificação e abra a secção da AHA/ACC; o que já preencheu mantém-se.
     <div style="margin-top:10px"><button class="go" style="margin:0" onclick="ST.data._ahaOn=true;go('conf_strat','Estratificação')">← Voltar e classificar pela AHA/ACC 2026</button></div></div>` : ""}
   ${ia ? info("Trombólise sistémica e trombólise dirigida por cateter: os dois ensaios PEITHO",`
     <table class="itb"><tr><th>Ensaio</th><th>Intervenção</th><th>O que diz</th></tr>
       <tr><td>PEITHO (2014)</td><td>Trombólise <b>sistémica</b> (dose plena)</td><td>Reduz a descompensação, mas aumenta a hemorragia major e o AVC: reserva-se ao resgate, não é de rotina</td></tr>
       <tr><td>HI-PEITHO (2026)</td><td>Trombólise <b>dirigida por cateter</b> (facilitada por ultrassom)</td><td>No risco intermédio-alto selecionado (disfunção do VD, troponina elevada e critérios de gravidade), a intervenção precoce reduz a descompensação</td></tr>
     </table>
-    <p class="mini" style="margin:6px 0 0">Trata-se de modalidades terapêuticas distintas, e não de duas versões da mesma intervenção.</p>`,"PEITHO, NEJM 2014; HI-PEITHO, NEJM 2026") : ""}
+    <p class="mini" style="margin:6px 0 0">Trata-se de modalidades terapêuticas distintas, e não de duas versões da mesma intervenção. A trombectomia mecânica é uma terceira modalidade, com recomendações próprias por categoria.</p>`,"PEITHO, NEJM 2014; HI-PEITHO, NEJM 2026") : ""}
   ${ia ? `<p class="mini"><b>PERT</b> = <i>Pulmonary Embolism Response Team</i> (equipa multidisciplinar de resposta ao TEP). Poucos hospitais em Portugal têm uma constituída: na prática, contactar o centro de referência com capacidade de reperfusão dirigida por cateter.</p>` : ""}
   <div class="row2">
     <div class="field"><label>Peso (kg)</label><input type="number" id="pw" min="30" max="250" value="${ST.data._pw!=null?ST.data._pw:''}" oninput="pwCalc()"></div>
@@ -248,22 +286,27 @@ function cgCalc(){
     : "≥30 mL/min: enoxaparina 1 mg/kg 2x/dia, sem ajuste renal específico da HBPM.");
   pwOut();
 }
-function destSnap(){ const t=ST.trail[ST.trail.length-1]; if(t && t.id==="conf_dest") t.snap=snap(); }
+function destSnap(){ const t=ST.trail[ST.trail.length-1]; if(t && (t.id==="conf_dest"||t.id==="ac_hbpm")) t.snap=snap(); if(typeof hbpmBtn==="function") hbpmBtn(); }
 function destGo(){
   const cat = ST.data.ahaCat||"";
   const isD = cat.startsWith("D");
-  const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="INTERMÉDIO";
+  const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="NÃO-ALTO RISCO";
   const ahaDone = ia && !!cat && !/^C\?/.test(cat);
+  const cdt = ahaDone ? cdtCat(cat) : null;
   const w = ST.data._pw;
   ST.data.local = (ia? "internamento com monitorização"
-        : inc? "internamento até completar estratificação (VD/troponina)"
+        : inc? "internamento até completar a estratificação (ecocardiograma ou ecoscopia; se indisponíveis, pedir ao radiologista o rácio VD/VE no corte de 4 câmaras da angio-TC; troponina)"
         : "internamento em enfermaria");
-  ST.data.cdtNote = ahaDone
-    ? "Candidato a trombólise dirigida por cateter (AHA/ACC "+cat+") a discutir precocemente com centro de referência se deterioração incipiente"
-    : (ia ? "Candidatura a trombólise dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
-  const e = enoxTxt(w);
-  ST.data.regime = "enoxaparina 1 mg/kg "+e.f+(w? " ("+e.mg+" mg "+e.f+")":"")+(e.low? "; dose renal por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"")+".";
+  ST.data.cdtNote = cdt ? cdt.nota
+    : (ia ? "Indicação de reperfusão dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
+  ST.data.regime = enoxRegime(w);
   go("conf_fim","Plano");
+}
+/* frase da enoxaparina para a nota: a dose decidida, sem repetir a frequência */
+function enoxRegime(w){
+  const e = enoxTxt(w);
+  if (!w) return "enoxaparina 1 mg/kg "+e.f+".";
+  return "enoxaparina 1 mg/kg "+e.f+" ("+e.mg+" mg)"+(e.low? ", dose reduzida por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"")+".";
 }
 const HESTIA = [
   ["Instável hemodinamicamente?","PAS <100 mmHg com FC >100 bpm, necessidade de cuidados intensivos, ou por juízo clínico."],
@@ -379,7 +422,7 @@ function aiGo(drug){
   } else if (drug==="rvx"){
     l1 = "Alta medicado com rivaroxabano 15 mg 2x/dia durante 21 dias (até "+fmtD(21)+"), depois 20 mg 1x/dia (com alimentos) até à consulta";
   } else {
-    l1 = "Alta medicado com enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min) até à consulta";
+    ST.data._hbpmFrom = "alta"; go("ac_hbpm","Dose"); return;
   }
   ST.data._altaDrug = drug;
   ST.data.altaInt = [l1, "Marcada consulta Medicina Interna - TEV em 3 meses"];
