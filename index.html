@@ -369,7 +369,7 @@ function buildNote(){
     /* título */
     if (d.sspeExcl) L.push("# Suspeita de TEP subsegmentar: não confirmada (sem TEV)");
     else if (d.ctpa==="pos" && d.sspe) L.push("# TEP subsegmentar isolado");
-    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : "risco "+cl; L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")); }
+    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : "risco "+cl; L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":"")); }
     else if (d.ctpa==="pos") L.push("# TEP");
     else if (d.instavel==="sim") L.push("# Suspeita de TEP: instável");
     else if (d.gravida){
@@ -391,9 +391,10 @@ function buildNote(){
     else if (!d.sspeExcl) { let m = marchaTEP(d); if (m){ m = m.charAt(0).toUpperCase()+m.slice(1); L.push("- "+m+"."); } }
   }
   if (d.via==="tvp"){
-    if (d.eco && d.eco!=="neg") L.push(d.tvpConf? "# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1) : "# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1));
+    if (d.eco && d.eco!=="neg") L.push("# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1)+(d.falencia? " sob anticoagulação":""));
     else if (d.eco==="neg" || (d.tvpdd&&d.tvpdd.excl)) L.push("# Suspeita de TVP: excluída");
     else L.push("# Suspeita de TVP");
+    if (d.gravidaTvp) L.push("- Grávida > eco-doppler de todo o membro diretamente, sem Wells nem D-dímeros.");
     if (d.wtvp!=null){
       let m = "Wells de TVP "+d.wtvp+" pontos ("+(d.wtvp>=2?"provável":"improvável")+")";
       if (d.tvpdd) m += " > D-dímeros "+ddFmt(d.tvpdd.val)+" (limiar "+(d.tvpdd.ageAdj?"ajustado à idade ":"")+ddFmt(d.tvpdd.thr)+")"+(d.tvpdd.excl? " > TVP excluída sem imagem":"");
@@ -409,6 +410,7 @@ function buildNote(){
   }
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
   if (d.cdtNote) L.push("- "+d.cdtNote+".");
+  if (d.falencia) L.push("- "+FALENCIA_TXT);
   if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
@@ -435,6 +437,10 @@ function fallbackCopy(t){
   const ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
   document.body.appendChild(ta); ta.select(); try{document.execCommand("copy")}catch(e){} document.body.removeChild(ta);
 }
+/* dose de enoxaparina (1 mg/kg) arredondada aos 5 mg */
+function enoxDose(w){ return Math.round(w/5)*5; }
+/* linha da nota quando o TEV surge sob anticoagulação (falência); usada nas vias TEP e TVP */
+const FALENCIA_TXT = "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.";
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }
@@ -745,11 +751,11 @@ function gwCalc(){
   const w=parseInt(($("gw")||{}).value);
   ST.data.grav._w = isNaN(w)? null : w;
   snapTop("grav_trat");
-  if ($("gwout")) $("gwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+(Math.round(w/10)*10)+" mg 2x/dia</b> (1 mg/kg)";
+  if ($("gwout")) $("gwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+enoxDose(w)+" mg 2x/dia</b> (1 mg/kg)";
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
-  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+(Math.round(w/10)*10)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
+  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
   drawNote();
   go("grav_fim","Concluído");
 }
@@ -1193,7 +1199,8 @@ const WTVP = [
 SCREENS.tvp_wells = { crumb:"Wells TVP", html: () => `
   <p class="kick">Suspeita de TVP · passo 1</p>
   <h2>Wells de TVP</h2>
-  <div class="warnband"><b>Grávida:</b> não usar Wells nem D-dímeros. Pedir eco-doppler de todo o membro diretamente (ESVS 2021).</div>
+  <div class="warnband"><b>Grávida (ou pós-parto ≤6 semanas):</b> não usar Wells nem D-dímeros. Pedir eco-doppler de todo o membro diretamente (ESVS 2021).
+    <div style="margin-top:10px"><button class="go sec" style="margin:0" onclick="ST.data.gravidaTvp=true;go('tvp_eco','Eco-doppler')">Grávida: ir diretamente para a eco-doppler</button></div></div>
   ${WTVP.map((w,i)=>chk("wt"+i,w[0],w[1])).join("")}
   <div class="verdict v-ac" id="wtout" style="display:none"></div>
   <button class="go" onclick="wtGo()">Continuar</button>
@@ -1335,8 +1342,8 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>A distância à junção decide: não o aspeto</h2>
   <div class="opts">
-    <button class="opt" onclick="ST.data.ecoConduta='TVS a ≤3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>≤3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
-    <button class="opt" onclick="ST.data.tvs45=true;ST.data.ecoConduta='TVS ≥5 cm e >3 cm da junção > fondaparinux 2,5 mg sc 1x/dia × 45 dias (alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias).';go('tvp_fim','45 dias')"><b>≥5 cm de extensão e >3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
+    <button class="opt" onclick="ST.data.ecoConduta='TVS a <3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
+    <button class="opt" onclick="ST.data.tvs45=true;ST.data.ecoConduta='TVS ≥5 cm e ≥3 cm da junção > fondaparinux 2,5 mg sc 1x/dia × 45 dias (alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias).';go('tvp_fim','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
     <button class="opt" onclick="ST.data.ecoConduta='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
   </div>
   ${info("Evidência que sustenta os 45 dias",`
@@ -1354,7 +1361,7 @@ SCREENS.tvp_tvs_ac = { crumb:"Anticoagular", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>Anticoagular</h2>
   <div class="callout">
-    <p class="h">TVS a ≤3 cm da junção safeno-femoral (ou safeno-poplítea)</p>
+    <p class="h">TVS a &lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</p>
     <p>Tão perto da junção comporta-se como uma TVP: trata-se com anticoagulação em dose de tratamento, até reavaliação em consulta.</p>
   </div>
   ${situInfo()}
@@ -1378,7 +1385,7 @@ const AC = {
   riva: "rivaroxabano 15 mg 2x/dia × 21 dias, depois 20 mg 1x/dia, com alimentos (manter até à consulta)",
   edox: "edoxabano 60 mg 1x/dia, após 5 dias de enoxaparina (manter até à consulta)",
   dabi: "dabigatrano 150 mg 2x/dia, após 5 dias de enoxaparina (manter até à consulta)",
-  hbpm: "enoxaparina 1 mg/kg 2x/dia (manter até à consulta)",
+  hbpm: "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min; manter até à consulta)",
   avk:  "AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia ≥5 dias e até INR ≥2 (×2); referenciar a consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0–3,0)"
 };
 const AC_KEY = {apix:"apix",riva:"riva",edox:"edox",dabi:"dabi",hbpm:"hbpm",avk:"avk"};
@@ -1387,7 +1394,7 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
   <h2>Qual o anticoagulante escolhido?</h2>
   <div class="wrow">
     <button class="wchip w-amb" onclick="openModal('m_situ')">⚠ Situações que mudam a escolha</button>
-    <button class="wchip w-org" onclick="go('ac_falencia','Falência')">⚠ Já estava anticoagulado</button>
+    <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
     <button class="wchip w-red" onclick="go('ac_contra','Contraindicação')">⚠ Contraindicação à anticoagulação</button>
   </div>
   <div class="opts">
@@ -1395,7 +1402,7 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
-    <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia (neoplasia GI, gravidez, ClCr &lt;30, instabilidade)</small></button>
+    <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (neoplasia GI, gravidez, instabilidade)</small></button>
     <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 ×2; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
   </div>
   <p class="mini">NOAC preferido ao AVK (ESC I A; ESVS 2021 I A). Se parentérico inicial: HBPM &gt; HNF (AHA 2026, Classe 1 B-R).</p>
@@ -1435,12 +1442,20 @@ SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
   ${ciAC()}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
+function falenciaGo(){
+  ST.data.falencia = true;
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica.";
+  else ST.data.local = "internamento (TEP diagnosticado sob anticoagulação)";
+  ST.data.regime = "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min); não reiniciar o fármaco que falhou.";
+  drawNote();
+  go("ac_falencia","Falência");
+}
 SCREENS.ac_falencia = { crumb:"Falência", html: () => `
   <p class="kick">TEV sob anticoagulação · falência</p>
-  <h2><span class="tag t-amb">FALÊNCIA</span> TEP em doente já anticoagulado</h2>
+  <h2><span class="tag t-amb">FALÊNCIA</span> ${ST.data.via==="tvp"?"TVP":"TEP"} em doente já anticoagulado</h2>
   <div class="verdict v-amb"><h3>Primeiro: tratar, sem aguardar os resultados do estudo</h3><ul>
-    <li><b>Mudar para HBPM terapêutica</b> (enoxaparina 1 mg/kg 2x/dia). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM (neoplasia), aumentar a dose ~25–33%.</li>
-    <li><b>Internar.</b> O TEP sob anticoagulação é critério de Hestia (torna-o positivo): sai da via ambulatória, mesmo que hemodinamicamente pareça baixo risco.</li>
+    <li><b>Mudar para HBPM terapêutica</b> (enoxaparina 1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM (neoplasia), aumentar a dose ~25–33%.</li>
+    <li><b>Internar.</b> O TEV sob anticoagulação é critério de Hestia (torna-o positivo): sai da via ambulatória, mesmo que hemodinamicamente pareça baixo risco.</li>
   </ul></div>
   <div class="verdict v-blu"><h3>Depois: estudar sem atrasar o tratamento</h3><ul>
     <li><b>Confirmar</b> adesão, dose e, no AVK, o INR no evento. <b>Um INR subterapêutico traduz subdosagem, não falência</b>: basta fazer ponte com HBPM até INR terapêutico e corrigir a adesão.</li>
@@ -1450,6 +1465,7 @@ SCREENS.ac_falencia = { crumb:"Falência", html: () => `
   </ul></div>
   ${info("Porquê HBPM e não repetir o mesmo fármaco",`A falência sob dose adequada não se resolve mantendo o fármaco que falhou. A HBPM atua independentemente do que o estudo vier a mostrar e permite transição a AVK se surgir SAF. Evidência fraca (CHEST 2C), extrapolada sobretudo da população oncológica; sem ECA dedicado à falência de DOAC.`,"CHEST, Kearon 2016;149:315; ESVS 2021 (IIa C); ISTH 2020 (anticoagulante lúpico sob anticoagulação); TRAPS, Blood 2018; SOME, NEJM 2015; Hestia, Zondag 2011")}
   ${ciAC()}
+  ${ST.trail.length>1 && ST.trail[ST.trail.length-2].id==="conf_dest" ? '<button class="go" onclick="backTo(ST.trail.length-2)">← Voltar à abordagem e concluir a nota</button>' : '<button class="go" onclick="$(\'notebody\').classList.add(\'open\')">📋 Ver a nota</button>'}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 </script>
@@ -1629,6 +1645,11 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
     :``}
     <li><b>Iniciar enoxaparina 1 mg/kg 2x/dia</b> <span class="mini">(peso em baixo para a dose; se ClCr &lt;30 mL/min → 1 mg/kg 1x/dia)</span>${ia?"":": em selecionados, DOAC desde o início é alternativa"}.</li>
   </ul></div>
+  ${ST.data.falencia ? `<div class="verdict v-amb"><h3>TEP diagnosticado sob anticoagulação: falência</h3><ul>
+    <li><b>HBPM em dose terapêutica</b> (enoxaparina, dose em baixo). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM, aumentar a dose 25 a 33%.</li>
+    <li>Confirmar adesão e dose; no AVK, o INR no evento (um INR subterapêutico traduz subdosagem, não falência).</li>
+    <li>Colher já anti-cardiolipina e anti-β2-glicoproteína I (o anticoagulante lúpico fica adiado). Rastreio de neoplasia adequado à idade e sexo.</li>
+  </ul><button class="go sec" style="margin:8px 0 0" onclick="go('ac_falencia','Falência')">Ver a abordagem completa da falência</button></div>` : ""}
   ${ia && !ahaDone ? `<div class="warnband">⚠ <b>Sem a classificação AHA/ACC 2026 não é possível determinar se este doente é candidato a trombólise dirigida por cateter</b>, uma vez que é essa classificação que identifica o fenótipo estudado no HI-PEITHO. Volte à estratificação e abra a secção da AHA/ACC; o que já preencheu mantém-se.
     <div style="margin-top:10px"><button class="go" style="margin:0" onclick="ST.data._ahaOn=true;go('conf_strat','Estratificação')">← Voltar e classificar pela AHA/ACC 2026</button></div></div>` : ""}
   ${ia ? info("Trombólise sistémica e trombólise dirigida por cateter: os dois ensaios PEITHO",`
@@ -1666,11 +1687,18 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   ${ciAC()}
   <button class="go" onclick="destGo()">Concluir: nota do episódio</button>
 `;}, after: ()=>{ const cb=$("crclBox"); if(cb) cb.addEventListener("toggle",()=>{ ST.data._crclOpen=cb.open; destSnap(); }); pwCalc(); cgCalc(); }};
+/* enoxaparina 1 mg/kg: 2x/dia; 1x/dia se ClCr <30 mL/min (Cockcroft-Gault calculada neste ecrã) */
+function enoxTxt(w){ const low = ST.data._crcl!=null && ST.data._crcl<30; return {low, f: low? "1x/dia":"2x/dia", mg: w? enoxDose(w):null}; }
+function pwOut(){
+  const o=$("pwout"); if(!o) return;
+  const w=ST.data._pw; if(w==null){ o.innerHTML=""; return; }
+  const e=enoxTxt(w);
+  o.innerHTML = "<b>enoxaparina "+e.mg+" mg "+e.f+"</b> (1 mg/kg"+(e.low?", ClCr &lt;30 mL/min":"")+")";
+}
 function pwCalc(){
   const w = parseInt(($("pw")||{}).value);
   ST.data._pw = isNaN(w)? null : w;
-  if ($("pwout")) $("pwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+(Math.round(w/10)*10)+" mg 2x/dia</b> (1 mg/kg)";
-  destSnap(); cgCalc();
+  destSnap(); cgCalc(); pwOut();
 }
 function cgSexSel(v){ ST.data._cgSex=v; document.querySelectorAll('#cgSex label').forEach(x=>x.classList.toggle('on', x.dataset.v===v)); cgCalc(); }
 function cgCalc(){
@@ -1679,7 +1707,7 @@ function cgCalc(){
   const o=$("cgOut"); destSnap(); if(!o) return;
   const sex=ST.data._cgSex;
   const falta=[]; if(isNaN(w)) falta.push("peso"); if(isNaN(age)) falta.push("idade"); if(!sex) falta.push("sexo"); if(isNaN(cr)) falta.push("creatinina");
-  if(falta.length){ o.className="verdict v-blu"; o.innerHTML="Falta preencher: <b>"+falta.join(", ")+"</b>."; ST.data._crcl=null; return; }
+  if(falta.length){ o.className="verdict v-blu"; o.innerHTML="Falta preencher: <b>"+falta.join(", ")+"</b>."; ST.data._crcl=null; pwOut(); return; }
   let crcl=((140-age)*w)/(72*cr); if(sex==="F") crcl*=0.85;
   crcl=Math.round(crcl); ST.data._crcl=crcl;
   const low=crcl<30;
@@ -1687,6 +1715,7 @@ function cgCalc(){
   o.innerHTML="<h3>ClCr ≈ "+crcl+" mL/min <span class='mini' style='font-weight:400'>(peso "+w+" kg)</span></h3>"+(low
     ? "<b>&lt;30 mL/min:</b> enoxaparina <b>1 mg/kg 1x/dia</b>. Rever o ajuste renal do DOAC (dabigatrano contraindicado; edoxabano 30 mg 1x/dia; apixabano/rivaroxabano com cautela)."
     : "≥30 mL/min: enoxaparina 1 mg/kg 2x/dia, sem ajuste renal específico da HBPM.");
+  pwOut();
 }
 function destSnap(){ const t=ST.trail[ST.trail.length-1]; if(t && t.id==="conf_dest") t.snap=snap(); }
 function destGo(){
@@ -1701,7 +1730,8 @@ function destGo(){
   ST.data.cdtNote = ahaDone
     ? "Candidato a trombólise dirigida por cateter (AHA/ACC "+cat+") a discutir precocemente com centro de referência se deterioração incipiente"
     : (ia ? "Candidatura a trombólise dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
-  ST.data.regime = "enoxaparina 1 mg/kg 2x/dia"+(w? " ("+(Math.round(w/10)*10)+" mg 2x/dia)":"")+".";
+  const e = enoxTxt(w);
+  ST.data.regime = "enoxaparina 1 mg/kg "+e.f+(w? " ("+e.mg+" mg "+e.f+")":"")+(e.low? "; dose renal por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"")+".";
   go("conf_fim","Plano");
 }
 const HESTIA = [
@@ -1744,6 +1774,7 @@ function hCalc(){
   $("hbtn").innerHTML='<button class="go" onclick="hGo()">Continuar</button>';
 }
 function hGo(){
+  if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
     ST.data.local = "alta precoce (baixo risco, Hestia 0)";
     ST.data.acCtx='alta'; go("ac_pick","Anticoagulação");
@@ -1798,7 +1829,7 @@ function aiCalc(){
     <button class="opt" onclick="aiGo('apx')"><b>Apixabano</b><small>${apxSub}</small></button>
     <button class="opt" onclick="aiGo('rvx')"><b>Rivaroxabano</b><small>${rvxSub}</small></button>
     <button class="opt" onclick="aiGo('dab')"><b>Dabigatrano</b><small>${dabSub}</small></button>
-    <button class="opt" onclick="aiGo('eno')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia (ex.: neoplasia GI/GU luminal, gravidez, ClCr &lt;30)</small></button>`;
+    <button class="opt" onclick="aiGo('eno')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (ex.: neoplasia GI/GU luminal, gravidez, ClCr &lt;30)</small></button>`;
 }
 function aiGo(drug){
   const d = parseInt(($("aidays")||{}).value), dd = isNaN(d)? 0 : d;
@@ -1817,7 +1848,7 @@ function aiGo(drug){
   } else if (drug==="rvx"){
     l1 = "Alta medicado com rivaroxabano 15 mg 2x/dia durante 21 dias (até "+fmtD(21)+"), depois 20 mg 1x/dia (com alimentos) até à consulta";
   } else {
-    l1 = "Alta medicado com enoxaparina 1 mg/kg 2x/dia até à consulta";
+    l1 = "Alta medicado com enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min) até à consulta";
   }
   ST.data._altaDrug = drug;
   ST.data.altaInt = [l1, "Marcada consulta Medicina Interna - TEV em 3 meses"];

@@ -9,6 +9,7 @@ Ler também `_fonte/ESTADO-E-CONVENCOES.md` (histórico, convenções de linguag
 - Responder sempre em português europeu (pt-PT). Nunca pt-BR. Termos técnicos em inglês quando é o padrão.
 - Editar apenas as partes em `_fonte/` (`g1` a `g5`). Nunca editar `index.html` à mão.
 - Depois de qualquer alteração: `bash _fonte/build.sh` (gera `index.html`, verifica travessões e sintaxe), verificar a renderização (Playwright com o Chromium do ambiente, viewport 400 px, sem erros de página nem transbordo horizontal) e fazer commit direto no `main`. O push publica a página em cerca de um minuto. Não abrir pull requests salvo pedido.
+- Depois do build, correr também os casos de regressão: `NODE_PATH=$(npm root -g) node _fonte/testes/casos.js` percorre a ferramenta com os casos clínicos de `_fonte/testes/casos.js` e imprime o percurso e a nota de cada um; comparar com `_fonte/testes/casos-esperado.md`. Uma diferença só é aceitável se for intencional, e nesse caso atualiza-se o esperado no mesmo commit. Casos novos (bugs encontrados, feedback de colegas) acrescentam-se aos dois ficheiros.
 - Mensagem de commit curta, em pt-PT, a dizer o que mudou clinicamente (ex.: "TVP distal: duração 3 meses (ESVS 2021)").
 - "Sem alterar" ou "discute" significa: analisar e propor, sem tocar nos ficheiros, e esperar a decisão.
 - Texto fornecido pelo Tiago aplica-se verbatim (sem "melhorias").
@@ -44,7 +45,9 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Cada afirmação clínica nova tem de ter fonte verificável (guideline com classe e nível, ou ensaio com referência). Quando não for possível verificar, dizê-lo explicitamente ("❕Unsure about answer❕") em vez de afirmar.
 - Alteplase no TEP: "100 mg EV em 2 h. Na paragem cardíaca (PCR) por TEP: 50 mg em bólus em 2 min, seguido de 50 mg em perfusão nas 2 h seguintes." (texto fixado pelo Tiago).
 - Meia elástica na TVP proximal: texto fixado pelo Tiago (apenas se sintomática; SOX). Não substituir pela recomendação da ESVS.
-- TVP distal: 3 meses; prolongar decide-se em consulta. TVS ≥5 cm e >3 cm da junção: fondaparinux primeiro (ESVS I B), rivaroxabano como alternativa oral fora da indicação aprovada.
+- TVP distal: 3 meses; prolongar decide-se em consulta. TVS ≥5 cm e ≥3 cm da junção: fondaparinux primeiro (ESVS I B), rivaroxabano como alternativa oral fora da indicação aprovada; a <3 cm da junção trata-se como TVP.
+- Enoxaparina em dose de tratamento: 1 mg/kg 2x/dia; 1x/dia se ClCr <30 mL/min (Cockcroft-Gault). A nota tem de refletir a dose renal sempre que a ClCr calculada for <30. Dose em mg arredondada aos 5 mg (`enoxDose`).
+- TEV diagnosticado sob anticoagulação (falência): a nota leva sempre a linha `FALENCIA_TXT` (HBPM, internamento, estudo de SAF e neoplasia), quer se chegue pelo botão "Já estava anticoagulado" quer pelo critério de Hestia.
 
 ## Feedback dos pares
 

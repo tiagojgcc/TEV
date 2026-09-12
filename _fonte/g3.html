@@ -220,11 +220,11 @@ function gwCalc(){
   const w=parseInt(($("gw")||{}).value);
   ST.data.grav._w = isNaN(w)? null : w;
   snapTop("grav_trat");
-  if ($("gwout")) $("gwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+(Math.round(w/10)*10)+" mg 2x/dia</b> (1 mg/kg)";
+  if ($("gwout")) $("gwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+enoxDose(w)+" mg 2x/dia</b> (1 mg/kg)";
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
-  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+(Math.round(w/10)*10)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
+  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
   drawNote();
   go("grav_fim","Concluído");
 }

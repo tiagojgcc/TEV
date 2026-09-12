@@ -16,7 +16,8 @@ const WTVP = [
 SCREENS.tvp_wells = { crumb:"Wells TVP", html: () => `
   <p class="kick">Suspeita de TVP · passo 1</p>
   <h2>Wells de TVP</h2>
-  <div class="warnband"><b>Grávida:</b> não usar Wells nem D-dímeros. Pedir eco-doppler de todo o membro diretamente (ESVS 2021).</div>
+  <div class="warnband"><b>Grávida (ou pós-parto ≤6 semanas):</b> não usar Wells nem D-dímeros. Pedir eco-doppler de todo o membro diretamente (ESVS 2021).
+    <div style="margin-top:10px"><button class="go sec" style="margin:0" onclick="ST.data.gravidaTvp=true;go('tvp_eco','Eco-doppler')">Grávida: ir diretamente para a eco-doppler</button></div></div>
   ${WTVP.map((w,i)=>chk("wt"+i,w[0],w[1])).join("")}
   <div class="verdict v-ac" id="wtout" style="display:none"></div>
   <button class="go" onclick="wtGo()">Continuar</button>
@@ -158,8 +159,8 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>A distância à junção decide: não o aspeto</h2>
   <div class="opts">
-    <button class="opt" onclick="ST.data.ecoConduta='TVS a ≤3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>≤3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
-    <button class="opt" onclick="ST.data.tvs45=true;ST.data.ecoConduta='TVS ≥5 cm e >3 cm da junção > fondaparinux 2,5 mg sc 1x/dia × 45 dias (alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias).';go('tvp_fim','45 dias')"><b>≥5 cm de extensão e >3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
+    <button class="opt" onclick="ST.data.ecoConduta='TVS a <3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
+    <button class="opt" onclick="ST.data.tvs45=true;ST.data.ecoConduta='TVS ≥5 cm e ≥3 cm da junção > fondaparinux 2,5 mg sc 1x/dia × 45 dias (alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias).';go('tvp_fim','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
     <button class="opt" onclick="ST.data.ecoConduta='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
   </div>
   ${info("Evidência que sustenta os 45 dias",`
@@ -177,7 +178,7 @@ SCREENS.tvp_tvs_ac = { crumb:"Anticoagular", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>Anticoagular</h2>
   <div class="callout">
-    <p class="h">TVS a ≤3 cm da junção safeno-femoral (ou safeno-poplítea)</p>
+    <p class="h">TVS a &lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</p>
     <p>Tão perto da junção comporta-se como uma TVP: trata-se com anticoagulação em dose de tratamento, até reavaliação em consulta.</p>
   </div>
   ${situInfo()}
@@ -201,7 +202,7 @@ const AC = {
   riva: "rivaroxabano 15 mg 2x/dia × 21 dias, depois 20 mg 1x/dia, com alimentos (manter até à consulta)",
   edox: "edoxabano 60 mg 1x/dia, após 5 dias de enoxaparina (manter até à consulta)",
   dabi: "dabigatrano 150 mg 2x/dia, após 5 dias de enoxaparina (manter até à consulta)",
-  hbpm: "enoxaparina 1 mg/kg 2x/dia (manter até à consulta)",
+  hbpm: "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min; manter até à consulta)",
   avk:  "AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia ≥5 dias e até INR ≥2 (×2); referenciar a consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0–3,0)"
 };
 const AC_KEY = {apix:"apix",riva:"riva",edox:"edox",dabi:"dabi",hbpm:"hbpm",avk:"avk"};
@@ -210,7 +211,7 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
   <h2>Qual o anticoagulante escolhido?</h2>
   <div class="wrow">
     <button class="wchip w-amb" onclick="openModal('m_situ')">⚠ Situações que mudam a escolha</button>
-    <button class="wchip w-org" onclick="go('ac_falencia','Falência')">⚠ Já estava anticoagulado</button>
+    <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
     <button class="wchip w-red" onclick="go('ac_contra','Contraindicação')">⚠ Contraindicação à anticoagulação</button>
   </div>
   <div class="opts">
@@ -218,7 +219,7 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
-    <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia (neoplasia GI, gravidez, ClCr &lt;30, instabilidade)</small></button>
+    <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (neoplasia GI, gravidez, instabilidade)</small></button>
     <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 ×2; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
   </div>
   <p class="mini">NOAC preferido ao AVK (ESC I A; ESVS 2021 I A). Se parentérico inicial: HBPM &gt; HNF (AHA 2026, Classe 1 B-R).</p>
@@ -258,12 +259,20 @@ SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
   ${ciAC()}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
+function falenciaGo(){
+  ST.data.falencia = true;
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica.";
+  else ST.data.local = "internamento (TEP diagnosticado sob anticoagulação)";
+  ST.data.regime = "enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min); não reiniciar o fármaco que falhou.";
+  drawNote();
+  go("ac_falencia","Falência");
+}
 SCREENS.ac_falencia = { crumb:"Falência", html: () => `
   <p class="kick">TEV sob anticoagulação · falência</p>
-  <h2><span class="tag t-amb">FALÊNCIA</span> TEP em doente já anticoagulado</h2>
+  <h2><span class="tag t-amb">FALÊNCIA</span> ${ST.data.via==="tvp"?"TVP":"TEP"} em doente já anticoagulado</h2>
   <div class="verdict v-amb"><h3>Primeiro: tratar, sem aguardar os resultados do estudo</h3><ul>
-    <li><b>Mudar para HBPM terapêutica</b> (enoxaparina 1 mg/kg 2x/dia). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM (neoplasia), aumentar a dose ~25–33%.</li>
-    <li><b>Internar.</b> O TEP sob anticoagulação é critério de Hestia (torna-o positivo): sai da via ambulatória, mesmo que hemodinamicamente pareça baixo risco.</li>
+    <li><b>Mudar para HBPM terapêutica</b> (enoxaparina 1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM (neoplasia), aumentar a dose ~25–33%.</li>
+    <li><b>Internar.</b> O TEV sob anticoagulação é critério de Hestia (torna-o positivo): sai da via ambulatória, mesmo que hemodinamicamente pareça baixo risco.</li>
   </ul></div>
   <div class="verdict v-blu"><h3>Depois: estudar sem atrasar o tratamento</h3><ul>
     <li><b>Confirmar</b> adesão, dose e, no AVK, o INR no evento. <b>Um INR subterapêutico traduz subdosagem, não falência</b>: basta fazer ponte com HBPM até INR terapêutico e corrigir a adesão.</li>
@@ -273,6 +282,7 @@ SCREENS.ac_falencia = { crumb:"Falência", html: () => `
   </ul></div>
   ${info("Porquê HBPM e não repetir o mesmo fármaco",`A falência sob dose adequada não se resolve mantendo o fármaco que falhou. A HBPM atua independentemente do que o estudo vier a mostrar e permite transição a AVK se surgir SAF. Evidência fraca (CHEST 2C), extrapolada sobretudo da população oncológica; sem ECA dedicado à falência de DOAC.`,"CHEST, Kearon 2016;149:315; ESVS 2021 (IIa C); ISTH 2020 (anticoagulante lúpico sob anticoagulação); TRAPS, Blood 2018; SOME, NEJM 2015; Hestia, Zondag 2011")}
   ${ciAC()}
+  ${ST.trail.length>1 && ST.trail[ST.trail.length-2].id==="conf_dest" ? '<button class="go" onclick="backTo(ST.trail.length-2)">← Voltar à abordagem e concluir a nota</button>' : '<button class="go" onclick="$(\'notebody\').classList.add(\'open\')">📋 Ver a nota</button>'}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 </script>

@@ -65,7 +65,7 @@ function buildNote(){
     /* título */
     if (d.sspeExcl) L.push("# Suspeita de TEP subsegmentar: não confirmada (sem TEV)");
     else if (d.ctpa==="pos" && d.sspe) L.push("# TEP subsegmentar isolado");
-    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : "risco "+cl; L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")); }
+    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : "risco "+cl; L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":"")); }
     else if (d.ctpa==="pos") L.push("# TEP");
     else if (d.instavel==="sim") L.push("# Suspeita de TEP: instável");
     else if (d.gravida){
@@ -87,9 +87,10 @@ function buildNote(){
     else if (!d.sspeExcl) { let m = marchaTEP(d); if (m){ m = m.charAt(0).toUpperCase()+m.slice(1); L.push("- "+m+"."); } }
   }
   if (d.via==="tvp"){
-    if (d.eco && d.eco!=="neg") L.push(d.tvpConf? "# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1) : "# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1));
+    if (d.eco && d.eco!=="neg") L.push("# "+d.ecoTxt.charAt(0).toUpperCase()+d.ecoTxt.slice(1)+(d.falencia? " sob anticoagulação":""));
     else if (d.eco==="neg" || (d.tvpdd&&d.tvpdd.excl)) L.push("# Suspeita de TVP: excluída");
     else L.push("# Suspeita de TVP");
+    if (d.gravidaTvp) L.push("- Grávida > eco-doppler de todo o membro diretamente, sem Wells nem D-dímeros.");
     if (d.wtvp!=null){
       let m = "Wells de TVP "+d.wtvp+" pontos ("+(d.wtvp>=2?"provável":"improvável")+")";
       if (d.tvpdd) m += " > D-dímeros "+ddFmt(d.tvpdd.val)+" (limiar "+(d.tvpdd.ageAdj?"ajustado à idade ":"")+ddFmt(d.tvpdd.thr)+")"+(d.tvpdd.excl? " > TVP excluída sem imagem":"");
@@ -105,6 +106,7 @@ function buildNote(){
   }
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
   if (d.cdtNote) L.push("- "+d.cdtNote+".");
+  if (d.falencia) L.push("- "+FALENCIA_TXT);
   if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
@@ -131,6 +133,10 @@ function fallbackCopy(t){
   const ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
   document.body.appendChild(ta); ta.select(); try{document.execCommand("copy")}catch(e){} document.body.removeChild(ta);
 }
+/* dose de enoxaparina (1 mg/kg) arredondada aos 5 mg */
+function enoxDose(w){ return Math.round(w/5)*5; }
+/* linha da nota quando o TEV surge sob anticoagulação (falência); usada nas vias TEP e TVP */
+const FALENCIA_TXT = "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.";
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }

@@ -174,6 +174,11 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
     :``}
     <li><b>Iniciar enoxaparina 1 mg/kg 2x/dia</b> <span class="mini">(peso em baixo para a dose; se ClCr &lt;30 mL/min → 1 mg/kg 1x/dia)</span>${ia?"":": em selecionados, DOAC desde o início é alternativa"}.</li>
   </ul></div>
+  ${ST.data.falencia ? `<div class="verdict v-amb"><h3>TEP diagnosticado sob anticoagulação: falência</h3><ul>
+    <li><b>HBPM em dose terapêutica</b> (enoxaparina, dose em baixo). Não reiniciar o DOAC ou AVK que falhou; se já estava em HBPM, aumentar a dose 25 a 33%.</li>
+    <li>Confirmar adesão e dose; no AVK, o INR no evento (um INR subterapêutico traduz subdosagem, não falência).</li>
+    <li>Colher já anti-cardiolipina e anti-β2-glicoproteína I (o anticoagulante lúpico fica adiado). Rastreio de neoplasia adequado à idade e sexo.</li>
+  </ul><button class="go sec" style="margin:8px 0 0" onclick="go('ac_falencia','Falência')">Ver a abordagem completa da falência</button></div>` : ""}
   ${ia && !ahaDone ? `<div class="warnband">⚠ <b>Sem a classificação AHA/ACC 2026 não é possível determinar se este doente é candidato a trombólise dirigida por cateter</b>, uma vez que é essa classificação que identifica o fenótipo estudado no HI-PEITHO. Volte à estratificação e abra a secção da AHA/ACC; o que já preencheu mantém-se.
     <div style="margin-top:10px"><button class="go" style="margin:0" onclick="ST.data._ahaOn=true;go('conf_strat','Estratificação')">← Voltar e classificar pela AHA/ACC 2026</button></div></div>` : ""}
   ${ia ? info("Trombólise sistémica e trombólise dirigida por cateter: os dois ensaios PEITHO",`
@@ -211,11 +216,18 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   ${ciAC()}
   <button class="go" onclick="destGo()">Concluir: nota do episódio</button>
 `;}, after: ()=>{ const cb=$("crclBox"); if(cb) cb.addEventListener("toggle",()=>{ ST.data._crclOpen=cb.open; destSnap(); }); pwCalc(); cgCalc(); }};
+/* enoxaparina 1 mg/kg: 2x/dia; 1x/dia se ClCr <30 mL/min (Cockcroft-Gault calculada neste ecrã) */
+function enoxTxt(w){ const low = ST.data._crcl!=null && ST.data._crcl<30; return {low, f: low? "1x/dia":"2x/dia", mg: w? enoxDose(w):null}; }
+function pwOut(){
+  const o=$("pwout"); if(!o) return;
+  const w=ST.data._pw; if(w==null){ o.innerHTML=""; return; }
+  const e=enoxTxt(w);
+  o.innerHTML = "<b>enoxaparina "+e.mg+" mg "+e.f+"</b> (1 mg/kg"+(e.low?", ClCr &lt;30 mL/min":"")+")";
+}
 function pwCalc(){
   const w = parseInt(($("pw")||{}).value);
   ST.data._pw = isNaN(w)? null : w;
-  if ($("pwout")) $("pwout").innerHTML = isNaN(w)? "" : "<b>enoxaparina "+(Math.round(w/10)*10)+" mg 2x/dia</b> (1 mg/kg)";
-  destSnap(); cgCalc();
+  destSnap(); cgCalc(); pwOut();
 }
 function cgSexSel(v){ ST.data._cgSex=v; document.querySelectorAll('#cgSex label').forEach(x=>x.classList.toggle('on', x.dataset.v===v)); cgCalc(); }
 function cgCalc(){
@@ -224,7 +236,7 @@ function cgCalc(){
   const o=$("cgOut"); destSnap(); if(!o) return;
   const sex=ST.data._cgSex;
   const falta=[]; if(isNaN(w)) falta.push("peso"); if(isNaN(age)) falta.push("idade"); if(!sex) falta.push("sexo"); if(isNaN(cr)) falta.push("creatinina");
-  if(falta.length){ o.className="verdict v-blu"; o.innerHTML="Falta preencher: <b>"+falta.join(", ")+"</b>."; ST.data._crcl=null; return; }
+  if(falta.length){ o.className="verdict v-blu"; o.innerHTML="Falta preencher: <b>"+falta.join(", ")+"</b>."; ST.data._crcl=null; pwOut(); return; }
   let crcl=((140-age)*w)/(72*cr); if(sex==="F") crcl*=0.85;
   crcl=Math.round(crcl); ST.data._crcl=crcl;
   const low=crcl<30;
@@ -232,6 +244,7 @@ function cgCalc(){
   o.innerHTML="<h3>ClCr ≈ "+crcl+" mL/min <span class='mini' style='font-weight:400'>(peso "+w+" kg)</span></h3>"+(low
     ? "<b>&lt;30 mL/min:</b> enoxaparina <b>1 mg/kg 1x/dia</b>. Rever o ajuste renal do DOAC (dabigatrano contraindicado; edoxabano 30 mg 1x/dia; apixabano/rivaroxabano com cautela)."
     : "≥30 mL/min: enoxaparina 1 mg/kg 2x/dia, sem ajuste renal específico da HBPM.");
+  pwOut();
 }
 function destSnap(){ const t=ST.trail[ST.trail.length-1]; if(t && t.id==="conf_dest") t.snap=snap(); }
 function destGo(){
@@ -246,7 +259,8 @@ function destGo(){
   ST.data.cdtNote = ahaDone
     ? "Candidato a trombólise dirigida por cateter (AHA/ACC "+cat+") a discutir precocemente com centro de referência se deterioração incipiente"
     : (ia ? "Candidatura a trombólise dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
-  ST.data.regime = "enoxaparina 1 mg/kg 2x/dia"+(w? " ("+(Math.round(w/10)*10)+" mg 2x/dia)":"")+".";
+  const e = enoxTxt(w);
+  ST.data.regime = "enoxaparina 1 mg/kg "+e.f+(w? " ("+e.mg+" mg "+e.f+")":"")+(e.low? "; dose renal por ClCr ≈ "+ST.data._crcl+" mL/min (Cockcroft-Gault)":"")+".";
   go("conf_fim","Plano");
 }
 const HESTIA = [
@@ -289,6 +303,7 @@ function hCalc(){
   $("hbtn").innerHTML='<button class="go" onclick="hGo()">Continuar</button>';
 }
 function hGo(){
+  if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
     ST.data.local = "alta precoce (baixo risco, Hestia 0)";
     ST.data.acCtx='alta'; go("ac_pick","Anticoagulação");
@@ -343,7 +358,7 @@ function aiCalc(){
     <button class="opt" onclick="aiGo('apx')"><b>Apixabano</b><small>${apxSub}</small></button>
     <button class="opt" onclick="aiGo('rvx')"><b>Rivaroxabano</b><small>${rvxSub}</small></button>
     <button class="opt" onclick="aiGo('dab')"><b>Dabigatrano</b><small>${dabSub}</small></button>
-    <button class="opt" onclick="aiGo('eno')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia (ex.: neoplasia GI/GU luminal, gravidez, ClCr &lt;30)</small></button>`;
+    <button class="opt" onclick="aiGo('eno')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (ex.: neoplasia GI/GU luminal, gravidez, ClCr &lt;30)</small></button>`;
 }
 function aiGo(drug){
   const d = parseInt(($("aidays")||{}).value), dd = isNaN(d)? 0 : d;
@@ -362,7 +377,7 @@ function aiGo(drug){
   } else if (drug==="rvx"){
     l1 = "Alta medicado com rivaroxabano 15 mg 2x/dia durante 21 dias (até "+fmtD(21)+"), depois 20 mg 1x/dia (com alimentos) até à consulta";
   } else {
-    l1 = "Alta medicado com enoxaparina 1 mg/kg 2x/dia até à consulta";
+    l1 = "Alta medicado com enoxaparina 1 mg/kg 2x/dia (1x/dia se ClCr <30 mL/min) até à consulta";
   }
   ST.data._altaDrug = drug;
   ST.data.altaInt = [l1, "Marcada consulta Medicina Interna - TEV em 3 meses"];
