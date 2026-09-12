@@ -48,6 +48,17 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - TVP distal: 3 meses; prolongar decide-se em consulta. TVS ≥5 cm e ≥3 cm da junção: fondaparinux primeiro (ESVS I B), rivaroxabano como alternativa oral fora da indicação aprovada; a <3 cm da junção trata-se como TVP.
 - Enoxaparina em dose de tratamento: 1 mg/kg 2x/dia; 1x/dia se ClCr <30 mL/min (Cockcroft-Gault). A nota tem de refletir a dose renal sempre que a ClCr calculada for <30. Dose em mg arredondada aos 5 mg (`enoxDose`).
 - TEV diagnosticado sob anticoagulação (falência): a nota leva sempre a linha `FALENCIA_TXT` (HBPM, internamento, estudo de SAF e neoplasia), quer se chegue pelo botão "Já estava anticoagulado" quer pelo critério de Hestia.
+- Contraindicação à anticoagulação: a nota leva sempre a linha `CONTRA_TXT` (fundamentação, filtro removível, reavaliação) e a abordagem deixa de dizer "anticoagulação em ambulatório".
+- Edoxabano: reduzir a 30 mg 1x/dia se peso ≤60 kg, ClCr 15 a 50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol (rótulo e suplemento da ESC 2019).
+
+## Regras de percurso (não regredir)
+
+- Nenhum ecrã pode terminar com trabalho perdido. Um botão que conclui leva a um ecrã terminal com a nota; nunca chama `restart()` diretamente.
+- O botão "Anticoagulação para casa" do cabeçalho só reinicia o estado quando não há percurso em curso (`altaGo`). A meio de um doente mantém a nota e acrescenta as linhas da alta.
+- Toda a decisão que muda a abordagem tem de deixar linha na nota: falência, contraindicação, vigilância, internamento vs ambulatório.
+- Gravidez: não é um ecrã próprio. É um desvio a partir do ecrã da probabilidade (TEP) e do Wells (TVP), com `ST.data.gravida`/`gravidaTvp`.
+- A angio-TC tem um único ecrã, `tep_ctpa`, com três saídas: positiva, negativa, não exequível.
+- Cuidado com a altura dos ecrãs: a barra fixa da nota tapa os últimos ~60 px da janela. Não pôr checkboxes nem botões de decisão no fim de um ecrã longo.
 
 ## Feedback dos pares
 

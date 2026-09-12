@@ -9,18 +9,18 @@ const URL = 'file://' + path.resolve(__dirname, '..', '..', 'index.html');
 const CASOS = [
   { id: 'C1', titulo: 'Suspeita TEP, probabilidade baixa, PERC 0',
     caso: 'Homem, 38 anos, dor torácica pleurítica há 1 dia. FC 88, SpO2 97% aa, sem estrogénios, sem TEV prévio, sem cirurgia, sem hemoptises, sem edema. Sem fatores de risco.',
-    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Não"],
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],
              ["radio","gfc","3"],["click","Continuar"],["click","Avaliar"]] },
   { id: 'C2', titulo: 'Suspeita TEP, prob. intermédia, YEARS 1 + limiar ajustado à idade',
     caso: 'Mulher, 72 anos, dispneia súbita. FC 98. Sem TEV prévio, sem neoplasia, sem cirurgia. TEP é a hipótese mais provável. D-dímeros 0,68 mg/L.',
-    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Não"],
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],
              ["check","g0"],["radio","gfc","5"],["click","Continuar"],
              ["fill","ddage","72"],["fill","ddval","0.68"],["check","y2"],["btnin","ddbtns"]] },
   { id: 'C3', titulo: 'Prob. alta, angio-TC+, sPESI 0 mas VD+ e troponina+ (AHA ligada)',
     caso: 'Mulher, 68 anos, TVP prévia, dor unilateral MI e edema, FC 98, SpO2 93%. Angio-TC: TEP segmentar bilateral, VD/VE 1,1. Troponina positiva. Sem neoplasia nem doença cardiopulmonar. TA 125/80. Sem O2. Peso 70 kg.',
-    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Não"],
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],
              ["check","g0"],["check","g1"],["check","g4"],["check","g6"],["radio","gfc","5"],["click","Continuar"],
-             ["click","Continuar para a angio-TC"],["click","Sim"],["click","Positiva: TEP confirmado"],
+             ["click","Continuar para a angio-TC"],["click","Positiva: TEP confirmado"],
              ["click","Segmentar, lobar"],
              ["radio","q_inst","nao"],["radio","q_vd","sim"],["radio","q_tp","pos"],["open","ahaBox"],["radio","q_resp","o2"],
              ["btnin","stratbtn"],["fill","pw","70"],["click","Concluir: nota do episódio"]] },
@@ -44,7 +44,7 @@ const CASOS = [
     passos: [["hr","Doente instável"]] },
   { id: 'C8', titulo: 'Grávida, suspeita de TEP, YEARS 0, D-dímeros 0,85',
     caso: 'Mulher, 30 anos, 28 semanas de gestação, dispneia ligeira. Sem sintomas de TVP, sem hemoptises, TEP não é a hipótese mais provável. D-dímeros 0,85 mg/L.',
-    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Sim"],["click","Não"],
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Grávida ou pós-parto"],["click","Não"],
              ["check","gynone"],["fill","gdval","0.85"],["btnin","gdbtns"]] },
   { id: 'C9', titulo: 'Suspeita TVP, Wells 1, D-dímeros acima do limiar ajustado, eco: distal',
     caso: 'Homem, 68 anos, dor gemelar, perímetro +2 cm, sem outros critérios; Wells 1 (dor no trajeto). D-dímeros 0,70 mg/L. Eco de todo o membro: trombose da veia peronial.',
@@ -74,10 +74,10 @@ const CASOS = [
     passos: [["card","TEV confirmado"],["click","TVP"],["click","TVP distal isolada"],["click","Risco hemorrágico elevado"]] },
   { id: 'C16', titulo: 'TVP proximal em doente já anticoagulado (falência)',
     caso: 'Mulher, 47 anos, LES, TVP femoral sob apixabano 5 mg 2x/dia há 2 meses. Eco: TVP femoral nova contralateral.',
-    passos: [["card","TEV confirmado"],["click","TVP"],["click","TVP proximal"],["click","Escolher anticoagulação"],["click","Já estava anticoagulado"]] },
+    passos: [["card","TEV confirmado"],["click","TVP"],["click","TVP proximal"],["click","Tratar em ambulatório"],["click","Já estava anticoagulado"]] },
   { id: 'C11', titulo: 'Grávida com suspeita de TVP: eco direta, sem Wells',
     caso: 'Mulher, 29 anos, 24 semanas de gestação, edema e dor da perna esquerda. Eco de todo o membro: TVP femoral.',
-    passos: [["card","Suspeita de TEV"],["click","TVP"],["click","Grávida: ir diretamente"],["click","TVP proximal"],["click","Escolher anticoagulação"],["click","Enoxaparina"]] },
+    passos: [["card","Suspeita de TEV"],["click","TVP"],["click","Grávida: ir diretamente"],["click","TVP proximal"],["click","Tratar em ambulatório"],["click","Enoxaparina"]] },
   { id: 'C12b', titulo: 'TEP sob anticoagulação, Hestia+: ver falência e voltar para concluir',
     caso: 'Igual ao C12, mas abre o ecrã de falência a partir da abordagem e volta para concluir a nota.',
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],
@@ -85,8 +85,23 @@ const CASOS = [
              ["check","h4"],["btnin","hbtn"],["fill","pw","80"],["click","Ver a abordagem completa da falência"],["click","Voltar à abordagem"],["click","Concluir: nota do episódio"]] },
   { id: 'C17', titulo: 'Gravidez, TEP confirmado, 68 kg: arredondamento da dose',
     caso: 'Mulher, 32 anos, 30 semanas, eco MI negativa, YEARS 1 (TEP mais provável), D-dímeros 1,4; cintigrafia positiva. Peso 68 kg.',
-    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Sim"],["click","Sim"],["click","Negativa"],
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["click","Grávida ou pós-parto"],["click","Sim"],["click","Negativa"],
              ["check","gy2"],["fill","gdval","1.4"],["btnin","gdbtns"],["click","Normal"],["click","Positiva: TEP confirmado"],["fill","gw","68"],["click","Concluir: nota do episódio"]] },
+  { id: 'C18', titulo: 'TVP proximal com contraindicação à anticoagulação',
+    caso: 'Homem, 71 anos, hemorragia digestiva ativa. Eco: TVP femoral. Anticoagulação contraindicada.',
+    passos: [["card","TEV confirmado"],["click","TVP"],["click","TVP proximal"],["click","Tratar em ambulatório"],["click","Contraindicação à anticoagulação"]] },
+  { id: 'C19', titulo: 'TVP provável sem eco disponível: concluir com plano até à eco',
+    caso: 'Mulher, 63 anos, madrugada de sábado, sem ecografista. Wells 3. Sem risco hemorrágico.',
+    passos: [["card","Suspeita de TEV"],["click","TVP"],["check","wt3"],["check","wt4"],["click","Continuar"],["click","Eco não disponível"],["click","Concluir: plano até haver eco"]] },
+  { id: 'C20', titulo: 'TVP proximal iliofemoral que justifica internamento',
+    caso: 'Homem, 55 anos, TVP iliofemoral sintomática com 5 dias de evolução, membro muito edemaciado.',
+    passos: [["card","TEV confirmado"],["click","TVP"],["click","TVP proximal"],["click","Internar"],["click","Enoxaparina"]] },
+  { id: 'C21', titulo: 'TEP internado: passar a oral pelo botão do cabeçalho mantém a nota',
+    caso: 'Homem, 58 anos, TEP intermédio-baixo internado, 6 dias de enoxaparina, passa a edoxabano.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],
+             ["radio","q_inst","nao"],["radio","q_vd","sim"],["radio","q_tp","neg"],["btnin","stratbtn"],
+             ["fill","pw","78"],["click","Concluir: nota do episódio"],
+             ["hdr","Anticoagulação para casa"],["fill","aidays","6"],["click","Edoxabano"]] },
 ];
 
 (async () => {
@@ -113,6 +128,7 @@ const CASOS = [
         else if (op === 'radio') await p.locator('#' + a + ' label[data-v="' + v + '"]').click();
         else if (op === 'open') { const d = p.locator('#' + a); if (!(await d.evaluate(e => e.open))) await d.locator('> summary').click(); }
         else if (op === 'btnin') await p.locator('#' + a + ' button').first().click();
+        else if (op === 'hdr') await p.locator('header button', { hasText: a }).first().click();
         toques++;
         await p.waitForTimeout(60);
       }

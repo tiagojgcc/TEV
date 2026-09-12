@@ -242,7 +242,7 @@ body.v-home footer{padding:10px 16px 16px;border-top:1px solid var(--line);margi
     TEV <span class="nm">na Prática</span>
   </div>
   <div class="sp"></div>
-  <button class="hbtn util" onclick="ST.data={via:'alta'};go('alta_int','Para casa')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Anticoagulação para casa</button>
+  <button class="hbtn util" onclick="altaGo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Anticoagulação para casa</button>
   <button class="hbtn ghost" onclick="openModal('m_atalhos')">Ferramentas</button>
   <button class="hbtn ghost" onclick="openModal('m_bib')">Bibliografia</button>
   <button class="hbtn pri" onclick="restart()">⟳ Novo doente</button>
@@ -333,6 +333,12 @@ function restart(){
   go("home","Início");
 }
 function jump(id){ closeModals(); go(id, SCREENS[id].crumb||id); }
+/* "Anticoagulação para casa" (cabeçalho): a meio de um doente mantém a nota; só começa de novo se não houver percurso */
+function altaGo(){
+  closeModals();
+  if (ST.trail.length<=1) ST.data = {via:'alta'};
+  go('alta_int','Para casa');
+}
 function openModal(id){ $(id).classList.add("open"); }
 function closeModals(){ document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open")); }
 function drawCrumbs(){
@@ -411,6 +417,7 @@ function buildNote(){
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
   if (d.cdtNote) L.push("- "+d.cdtNote+".");
   if (d.falencia) L.push("- "+FALENCIA_TXT);
+  if (d.contraAC) L.push("- "+CONTRA_TXT);
   if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
@@ -441,6 +448,8 @@ function fallbackCopy(t){
 function enoxDose(w){ return Math.round(w/5)*5; }
 /* linha da nota quando o TEV surge sob anticoagulação (falência); usada nas vias TEP e TVP */
 const FALENCIA_TXT = "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.";
+/* linha da nota quando a anticoagulação está contraindicada */
+const CONTRA_TXT = "Anticoagulação contraindicada: registar qual é a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível e quando será reavaliada. Ponderado filtro da veia cava inferior removível; anticoagulação a retomar e filtro a remover logo que a contraindicação se resolva.";
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }
@@ -607,18 +616,15 @@ SCREENS.tep_inst = { crumb:"Instável?", html: () => `
     </table>`,"ESC 2019, Tabela 4")}
   <div class="opts">
     <button class="opt danger" onclick="ST.data.instavel='sim';go('tep_inst_sim','Instável')"><b>Sim, instável</b></button>
-    <button class="opt safe" onclick="ST.data.instavel='nao';go('tep_gravida','Estável')"><b>Não, estável</b></button>
+    <button class="opt safe" onclick="ST.data.instavel='nao';ST.data.gravida=false;go('tep_prob','Probabilidade')"><b>Não, estável</b></button>
   </div>
 `};
 SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
   <p class="kick">TEP · doente instável</p>
   <h2><span class="tag t-red">ALTO RISCO</span> Atuar já</h2>
-  <div class="verdict v-red"><h3>Primeiro: chamar ajuda diferenciada <span style="font-weight:400;font-size:13px">(intensivista / sala de emergência / centro de reperfusão)</span></h3></div>
-  <div class="verdict v-red"><h3>Enquanto chega</h3><ul>
-    <li><b>Ecocardiograma à cabeceira</b> (avaliar o ventrículo direito).</li>
-    <li><b>Anticoagulação: HNF</b> em bólus 80 U/kg EV e perfusão 18 U/kg/h, ajustar por aPTT (1,5 a 2,5× o controlo) ou anti-Xa (não usar a enoxaparina peri-trombólise).</li>
-  </ul>
-  <p class="mini" style="margin:6px 0 0">A angio-TC realiza-se apenas quando o doente tolerar o transporte e o exame.</p>
+  <div class="callout" style="border-left-color:var(--red);background:var(--red-bg);border-color:var(--red-line)">
+    <p class="h" style="color:var(--red)">Primeiro: chamar ajuda diferenciada</p>
+    <p>Intensivista, sala de emergência ou centro de reperfusão. A angio-TC só quando o doente tolerar o transporte e o exame.</p>
   </div>
   <div class="verdict v-amb"><h3>Reperfusão primária: trombólise sistémica (ESC I B)</h3>
     <table class="itb"><tr><th>Fármaco</th><th>Dose</th></tr>
@@ -627,6 +633,11 @@ SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
     </table>
     <p class="mini" style="margin:6px 0 0">Suspender a HNF durante a infusão de alteplase e retomar sem bólus quando o aPTT &lt;2× o controlo. Contraindicação absoluta ou falência da lise: trombectomia por cateter ou embolectomia cirúrgica.</p>
   </div>
+  <div class="verdict v-red"><h3>Enquanto chega</h3><ul>
+    <li><b>Ecocardiograma à cabeceira</b> (avaliar o ventrículo direito).</li>
+    <li><b>Anticoagulação: HNF</b> em bólus 80 U/kg EV e perfusão 18 U/kg/h, ajustar por aPTT (1,5 a 2,5× o controlo) ou anti-Xa (não usar a enoxaparina peri-trombólise).</li>
+  </ul>
+  </div>
   ${ciTromb()}
   ${ciAC()}
   ${info("Não posso anticoagular nem fazer trombólise: O que fazer? (reperfusão e suporte)",`
@@ -634,14 +645,6 @@ SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
     <p style="margin:0 0 6px"><b>Corrigir a contraindicação em paralelo.</b> Transfusão de plaquetas, reversão da varfarina ou do DOAC, endoscopia ou parecer de Neurocirurgia, conforme o caso. Logo que a contraindicação seja ultrapassada, inicia-se HNF em perfusão, sem bólus e com alvo no limite inferior do intervalo terapêutico, por ser de curta duração e reversível com protamina.</p>
     <p style="margin:0"><b>Suporte hemodinâmico e ventilatório.</b> É nesta fase que se decide grande parte do prognóstico. A fluidoterapia deve ser limitada (no máximo 500 mL) e reservada a doentes com pressões de enchimento baixas, porque a sobrecarga de um ventrículo direito já dilatado reduz o débito do ventrículo esquerdo. A noradrenalina é o vasopressor de primeira linha. A entubação deve ser evitada sempre que possível, uma vez que a indução anestésica e a ventilação com pressão positiva podem precipitar a paragem cardíaca; quando inevitável, preferir cetamina ou etomidato, volumes correntes baixos e PEEP mínima, evitando o propofol em dose de indução. A VA-ECMO pode servir de ponte para a trombectomia ou a embolectomia no choque refratário ou na paragem cardíaca.</p>`,"FLAME, Circ Cardiovasc Interv 2023; AHA/ACC 2026; ESC 2019")}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
-`};
-SCREENS.tep_gravida = { crumb:"Grávida?", html: () => `
-  <p class="kick">Suspeita de TEP · passo 2</p>
-  <h2>A doente está grávida (ou pós-parto ≤6 semanas)?</h2>
-  <div class="opts">
-    <button class="opt" onclick="ST.data.gravida=false;go('tep_prob','Probabilidade')"><b>Não</b></button>
-    <button class="opt" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')"><b>Sim</b></button>
-  </div>
 `};
 SCREENS.tep_grav_via = { crumb:"Via gravidez", html: () => `
   <p class="kick">Suspeita de TEP · gravidez</p>
@@ -820,10 +823,13 @@ SCREENS.tep_prob = { crumb:"Probabilidade", html: () => {
     items = WELLS.map((w,i)=>chk("w"+i,w[0],w[1])).join("");
   }
   return `
-  <p class="kick">Suspeita de TEP · passo 3</p>
+  <p class="kick">Suspeita de TEP · passo 2</p>
   <h2>Probabilidade clínica: antes de qualquer exame</h2>
   <p class="sub">Score por defeito: <b>Genebra revisto</b> (100% objetivo, mais reprodutível).</p>
+  <div style="display:flex;flex-wrap:wrap;gap:7px">
   ${tool==="geneva"?'<button class="swlink" onclick="ST.data.probTool=\'wells\';render(\'tep_prob\')">Prefiro o Wells</button>':'<button class="swlink" onclick="ST.data.probTool=\'geneva\';render(\'tep_prob\')">Voltar ao Genebra revisto</button>'}
+  <button class="swlink" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')">Grávida ou pós-parto ≤6 semanas: via própria</button>
+  </div>
   <div id="probitems">${items}</div>
   <div class="verdict v-ac" id="probout" style="display:none"></div>
   <button class="go" onclick="probGo()">Continuar</button>
@@ -902,21 +908,7 @@ SCREENS.tep_altaprob = { crumb:"Prob. alta", html: () => `
   ${bleedInfo("emp")}
   ${situInfo()}
   ${ciAC()}
-  <button class="go" onclick="go('tep_img','Angio-TC')">Continuar para a angio-TC →</button>
-`};
-SCREENS.tep_img = { crumb:"Angio-TC", html: () => `
-  <p class="kick">Suspeita de TEP</p>
-  <h2>A angio-TC pulmonar é exequível?</h2>
-  <p class="sub">Antes do resultado: confirmar se a angio-TC é possível neste doente.</p>
-  <div class="opts">
-    <button class="opt" onclick="go('tep_ctpa','Resultado')"><b>Sim</b><small>Seguir para o resultado</small></button>
-    <button class="opt" onclick="ST.data.ctpa='ci';go('tep_ctpaci','Alternativas')"><b>Não, contraindicada ou indisponível</b><small>alergia grave ao contraste, ou indisponível</small></button>
-  </div>
-  ${info("A angio-TC quase nunca está contraindicada: o que pesar",`
-    <p style="margin:0 0 6px">A principal limitação à angio-TC é uma <b>reação de hipersensibilidade grave prévia ao contraste iodado</b>, e mesmo essa constitui habitualmente uma contraindicação relativa: deve ponderar-se pré-medicação (corticóide + anti-histamínico) ou um exame alternativo, como a cintigrafia V/Q, conforme o contexto clínico.</p>
-    <p style="margin:0 0 6px"><b>A insuficiência renal, por si só, raramente constitui motivo para adiar a angio-TC.</b> O risco de lesão renal associada ao contraste foi historicamente sobrestimado. Nos doentes com eGFR &lt;30 mL/min/1,73 m² ou lesão renal aguda, recomenda-se hidratação intravenosa quando possível e não houver contraindicação; nos doentes em programa de diálise, o contraste não exige alterações do esquema dialítico. Perante uma suspeita de TEP potencialmente fatal, o benefício do diagnóstico quase sempre supera o risco renal.</p>
-    <p style="margin:0 0 6px"><b>A instabilidade hemodinâmica e a gravidez não são contraindicações à angio-TC</b>, mas exigem uma abordagem específica. No doente instável, o ecocardiograma à cabeceira assume um papel central e a angio-TC realiza-se quando o transporte e o exame forem seguros; na grávida, a escolha entre angio-TC e cintigrafia V/Q depende sobretudo da radiografia do tórax.</p>
-    <p style="margin:0">Se a angio-TC não estiver disponível ou não puder ser realizada, as principais alternativas são a <b>cintigrafia V/Q</b> (preferencialmente se a radiografia do tórax for normal) e o <b>eco-Doppler venoso dos membros inferiores</b>; a demonstração de uma TVP proximal num doente com elevada suspeita clínica permite, em muitos casos, iniciar tratamento sem necessidade de imagiologia torácica.</p>`,"Contraste e função renal: consenso ACR/NKF, Radiology 2020;294:660 (risco sobrestimado; hidratar se eGFR<30 sem diálise). ESC 2019")}
+  <button class="go" onclick="go('tep_ctpa','Angio-TC')">Continuar para a angio-TC →</button>
 `};
 const PERC = ["Idade ≥ 50 anos","FC ≥ 100 bpm","SpO₂ < 95% (ar ambiente)","Hemoptises","Uso de estrogénios","TVP/TEP prévio","Cirurgia ou trauma < 4 semanas","Edema unilateral do membro"];
 SCREENS.tep_perc = { crumb:"PERC", html: () => `
@@ -956,7 +948,7 @@ SCREENS.tep_dd = { crumb:"D-dímeros", html: () => `
   <p class="kick">Suspeita de TEP</p>
   <h2>D-dímeros com limiar ajustado (YEARS + idade)</h2>
   <div class="row2">
-    <div class="field"><label>Idade (anos)</label><input type="number" id="ddage" min="18" max="110" oninput="ddCalc()"></div>
+    <div class="field"><label>Idade (anos) <span style="font-weight:400;text-transform:none;letter-spacing:0">só com ≥1 critério YEARS</span></label><input type="number" id="ddage" min="18" max="110" oninput="ddCalc()"></div>
     <div class="field"><label>D-dímeros ${ddUnitTog("ddval","ddCalc")}<span style="font-weight:400;color:var(--mut)">FEU</span></label><input type="text" inputmode="decimal" id="ddval" oninput="ddCalc()"></div>
   </div>
   <p style="font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--mut);margin:8px 0 2px">CRITÉRIOS YEARS <span style="font-weight:400">(seleção obrigatória)</span></p>
@@ -991,8 +983,10 @@ function ddCalc(){
   ST.data._ddraw = {age:$("ddage").value, val:$("ddval").value, y:["y0","y1","y2"].map(i=>$(i).checked), none, ac};
   snapTop("tep_dd");
   const o = $("ddout"), b = $("ddbtns");
-  if (isNaN(age)||isNaN(val)){ o.style.display="none"; b.innerHTML=""; return; }
+  if (isNaN(val)){ o.style.display="none"; b.innerHTML=""; return; }
   if (years===0 && !none){ o.style.display="block"; o.className="verdict v-blu"; o.innerHTML="<h3>Complete os critérios YEARS</h3>Marque os presentes (ou <b>«Nenhum critério presente»</b>) para calcular o limiar."; b.innerHTML=""; return; }
+  /* sem critérios YEARS o limiar é fixo (1,00 mg/L): a idade não entra na conta */
+  if (years>=1 && isNaN(age)){ o.style.display="block"; o.className="verdict v-blu"; o.innerHTML="<h3>Indique a idade</h3>Com pelo menos um critério YEARS, o limiar ajusta-se à idade acima dos 50 anos."; b.innerHTML=""; return; }
   const ageAdj = years>=1 && age>50;
   const thr = years>=1 ? Math.min(ageAdj? age*10 : 500, 1000) : 1000;
   const why = years>=1 ? ("≥1 critério YEARS → limiar "+(ageAdj?"ajustado à idade ("+ddFmt(age*10)+")":ddFmt(500))) : ("0 critérios YEARS → limiar "+ddFmt(1000));
@@ -1005,7 +999,7 @@ function ddCalc(){
     (ac? "<div class='warnband' style='margin:10px 0 0'>⚠ Sob anticoagulação os limiares NÃO estão validados: a decisão de imagem deve ser clínica, não pelos D-dímeros.</div>":"");
   b.innerHTML = excl
     ? '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_excl\',\'Excluído\')">Concluir: excluído</button>'
-    : '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_img\',\'Angio-TC\')">Prosseguir para angio-TC</button>';
+    : '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_ctpa\',\'Angio-TC\')">Prosseguir para angio-TC</button>';
 }
 SCREENS.tep_excl = { crumb:"Excluído", html: () => `
   <p class="kick">Suspeita de TEP · concluído</p>
@@ -1017,13 +1011,19 @@ SCREENS.tep_excl = { crumb:"Excluído", html: () => `
   </ul></div>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
-SCREENS.tep_ctpa = { crumb:"Resultado", html: () => `
+SCREENS.tep_ctpa = { crumb:"Angio-TC", html: () => `
   <p class="kick">Suspeita de TEP</p>
   <h2>Resultado da angio-TC pulmonar</h2>
   <div class="opts">
     <button class="opt" onclick="ST.data.ctpa='pos';go('tep_pos','TEP+')"><b>Positiva: TEP confirmado</b></button>
     <button class="opt" onclick="ST.data.ctpa='neg';go('tep_ctpaneg','Negativa')"><b>Negativa</b></button>
+    <button class="opt" onclick="ST.data.ctpa='ci';go('tep_ctpaci','Alternativas')"><b>Não exequível ou indisponível</b><small>Contraindicada (alergia grave ao contraste) ou sem acesso ao exame: ver as alternativas</small></button>
   </div>
+  ${info("A angio-TC quase nunca está contraindicada: o que pesar",`
+    <p style="margin:0 0 6px">A principal limitação à angio-TC é uma <b>reação de hipersensibilidade grave prévia ao contraste iodado</b>, e mesmo essa constitui habitualmente uma contraindicação relativa: deve ponderar-se pré-medicação (corticóide + anti-histamínico) ou um exame alternativo, como a cintigrafia V/Q, conforme o contexto clínico.</p>
+    <p style="margin:0 0 6px"><b>A insuficiência renal, por si só, raramente constitui motivo para adiar a angio-TC.</b> O risco de lesão renal associada ao contraste foi historicamente sobrestimado. Nos doentes com eGFR &lt;30 mL/min/1,73 m² ou lesão renal aguda, recomenda-se hidratação intravenosa quando possível e não houver contraindicação; nos doentes em programa de diálise, o contraste não exige alterações do esquema dialítico. Perante uma suspeita de TEP potencialmente fatal, o benefício do diagnóstico quase sempre supera o risco renal.</p>
+    <p style="margin:0 0 6px"><b>A instabilidade hemodinâmica e a gravidez não são contraindicações à angio-TC</b>, mas exigem uma abordagem específica. No doente instável, o ecocardiograma à cabeceira assume um papel central e a angio-TC realiza-se quando o transporte e o exame forem seguros; na grávida, a escolha entre angio-TC e cintigrafia V/Q depende sobretudo da radiografia do tórax.</p>
+    <p style="margin:0">Se a angio-TC não estiver disponível ou não puder ser realizada, as principais alternativas são a <b>cintigrafia V/Q</b> (preferencialmente se a radiografia do tórax for normal) e o <b>eco-Doppler venoso dos membros inferiores</b>; a demonstração de uma TVP proximal num doente com elevada suspeita clínica permite, em muitos casos, iniciar tratamento sem necessidade de imagiologia torácica.</p>`,"Contraste e função renal: consenso ACR/NKF, Radiology 2020;294:660 (risco sobrestimado; hidratar se eGFR<30 sem diálise). ESC 2019")}
 `};
 SCREENS.tep_ctpaneg = { crumb:"Excluído", html: () => `
   <p class="kick">Suspeita de TEP · concluído</p>
@@ -1281,8 +1281,13 @@ SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
   ${situInfo()}
   ${ciAC()}
   <button class="go" onclick="ST.data.ecoNoite=true;go('tvp_eco','Eco-doppler')">Já tenho a eco →</button>
-  <button class="go sec" onclick="ST.data.ecoNoite=true;drawNote();restart()">⟳ Concluir e novo doente</button>
+  <button class="go sec" onclick="noiteGo()">Concluir: plano até haver eco</button>
 `};
+function noiteGo(){
+  ST.data.ecoNoite = true;
+  ST.data.ecoConduta = "a abordagem definitiva decide-se com o resultado da eco-doppler das primeiras 24 h";
+  go('tvp_fim','Plano');
+}
 SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
   <p class="kick">TVP proximal</p>
   <h2><span class="tag t-amb">TRATAR</span> Anticoagulação em dose de tratamento</h2>
@@ -1296,8 +1301,19 @@ SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
   ${info("Porquê ambulatório?","Na ausência de instabilidade clínica, elevado risco hemorrágico, dor ou edema incapacitantes, necessidade de analgesia parentérica ou problemas sociais que impeçam o tratamento, a TVP proximal pode ser tratada em ambulatório com segurança equivalente à hospitalização.","ESVS 2021; ASH 2020; CHEST 2021")}
   ${situInfo()}
   ${ciAC()}
-  <button class="go" onclick="ST.data.ecoConduta='anticoagulação em dose de tratamento, em ambulatório.';ST.data.acCtx='amb';go('ac_pick','Anticoagulação')">Escolher anticoagulação →</button>
+  <button class="go blk" onclick="proxGo('amb')">Tratar em ambulatório: escolher anticoagulação</button>
+  <button class="go sec blk" onclick="proxGo('int')">Internar: escolher anticoagulação</button>
 `};
+function proxGo(dest){
+  if (dest==='amb'){
+    ST.data.ecoConduta = "anticoagulação em dose de tratamento, em ambulatório.";
+    ST.data.acCtx = 'amb';
+  } else {
+    ST.data.ecoConduta = "anticoagulação em dose de tratamento, com internamento (ver os motivos de orientação especializada precoce).";
+    delete ST.data.acCtx;
+  }
+  go('ac_pick','Anticoagulação');
+}
 SCREENS.tvp_distal = { crumb:"Distal", html: () => `
   <p class="kick">TVP distal isolada</p>
   <h2>Anticoagular, salvo risco hemorrágico</h2>
@@ -1335,7 +1351,8 @@ SCREENS.tvp_fim = { crumb:"Concluído", html: () => `
   <p class="kick">TVP · concluído</p>
   <h2><span class="tag t-ac">PLANO DEFINIDO</span></h2>
   <div class="verdict v-ac"><h3>${esc(ST.data.ecoConduta||"")}</h3>
-  <ul><li>Explicar sinais de extensão/TEP (edema de todo o membro, dispneia).</li><li>Assegurar a reavaliação${ST.data.tvs45?" no fim dos 45 dias":" em consulta"}.</li></ul></div>
+  <ul><li>Explicar sinais de extensão/TEP (edema de todo o membro, dispneia).</li><li>Assegurar a reavaliação${ST.data.tvs45?" no fim dos 45 dias":ST.data.ecoNoite?" com a eco das 24 h":" em consulta"}.</li></ul></div>
+  <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
@@ -1395,10 +1412,10 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
   <div class="wrow">
     <button class="wchip w-amb" onclick="openModal('m_situ')">⚠ Situações que mudam a escolha</button>
     <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
-    <button class="wchip w-red" onclick="go('ac_contra','Contraindicação')">⚠ Contraindicação à anticoagulação</button>
+    <button class="wchip w-red" onclick="contraGo()">⚠ Contraindicação à anticoagulação</button>
   </div>
   <div class="opts">
-    <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 30–50, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
+    <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 15–50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
@@ -1424,6 +1441,14 @@ SCREENS.ac_fim = { crumb:"Concluído", html: () => `
   <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
+function contraGo(){
+  ST.data.contraAC = true;
+  delete ST.data.regime; delete ST.data.acCtx;
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" com contraindicação à anticoagulação > filtro da veia cava inferior removível, se não houver contraindicação; internamento e reavaliação da contraindicação.";
+  else ST.data.local = "contraindicação à anticoagulação: internamento, filtro da veia cava inferior removível se não houver contraindicação";
+  drawNote();
+  go('ac_contra','Contraindicação');
+}
 SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
   <p class="kick">TEV · contraindicação à anticoagulação</p>
   <h2><span class="tag t-red">SEM ANTICOAGULAÇÃO</span> O que fazer</h2>
@@ -1440,6 +1465,7 @@ SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
     <p style="margin:0"><b>O registo de "contraindicação à anticoagulação" deve ser sempre acompanhado da respetiva fundamentação:</b> qual a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível, e quando será reavaliada.</p>
   </div>
   ${ciAC()}
+  <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 function falenciaGo(){
@@ -1634,9 +1660,11 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   const isD = cat.startsWith("D");
   const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="INTERMÉDIO", hf = ST.data.hestiaFail;
   const ahaDone = ia && !!cat && !/^C\?/.test(cat);
+  /* a etiqueta diz a classe ESC do doente; quando a monitorização vem da categoria D da AHA, é essa que se mostra */
+  const tagIA = ST.data.confCls==="INTERMÉDIO-ALTO" ? "INTERMÉDIO-ALTO" : "AHA/ACC "+esc(cat);
   return `
   <p class="kick">${ST.data.sspe? "TEP subsegmentar isolado" : "TEP · "+esc((ST.data.confCls||"").toLowerCase())}${hf?" · Hestia positivo":""}</p>
-  <h2>${ia?'<span class="tag t-amb">INTERMÉDIO-ALTO</span> Internamento com monitorização':inc?'<span class="tag t-blu">A COMPLETAR</span> Internar até completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
+  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">A COMPLETAR</span> Internar até completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
   ${ahaDone ? `<div class="verdict v-ac" style="border-width:2px"><h3>➤ Candidato a trombólise dirigida por cateter <span class="mini">(AHA/ACC ${esc(cat)})</span></h3>Discutir <b>precocemente</b> com um centro de referência com trombólise dirigida por cateter <b>se sinais de deterioração incipiente</b>.${info("Porquê a trombólise dirigida por cateter (evidência)",`Foi a classificação AHA/ACC 2026 que identificou este doente como candidato. No ensaio HI-PEITHO (2026), que avaliou a trombólise dirigida por cateter (e não a trombólise sistémica), a intervenção precoce reduziu a descompensação numa população selecionada (disfunção do ventrículo direito, troponina elevada e critérios de gravidade clínica), com um número necessário para tratar de 16 e sem excesso de hemorragia. Estes resultados não devem ser extrapolados a todo o TEP de risco intermédio-alto.`,"HI-PEITHO, NEJM 2026")}</div>` : ""}
   <div class="verdict ${ia?'v-amb':'v-blu'}"><h3>Abordagem</h3><ul>
     ${ia?`<li>Internamento com <b>monitorização 48–72 h</b> (é a janela da descompensação).</li>
@@ -1855,7 +1883,7 @@ function aiGo(drug){
   go("alta_fim","Concluído");
 }
 const ALTA_CHK = {
-  edo: "Reduzir o edoxabano para <b>30 mg 1x/dia</b> se: peso ≤60 kg, ClCr 30–50 mL/min, ou uso de ciclosporina, dronedarona, eritromicina ou cetoconazol.",
+  edo: "Reduzir o edoxabano para <b>30 mg 1x/dia</b> se: peso ≤60 kg, ClCr 15–50 mL/min, ou uso de ciclosporina, dronedarona, eritromicina ou cetoconazol.",
   apx: "Deixar <b>por escrito a data da passagem de 10 mg → 5 mg 2x/dia</b>; é 2x/dia: reforçar a adesão.",
   rvx: "Deixar <b>por escrito a data da passagem de 15 mg 2x/dia → 20 mg 1x/dia</b>; tomar sempre <b>com alimentos</b> (absorção).",
   dab: "Reduzir para <b>110 mg 2x/dia se ≥80 anos</b> (ou verapamilo); não abrir as cápsulas; dispepsia é frequente: tomar com água e às refeições.",

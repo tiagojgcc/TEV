@@ -76,18 +76,15 @@ SCREENS.tep_inst = { crumb:"Instável?", html: () => `
     </table>`,"ESC 2019, Tabela 4")}
   <div class="opts">
     <button class="opt danger" onclick="ST.data.instavel='sim';go('tep_inst_sim','Instável')"><b>Sim, instável</b></button>
-    <button class="opt safe" onclick="ST.data.instavel='nao';go('tep_gravida','Estável')"><b>Não, estável</b></button>
+    <button class="opt safe" onclick="ST.data.instavel='nao';ST.data.gravida=false;go('tep_prob','Probabilidade')"><b>Não, estável</b></button>
   </div>
 `};
 SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
   <p class="kick">TEP · doente instável</p>
   <h2><span class="tag t-red">ALTO RISCO</span> Atuar já</h2>
-  <div class="verdict v-red"><h3>Primeiro: chamar ajuda diferenciada <span style="font-weight:400;font-size:13px">(intensivista / sala de emergência / centro de reperfusão)</span></h3></div>
-  <div class="verdict v-red"><h3>Enquanto chega</h3><ul>
-    <li><b>Ecocardiograma à cabeceira</b> (avaliar o ventrículo direito).</li>
-    <li><b>Anticoagulação: HNF</b> em bólus 80 U/kg EV e perfusão 18 U/kg/h, ajustar por aPTT (1,5 a 2,5× o controlo) ou anti-Xa (não usar a enoxaparina peri-trombólise).</li>
-  </ul>
-  <p class="mini" style="margin:6px 0 0">A angio-TC realiza-se apenas quando o doente tolerar o transporte e o exame.</p>
+  <div class="callout" style="border-left-color:var(--red);background:var(--red-bg);border-color:var(--red-line)">
+    <p class="h" style="color:var(--red)">Primeiro: chamar ajuda diferenciada</p>
+    <p>Intensivista, sala de emergência ou centro de reperfusão. A angio-TC só quando o doente tolerar o transporte e o exame.</p>
   </div>
   <div class="verdict v-amb"><h3>Reperfusão primária: trombólise sistémica (ESC I B)</h3>
     <table class="itb"><tr><th>Fármaco</th><th>Dose</th></tr>
@@ -96,6 +93,11 @@ SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
     </table>
     <p class="mini" style="margin:6px 0 0">Suspender a HNF durante a infusão de alteplase e retomar sem bólus quando o aPTT &lt;2× o controlo. Contraindicação absoluta ou falência da lise: trombectomia por cateter ou embolectomia cirúrgica.</p>
   </div>
+  <div class="verdict v-red"><h3>Enquanto chega</h3><ul>
+    <li><b>Ecocardiograma à cabeceira</b> (avaliar o ventrículo direito).</li>
+    <li><b>Anticoagulação: HNF</b> em bólus 80 U/kg EV e perfusão 18 U/kg/h, ajustar por aPTT (1,5 a 2,5× o controlo) ou anti-Xa (não usar a enoxaparina peri-trombólise).</li>
+  </ul>
+  </div>
   ${ciTromb()}
   ${ciAC()}
   ${info("Não posso anticoagular nem fazer trombólise: O que fazer? (reperfusão e suporte)",`
@@ -103,14 +105,6 @@ SCREENS.tep_inst_sim = { crumb:"Alto risco", html: () => `
     <p style="margin:0 0 6px"><b>Corrigir a contraindicação em paralelo.</b> Transfusão de plaquetas, reversão da varfarina ou do DOAC, endoscopia ou parecer de Neurocirurgia, conforme o caso. Logo que a contraindicação seja ultrapassada, inicia-se HNF em perfusão, sem bólus e com alvo no limite inferior do intervalo terapêutico, por ser de curta duração e reversível com protamina.</p>
     <p style="margin:0"><b>Suporte hemodinâmico e ventilatório.</b> É nesta fase que se decide grande parte do prognóstico. A fluidoterapia deve ser limitada (no máximo 500 mL) e reservada a doentes com pressões de enchimento baixas, porque a sobrecarga de um ventrículo direito já dilatado reduz o débito do ventrículo esquerdo. A noradrenalina é o vasopressor de primeira linha. A entubação deve ser evitada sempre que possível, uma vez que a indução anestésica e a ventilação com pressão positiva podem precipitar a paragem cardíaca; quando inevitável, preferir cetamina ou etomidato, volumes correntes baixos e PEEP mínima, evitando o propofol em dose de indução. A VA-ECMO pode servir de ponte para a trombectomia ou a embolectomia no choque refratário ou na paragem cardíaca.</p>`,"FLAME, Circ Cardiovasc Interv 2023; AHA/ACC 2026; ESC 2019")}
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
-`};
-SCREENS.tep_gravida = { crumb:"Grávida?", html: () => `
-  <p class="kick">Suspeita de TEP · passo 2</p>
-  <h2>A doente está grávida (ou pós-parto ≤6 semanas)?</h2>
-  <div class="opts">
-    <button class="opt" onclick="ST.data.gravida=false;go('tep_prob','Probabilidade')"><b>Não</b></button>
-    <button class="opt" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')"><b>Sim</b></button>
-  </div>
 `};
 SCREENS.tep_grav_via = { crumb:"Via gravidez", html: () => `
   <p class="kick">Suspeita de TEP · gravidez</p>
@@ -289,10 +283,13 @@ SCREENS.tep_prob = { crumb:"Probabilidade", html: () => {
     items = WELLS.map((w,i)=>chk("w"+i,w[0],w[1])).join("");
   }
   return `
-  <p class="kick">Suspeita de TEP · passo 3</p>
+  <p class="kick">Suspeita de TEP · passo 2</p>
   <h2>Probabilidade clínica: antes de qualquer exame</h2>
   <p class="sub">Score por defeito: <b>Genebra revisto</b> (100% objetivo, mais reprodutível).</p>
+  <div style="display:flex;flex-wrap:wrap;gap:7px">
   ${tool==="geneva"?'<button class="swlink" onclick="ST.data.probTool=\'wells\';render(\'tep_prob\')">Prefiro o Wells</button>':'<button class="swlink" onclick="ST.data.probTool=\'geneva\';render(\'tep_prob\')">Voltar ao Genebra revisto</button>'}
+  <button class="swlink" onclick="ST.data.gravida=true;go('tep_grav_via','Gravidez')">Grávida ou pós-parto ≤6 semanas: via própria</button>
+  </div>
   <div id="probitems">${items}</div>
   <div class="verdict v-ac" id="probout" style="display:none"></div>
   <button class="go" onclick="probGo()">Continuar</button>
@@ -371,21 +368,7 @@ SCREENS.tep_altaprob = { crumb:"Prob. alta", html: () => `
   ${bleedInfo("emp")}
   ${situInfo()}
   ${ciAC()}
-  <button class="go" onclick="go('tep_img','Angio-TC')">Continuar para a angio-TC →</button>
-`};
-SCREENS.tep_img = { crumb:"Angio-TC", html: () => `
-  <p class="kick">Suspeita de TEP</p>
-  <h2>A angio-TC pulmonar é exequível?</h2>
-  <p class="sub">Antes do resultado: confirmar se a angio-TC é possível neste doente.</p>
-  <div class="opts">
-    <button class="opt" onclick="go('tep_ctpa','Resultado')"><b>Sim</b><small>Seguir para o resultado</small></button>
-    <button class="opt" onclick="ST.data.ctpa='ci';go('tep_ctpaci','Alternativas')"><b>Não, contraindicada ou indisponível</b><small>alergia grave ao contraste, ou indisponível</small></button>
-  </div>
-  ${info("A angio-TC quase nunca está contraindicada: o que pesar",`
-    <p style="margin:0 0 6px">A principal limitação à angio-TC é uma <b>reação de hipersensibilidade grave prévia ao contraste iodado</b>, e mesmo essa constitui habitualmente uma contraindicação relativa: deve ponderar-se pré-medicação (corticóide + anti-histamínico) ou um exame alternativo, como a cintigrafia V/Q, conforme o contexto clínico.</p>
-    <p style="margin:0 0 6px"><b>A insuficiência renal, por si só, raramente constitui motivo para adiar a angio-TC.</b> O risco de lesão renal associada ao contraste foi historicamente sobrestimado. Nos doentes com eGFR &lt;30 mL/min/1,73 m² ou lesão renal aguda, recomenda-se hidratação intravenosa quando possível e não houver contraindicação; nos doentes em programa de diálise, o contraste não exige alterações do esquema dialítico. Perante uma suspeita de TEP potencialmente fatal, o benefício do diagnóstico quase sempre supera o risco renal.</p>
-    <p style="margin:0 0 6px"><b>A instabilidade hemodinâmica e a gravidez não são contraindicações à angio-TC</b>, mas exigem uma abordagem específica. No doente instável, o ecocardiograma à cabeceira assume um papel central e a angio-TC realiza-se quando o transporte e o exame forem seguros; na grávida, a escolha entre angio-TC e cintigrafia V/Q depende sobretudo da radiografia do tórax.</p>
-    <p style="margin:0">Se a angio-TC não estiver disponível ou não puder ser realizada, as principais alternativas são a <b>cintigrafia V/Q</b> (preferencialmente se a radiografia do tórax for normal) e o <b>eco-Doppler venoso dos membros inferiores</b>; a demonstração de uma TVP proximal num doente com elevada suspeita clínica permite, em muitos casos, iniciar tratamento sem necessidade de imagiologia torácica.</p>`,"Contraste e função renal: consenso ACR/NKF, Radiology 2020;294:660 (risco sobrestimado; hidratar se eGFR<30 sem diálise). ESC 2019")}
+  <button class="go" onclick="go('tep_ctpa','Angio-TC')">Continuar para a angio-TC →</button>
 `};
 const PERC = ["Idade ≥ 50 anos","FC ≥ 100 bpm","SpO₂ < 95% (ar ambiente)","Hemoptises","Uso de estrogénios","TVP/TEP prévio","Cirurgia ou trauma < 4 semanas","Edema unilateral do membro"];
 SCREENS.tep_perc = { crumb:"PERC", html: () => `
@@ -425,7 +408,7 @@ SCREENS.tep_dd = { crumb:"D-dímeros", html: () => `
   <p class="kick">Suspeita de TEP</p>
   <h2>D-dímeros com limiar ajustado (YEARS + idade)</h2>
   <div class="row2">
-    <div class="field"><label>Idade (anos)</label><input type="number" id="ddage" min="18" max="110" oninput="ddCalc()"></div>
+    <div class="field"><label>Idade (anos) <span style="font-weight:400;text-transform:none;letter-spacing:0">só com ≥1 critério YEARS</span></label><input type="number" id="ddage" min="18" max="110" oninput="ddCalc()"></div>
     <div class="field"><label>D-dímeros ${ddUnitTog("ddval","ddCalc")}<span style="font-weight:400;color:var(--mut)">FEU</span></label><input type="text" inputmode="decimal" id="ddval" oninput="ddCalc()"></div>
   </div>
   <p style="font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--mut);margin:8px 0 2px">CRITÉRIOS YEARS <span style="font-weight:400">(seleção obrigatória)</span></p>
@@ -460,8 +443,10 @@ function ddCalc(){
   ST.data._ddraw = {age:$("ddage").value, val:$("ddval").value, y:["y0","y1","y2"].map(i=>$(i).checked), none, ac};
   snapTop("tep_dd");
   const o = $("ddout"), b = $("ddbtns");
-  if (isNaN(age)||isNaN(val)){ o.style.display="none"; b.innerHTML=""; return; }
+  if (isNaN(val)){ o.style.display="none"; b.innerHTML=""; return; }
   if (years===0 && !none){ o.style.display="block"; o.className="verdict v-blu"; o.innerHTML="<h3>Complete os critérios YEARS</h3>Marque os presentes (ou <b>«Nenhum critério presente»</b>) para calcular o limiar."; b.innerHTML=""; return; }
+  /* sem critérios YEARS o limiar é fixo (1,00 mg/L): a idade não entra na conta */
+  if (years>=1 && isNaN(age)){ o.style.display="block"; o.className="verdict v-blu"; o.innerHTML="<h3>Indique a idade</h3>Com pelo menos um critério YEARS, o limiar ajusta-se à idade acima dos 50 anos."; b.innerHTML=""; return; }
   const ageAdj = years>=1 && age>50;
   const thr = years>=1 ? Math.min(ageAdj? age*10 : 500, 1000) : 1000;
   const why = years>=1 ? ("≥1 critério YEARS → limiar "+(ageAdj?"ajustado à idade ("+ddFmt(age*10)+")":ddFmt(500))) : ("0 critérios YEARS → limiar "+ddFmt(1000));
@@ -474,7 +459,7 @@ function ddCalc(){
     (ac? "<div class='warnband' style='margin:10px 0 0'>⚠ Sob anticoagulação os limiares NÃO estão validados: a decisão de imagem deve ser clínica, não pelos D-dímeros.</div>":"");
   b.innerHTML = excl
     ? '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_excl\',\'Excluído\')">Concluir: excluído</button>'
-    : '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_img\',\'Angio-TC\')">Prosseguir para angio-TC</button>';
+    : '<button class="go" onclick="ST.data.dd=ST.data._dd;go(\'tep_ctpa\',\'Angio-TC\')">Prosseguir para angio-TC</button>';
 }
 SCREENS.tep_excl = { crumb:"Excluído", html: () => `
   <p class="kick">Suspeita de TEP · concluído</p>
@@ -486,13 +471,19 @@ SCREENS.tep_excl = { crumb:"Excluído", html: () => `
   </ul></div>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
-SCREENS.tep_ctpa = { crumb:"Resultado", html: () => `
+SCREENS.tep_ctpa = { crumb:"Angio-TC", html: () => `
   <p class="kick">Suspeita de TEP</p>
   <h2>Resultado da angio-TC pulmonar</h2>
   <div class="opts">
     <button class="opt" onclick="ST.data.ctpa='pos';go('tep_pos','TEP+')"><b>Positiva: TEP confirmado</b></button>
     <button class="opt" onclick="ST.data.ctpa='neg';go('tep_ctpaneg','Negativa')"><b>Negativa</b></button>
+    <button class="opt" onclick="ST.data.ctpa='ci';go('tep_ctpaci','Alternativas')"><b>Não exequível ou indisponível</b><small>Contraindicada (alergia grave ao contraste) ou sem acesso ao exame: ver as alternativas</small></button>
   </div>
+  ${info("A angio-TC quase nunca está contraindicada: o que pesar",`
+    <p style="margin:0 0 6px">A principal limitação à angio-TC é uma <b>reação de hipersensibilidade grave prévia ao contraste iodado</b>, e mesmo essa constitui habitualmente uma contraindicação relativa: deve ponderar-se pré-medicação (corticóide + anti-histamínico) ou um exame alternativo, como a cintigrafia V/Q, conforme o contexto clínico.</p>
+    <p style="margin:0 0 6px"><b>A insuficiência renal, por si só, raramente constitui motivo para adiar a angio-TC.</b> O risco de lesão renal associada ao contraste foi historicamente sobrestimado. Nos doentes com eGFR &lt;30 mL/min/1,73 m² ou lesão renal aguda, recomenda-se hidratação intravenosa quando possível e não houver contraindicação; nos doentes em programa de diálise, o contraste não exige alterações do esquema dialítico. Perante uma suspeita de TEP potencialmente fatal, o benefício do diagnóstico quase sempre supera o risco renal.</p>
+    <p style="margin:0 0 6px"><b>A instabilidade hemodinâmica e a gravidez não são contraindicações à angio-TC</b>, mas exigem uma abordagem específica. No doente instável, o ecocardiograma à cabeceira assume um papel central e a angio-TC realiza-se quando o transporte e o exame forem seguros; na grávida, a escolha entre angio-TC e cintigrafia V/Q depende sobretudo da radiografia do tórax.</p>
+    <p style="margin:0">Se a angio-TC não estiver disponível ou não puder ser realizada, as principais alternativas são a <b>cintigrafia V/Q</b> (preferencialmente se a radiografia do tórax for normal) e o <b>eco-Doppler venoso dos membros inferiores</b>; a demonstração de uma TVP proximal num doente com elevada suspeita clínica permite, em muitos casos, iniciar tratamento sem necessidade de imagiologia torácica.</p>`,"Contraste e função renal: consenso ACR/NKF, Radiology 2020;294:660 (risco sobrestimado; hidratar se eGFR<30 sem diálise). ESC 2019")}
 `};
 SCREENS.tep_ctpaneg = { crumb:"Excluído", html: () => `
   <p class="kick">Suspeita de TEP · concluído</p>

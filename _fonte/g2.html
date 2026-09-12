@@ -29,6 +29,12 @@ function restart(){
   go("home","Início");
 }
 function jump(id){ closeModals(); go(id, SCREENS[id].crumb||id); }
+/* "Anticoagulação para casa" (cabeçalho): a meio de um doente mantém a nota; só começa de novo se não houver percurso */
+function altaGo(){
+  closeModals();
+  if (ST.trail.length<=1) ST.data = {via:'alta'};
+  go('alta_int','Para casa');
+}
 function openModal(id){ $(id).classList.add("open"); }
 function closeModals(){ document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open")); }
 function drawCrumbs(){
@@ -107,6 +113,7 @@ function buildNote(){
   if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
   if (d.cdtNote) L.push("- "+d.cdtNote+".");
   if (d.falencia) L.push("- "+FALENCIA_TXT);
+  if (d.contraAC) L.push("- "+CONTRA_TXT);
   if (d.acCtx) L.push("- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
@@ -137,6 +144,8 @@ function fallbackCopy(t){
 function enoxDose(w){ return Math.round(w/5)*5; }
 /* linha da nota quando o TEV surge sob anticoagulação (falência); usada nas vias TEP e TVP */
 const FALENCIA_TXT = "TEV diagnosticado sob anticoagulação (falência) > HBPM em dose terapêutica (enoxaparina 1 mg/kg 2x/dia), sem reiniciar o fármaco que falhou; internamento; confirmar adesão e dose (INR no evento, se AVK); colhidos anti-cardiolipina e anti-β2-glicoproteína I (anticoagulante lúpico adiado, não fiável sob anticoagulação), a repetir às 12 semanas; rastreio de neoplasia adequado à idade e sexo; se SAF confirmado, AVK.";
+/* linha da nota quando a anticoagulação está contraindicada */
+const CONTRA_TXT = "Anticoagulação contraindicada: registar qual é a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível e quando será reavaliada. Ponderado filtro da veia cava inferior removível; anticoagulação a retomar e filtro a remover logo que a contraindicação se resolva.";
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }

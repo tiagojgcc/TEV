@@ -98,8 +98,13 @@ SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
   ${situInfo()}
   ${ciAC()}
   <button class="go" onclick="ST.data.ecoNoite=true;go('tvp_eco','Eco-doppler')">Já tenho a eco →</button>
-  <button class="go sec" onclick="ST.data.ecoNoite=true;drawNote();restart()">⟳ Concluir e novo doente</button>
+  <button class="go sec" onclick="noiteGo()">Concluir: plano até haver eco</button>
 `};
+function noiteGo(){
+  ST.data.ecoNoite = true;
+  ST.data.ecoConduta = "a abordagem definitiva decide-se com o resultado da eco-doppler das primeiras 24 h";
+  go('tvp_fim','Plano');
+}
 SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
   <p class="kick">TVP proximal</p>
   <h2><span class="tag t-amb">TRATAR</span> Anticoagulação em dose de tratamento</h2>
@@ -113,8 +118,19 @@ SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
   ${info("Porquê ambulatório?","Na ausência de instabilidade clínica, elevado risco hemorrágico, dor ou edema incapacitantes, necessidade de analgesia parentérica ou problemas sociais que impeçam o tratamento, a TVP proximal pode ser tratada em ambulatório com segurança equivalente à hospitalização.","ESVS 2021; ASH 2020; CHEST 2021")}
   ${situInfo()}
   ${ciAC()}
-  <button class="go" onclick="ST.data.ecoConduta='anticoagulação em dose de tratamento, em ambulatório.';ST.data.acCtx='amb';go('ac_pick','Anticoagulação')">Escolher anticoagulação →</button>
+  <button class="go blk" onclick="proxGo('amb')">Tratar em ambulatório: escolher anticoagulação</button>
+  <button class="go sec blk" onclick="proxGo('int')">Internar: escolher anticoagulação</button>
 `};
+function proxGo(dest){
+  if (dest==='amb'){
+    ST.data.ecoConduta = "anticoagulação em dose de tratamento, em ambulatório.";
+    ST.data.acCtx = 'amb';
+  } else {
+    ST.data.ecoConduta = "anticoagulação em dose de tratamento, com internamento (ver os motivos de orientação especializada precoce).";
+    delete ST.data.acCtx;
+  }
+  go('ac_pick','Anticoagulação');
+}
 SCREENS.tvp_distal = { crumb:"Distal", html: () => `
   <p class="kick">TVP distal isolada</p>
   <h2>Anticoagular, salvo risco hemorrágico</h2>
@@ -152,7 +168,8 @@ SCREENS.tvp_fim = { crumb:"Concluído", html: () => `
   <p class="kick">TVP · concluído</p>
   <h2><span class="tag t-ac">PLANO DEFINIDO</span></h2>
   <div class="verdict v-ac"><h3>${esc(ST.data.ecoConduta||"")}</h3>
-  <ul><li>Explicar sinais de extensão/TEP (edema de todo o membro, dispneia).</li><li>Assegurar a reavaliação${ST.data.tvs45?" no fim dos 45 dias":" em consulta"}.</li></ul></div>
+  <ul><li>Explicar sinais de extensão/TEP (edema de todo o membro, dispneia).</li><li>Assegurar a reavaliação${ST.data.tvs45?" no fim dos 45 dias":ST.data.ecoNoite?" com a eco das 24 h":" em consulta"}.</li></ul></div>
+  <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
@@ -212,10 +229,10 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
   <div class="wrow">
     <button class="wchip w-amb" onclick="openModal('m_situ')">⚠ Situações que mudam a escolha</button>
     <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
-    <button class="wchip w-red" onclick="go('ac_contra','Contraindicação')">⚠ Contraindicação à anticoagulação</button>
+    <button class="wchip w-red" onclick="contraGo()">⚠ Contraindicação à anticoagulação</button>
   </div>
   <div class="opts">
-    <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 30–50, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
+    <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 15–50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
@@ -241,6 +258,14 @@ SCREENS.ac_fim = { crumb:"Concluído", html: () => `
   <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
+function contraGo(){
+  ST.data.contraAC = true;
+  delete ST.data.regime; delete ST.data.acCtx;
+  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" com contraindicação à anticoagulação > filtro da veia cava inferior removível, se não houver contraindicação; internamento e reavaliação da contraindicação.";
+  else ST.data.local = "contraindicação à anticoagulação: internamento, filtro da veia cava inferior removível se não houver contraindicação";
+  drawNote();
+  go('ac_contra','Contraindicação');
+}
 SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
   <p class="kick">TEV · contraindicação à anticoagulação</p>
   <h2><span class="tag t-red">SEM ANTICOAGULAÇÃO</span> O que fazer</h2>
@@ -257,6 +282,7 @@ SCREENS.ac_contra = { crumb:"Contraindicação", html: () => `
     <p style="margin:0"><b>O registo de "contraindicação à anticoagulação" deve ser sempre acompanhado da respetiva fundamentação:</b> qual a contraindicação, se é absoluta ou uma situação de elevado risco hemorrágico, se é reversível, e quando será reavaliada.</p>
   </div>
   ${ciAC()}
+  <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 function falenciaGo(){

@@ -163,9 +163,11 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   const isD = cat.startsWith("D");
   const ia = ST.data.confCls==="INTERMÉDIO-ALTO" || isD, inc = ST.data.confCls==="INTERMÉDIO", hf = ST.data.hestiaFail;
   const ahaDone = ia && !!cat && !/^C\?/.test(cat);
+  /* a etiqueta diz a classe ESC do doente; quando a monitorização vem da categoria D da AHA, é essa que se mostra */
+  const tagIA = ST.data.confCls==="INTERMÉDIO-ALTO" ? "INTERMÉDIO-ALTO" : "AHA/ACC "+esc(cat);
   return `
   <p class="kick">${ST.data.sspe? "TEP subsegmentar isolado" : "TEP · "+esc((ST.data.confCls||"").toLowerCase())}${hf?" · Hestia positivo":""}</p>
-  <h2>${ia?'<span class="tag t-amb">INTERMÉDIO-ALTO</span> Internamento com monitorização':inc?'<span class="tag t-blu">A COMPLETAR</span> Internar até completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
+  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">A COMPLETAR</span> Internar até completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
   ${ahaDone ? `<div class="verdict v-ac" style="border-width:2px"><h3>➤ Candidato a trombólise dirigida por cateter <span class="mini">(AHA/ACC ${esc(cat)})</span></h3>Discutir <b>precocemente</b> com um centro de referência com trombólise dirigida por cateter <b>se sinais de deterioração incipiente</b>.${info("Porquê a trombólise dirigida por cateter (evidência)",`Foi a classificação AHA/ACC 2026 que identificou este doente como candidato. No ensaio HI-PEITHO (2026), que avaliou a trombólise dirigida por cateter (e não a trombólise sistémica), a intervenção precoce reduziu a descompensação numa população selecionada (disfunção do ventrículo direito, troponina elevada e critérios de gravidade clínica), com um número necessário para tratar de 16 e sem excesso de hemorragia. Estes resultados não devem ser extrapolados a todo o TEP de risco intermédio-alto.`,"HI-PEITHO, NEJM 2026")}</div>` : ""}
   <div class="verdict ${ia?'v-amb':'v-blu'}"><h3>Abordagem</h3><ul>
     ${ia?`<li>Internamento com <b>monitorização 48–72 h</b> (é a janela da descompensação).</li>
@@ -384,7 +386,7 @@ function aiGo(drug){
   go("alta_fim","Concluído");
 }
 const ALTA_CHK = {
-  edo: "Reduzir o edoxabano para <b>30 mg 1x/dia</b> se: peso ≤60 kg, ClCr 30–50 mL/min, ou uso de ciclosporina, dronedarona, eritromicina ou cetoconazol.",
+  edo: "Reduzir o edoxabano para <b>30 mg 1x/dia</b> se: peso ≤60 kg, ClCr 15–50 mL/min, ou uso de ciclosporina, dronedarona, eritromicina ou cetoconazol.",
   apx: "Deixar <b>por escrito a data da passagem de 10 mg → 5 mg 2x/dia</b>; é 2x/dia: reforçar a adesão.",
   rvx: "Deixar <b>por escrito a data da passagem de 15 mg 2x/dia → 20 mg 1x/dia</b>; tomar sempre <b>com alimentos</b> (absorção).",
   dab: "Reduzir para <b>110 mg 2x/dia se ≥80 anos</b> (ou verapamilo); não abrir as cápsulas; dispepsia é frequente: tomar com água e às refeições.",
