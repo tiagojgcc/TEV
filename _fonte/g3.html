@@ -219,7 +219,7 @@ function gwCalc(){
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
-  ST.data.gravPlan = "HBPM em dose de tratamento ajustada ao peso: enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados > discutido com Medicina Interna/Obstetrícia (seguimento conjunto).";
+  ST.data.gravPlan = "enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados";
   drawNote();
   go("grav_fim","Concluído");
 }
@@ -500,12 +500,35 @@ SCREENS.tep_ctpaneg = { crumb:"Excluído", html: () => `
 `};
 SCREENS.tep_ctpaci = { crumb:"Alternativas", html: () => `
   <p class="kick">Suspeita de TEP · sem angio-TC</p>
-  <h2><span class="tag t-blu">ALTERNATIVAS</span> Quando a angio-TC não é opção</h2>
+  <h2><span class="tag t-blu">ALTERNATIVAS</span> Resultado da cintigrafia V/Q ou da eco-doppler</h2>
   <div class="verdict v-blu"><h3>Vias alternativas</h3><ul>
     <li><b>Cintigrafia V/Q</b>: preferível com radiografia de tórax normal; perfusão normal exclui.</li>
-    <li><b>Eco-doppler dos MI</b>: TVP proximal + clínica compatível ⇒ pode assumir-se TEV e <b>tratar sem imagem torácica</b>.</li>
-    <li>Discutir com a especialidade competente o melhor caminho para este doente.</li>
+    <li><b>Eco-doppler dos MI</b>: TVP proximal com clínica compatível permite assumir TEV e <b>tratar sem imagem torácica</b>.</li>
   </ul></div>
+  <div class="opts">
+    <button class="opt" onclick="altImgGo('vq_pos')"><b>Cintigrafia V/Q de alta probabilidade: TEP confirmado</b><small>Segue para a estratificação</small></button>
+    <button class="opt" onclick="altImgGo('eco_pos')"><b>Eco-doppler dos MI com TVP proximal: tratar como TEV</b><small>Segue para a estratificação</small></button>
+    <button class="opt" onclick="altImgGo('neg')"><b>Negativa</b><small>TEP excluído</small></button>
+    <button class="opt" onclick="altImgGo('inc')"><b>Inconclusiva ou não realizada</b><small>Discutir com a especialidade competente</small></button>
+  </div>
+`};
+function altImgGo(r){
+  ST.data.altImg = r;
+  if (r==="vq_pos" || r==="eco_pos"){ ST.data.ctpa="pos"; ST.data.tepJoined=true; ST.data.sspe=false; go("conf_strat","Estratificar"); }
+  else if (r==="neg"){ ST.data.ctpa="neg"; go("tep_ctpaneg","Excluído"); }
+  else go("tep_alt_fim","Concluído");
+}
+SCREENS.tep_alt_fim = { crumb:"Concluído", html: () => `
+  <p class="kick">Suspeita de TEP · sem diagnóstico fechado</p>
+  <h2><span class="tag t-blu">A DEFINIR</span> Imagem alternativa inconclusiva</h2>
+  <div class="verdict v-blu"><h3>Abordagem</h3><ul>
+    <li>Discutir com a especialidade competente o caminho para este doente (repetir a imagem, outra modalidade, ou seguimento clínico).</li>
+    <li>Com probabilidade clínica alta e baixo risco hemorrágico, anticoagular enquanto se aguarda (ESC 2019, Classe I; AHA/ACC 2026, Classe 2a).</li>
+  </ul></div>
+  ${bleedInfo("emp")}
+  ${situInfo()}
+  ${ciAC()}
+  <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
 `};
 SCREENS.tep_pos = { crumb:"Confirmado", html: () => `
@@ -580,9 +603,8 @@ function sspeTreat(mode){
   delete ST.data.sspeExcl;
   ST.data.sspe = true;
   ST.data.ctpa = "pos";
-  ST.data.sspePlan = mode==="tvp"
-    ? "Achado subsegmentar não confirmado na releitura, mas eco-doppler dos MI com TVP; anticoagulação em dose de tratamento"
-    : mode==="hemo"
+  ST.data.sspeTvp = (mode==="tvp"); /* o achado não se confirmou, mas há TVP proximal: o diagnóstico é a TVP */
+  ST.data.sspePlan = mode==="hemo"
     ? "Risco hemorrágico ponderado; decidido anticoagular em dose de tratamento"
     : null;
   go("conf_hestia","Alta precoce?");
@@ -607,7 +629,7 @@ function sspeNoAC(){
   delete ST.data.sspeExcl;
   ST.data.sspe = true;
   ST.data.ctpa = "pos";
-  ST.data.sspePlan = "TEP subsegmentar isolado com risco hemorrágico elevado > decisão individual de não anticoagular, documentada; eco-doppler dos MI sem TVP proximal; sinais de alarme explicados; reavaliação marcada e consulta de Medicina Interna (TEV)";
+  ST.data.sspePlan = "TEP subsegmentar isolado com risco hemorrágico elevado > decisão individual de não anticoagular, documentada; eco-doppler dos MI sem TVP proximal; sinais de alarme explicados; reavaliação marcada";
   go("tep_sspe_fim","Concluído");
 }
 SCREENS.tep_sspe_nc = { crumb:"Não confirmado", html: () => `
@@ -626,7 +648,7 @@ SCREENS.tep_sspe_nc = { crumb:"Não confirmado", html: () => `
 function sspeExcl(){
   ST.data.sspeExcl = true;
   ST.data.ctpa = "neg";
-  ST.data.sspePlan = "Achado subsegmentar não confirmado na releitura com o radiologista; eco-doppler dos MI sem TVP proximal > sem diagnóstico de TEV; anticoagulação não iniciada; reavaliar a causa dos sintomas";
+  ST.data.sspePlan = "achado subsegmentar não confirmado na releitura com o radiologista; eco-doppler dos MI sem TVP proximal > sem diagnóstico de TEV; anticoagulação não iniciada; reavaliar a causa dos sintomas";
   go("tep_sspe_fim","Concluído");
 }
 SCREENS.tep_sspe_fim = { crumb:"Concluído", html: () => `

@@ -137,6 +137,7 @@ function stratCalc(){
   } else {
     parts.push("sem instabilidade HD");
   }
+  if (ahaOn && pres==="inc") parts.push("achado incidental");
   if (ahaOn && resp!=="nenhum") parts.push(respTxt[resp]);
   if (inst!=="sim"){
     parts.push(vdKnown?(vdPos?"com disfunção do VD":"sem disfunção do VD"):"VD não avaliado");
@@ -157,6 +158,7 @@ function stratGo(){
   else if (s.esc==="BAIXO" && !catD) go("conf_hestia","Alta precoce?");
   else go("conf_dest","Abordagem");
 }
+const ALTO_TXT = "UCI; trombólise sistémica; HNF na fase aguda, com transição para HBPM após a lise; centro de referência com capacidade de reperfusão contactado";
 SCREENS.conf_alto = { crumb:"Alto risco", html: () => `
   <p class="kick">TEP · risco alto</p>
   <h2><span class="tag t-red">ALTO RISCO</span> (ESC)${ST.data.ahaCat? " · AHA/ACC: "+esc(ST.data.ahaCat):""}</h2>
@@ -168,8 +170,8 @@ SCREENS.conf_alto = { crumb:"Alto risco", html: () => `
   <p class="mini">O percurso termina aqui: a anticoagulação de manutenção e a duração decidem-se depois da fase aguda (na alta ou na consulta).</p>
   ${ciTromb()}
   ${ciAC()}
-  <button class="go" onclick="ST.data.local='UCI; reperfusão primária (trombólise sistémica); anticoagulação parentérica com HNF na fase aguda/peri-lise (reversível, semivida curta), com transição para HBPM após a lise/estabilização; contactado centro de referência com capacidade de reperfusão.';drawNote();$('notebody').classList.add('open')">📋 Ver a nota</button>
-  <button class="go sec" onclick="ST.data.local=ST.data.local||'UCI; reperfusão primária (trombólise sistémica); anticoagulação parentérica.';restart()">⟳ Novo doente</button>
+  <button class="go" onclick="ST.data.local=ALTO_TXT;drawNote();$('notebody').classList.add('open')">📋 Ver a nota</button>
+  <button class="go sec" onclick="ST.data.local=ST.data.local||ALTO_TXT;restart()">⟳ Novo doente</button>
 `};
 /* indicação de reperfusão por cateter por categoria AHA/ACC 2026 (secções 4.4.2 e 4.4.3) */
 function cdtCat(cat){
@@ -297,9 +299,8 @@ function destGo(){
   const w = ST.data._pw;
   ST.data.local = (ia? "internamento com monitorização"
         : inc? "internamento até completar a estratificação (ecocardiograma ou ecoscopia; se indisponíveis, pedir ao radiologista o rácio VD/VE no corte de 4 câmaras da angio-TC; troponina)"
-        : "internamento em enfermaria");
-  ST.data.cdtNote = cdt ? cdt.nota
-    : (ia ? "Indicação de reperfusão dirigida por cateter por definir: classificar pela AHA/ACC 2026" : null);
+        : "internamento em enfermaria"+(ST.data.hestiaFail && ST.data.hestiaWhy? " (Hestia: "+ST.data.hestiaWhy+")":""));
+  ST.data.cdtNote = cdt ? cdt.nota : null;
   if (ST.data.falencia){ ST.data.falenciaLinha = falenciaTxt(enoxFrase(w)); delete ST.data.regime; }
   else ST.data.regime = enoxRegime(w);
   go("conf_fim","Plano");
@@ -350,13 +351,17 @@ function hCalc(){
   o.innerHTML = n===0? "<h3>Hestia 0 → elegível para alta precoce com DOAC</h3>" : "<h3>"+n+" critério(s) presente(s) → internar</h3>";
   $("hbtn").innerHTML='<button class="go" onclick="hGo()">Continuar</button>';
 }
+const HESTIA_CURTO = ["instabilidade hemodinâmica","necessidade de trombólise ou embolectomia","hemorragia ativa ou alto risco hemorrágico","necessidade de O₂ mais de 24 h","TEP diagnosticado sob anticoagulação","dor grave com analgesia EV","razão médica ou social","ClCr <30 mL/min","compromisso hepático grave","gravidez","trombocitopenia induzida pela heparina"];
 function hGo(){
   if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
-    ST.data.local = "alta precoce (baixo risco, Hestia 0)";
+    ST.data.local = ST.data.sspe? "alta precoce (Hestia 0)" : "alta precoce (baixo risco, Hestia 0)";
     ST.data.acCtx='alta'; go("ac_pick","Anticoagulação");
   } else {
-    ST.data.hestiaFail=true; go("conf_dest","Abordagem");
+    ST.data.hestiaFail=true;
+    ST.data.hestiaWhy = HESTIA.map((h,i)=>$("h"+i)&&$("h"+i).checked? HESTIA_CURTO[i]:null).filter(Boolean).join("; ");
+    delete ST.data.acCtx; /* quem fica internado não leva pedido de consulta na nota */
+    go("conf_dest","Abordagem");
   }
 }
 SCREENS.conf_fim = { crumb:"Plano final", html: () => `
@@ -406,6 +411,7 @@ function aiCalc(){
     <button class="opt" onclick="aiGo('apx')"><b>Apixabano</b><small>${apxSub}</small></button>
     <button class="opt" onclick="aiGo('rvx')"><b>Rivaroxabano</b><small>${rvxSub}</small></button>
     <button class="opt" onclick="aiGo('dab')"><b>Dabigatrano</b><small>${dabSub}</small></button>
+    <button class="opt" onclick="aiGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina até INR ≥2 em duas determinações; consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
     <button class="opt" onclick="aiGo('eno')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (ex.: neoplasia GI/GU luminal, gravidez, ClCr &lt;30)</small></button>`;
 }
 function aiGo(drug){
@@ -414,21 +420,23 @@ function aiGo(drug){
   let l1;
   if (drug==="edo"){
     l1 = faltam5>0
-      ? "Alta medicado com enoxaparina mais "+faltam5+" dia"+(faltam5>1?"s":"")+" (termina "+fmtD(faltam5)+") - inicia depois edoxabano 60 mg 1x/dia até à consulta"
-      : "Alta medicado com edoxabano 60 mg 1x/dia até à consulta (parentérico ≥5 dias cumprido no internamento)";
+      ? "Alta com enoxaparina mais "+faltam5+" dia"+(faltam5>1?"s":"")+" (termina "+fmtD(faltam5)+") - inicia depois edoxabano 60 mg 1x/dia até à consulta"
+      : "Alta com edoxabano 60 mg 1x/dia até à consulta (parentérico ≥5 dias cumprido no internamento)";
   } else if (drug==="dab"){
     l1 = faltam5>0
-      ? "Alta medicado com enoxaparina mais "+faltam5+" dia"+(faltam5>1?"s":"")+" (termina "+fmtD(faltam5)+") - inicia depois dabigatrano 150 mg 2x/dia até à consulta"
-      : "Alta medicado com dabigatrano 150 mg 2x/dia até à consulta (parentérico ≥5 dias cumprido no internamento)";
+      ? "Alta com enoxaparina mais "+faltam5+" dia"+(faltam5>1?"s":"")+" (termina "+fmtD(faltam5)+") - inicia depois dabigatrano 150 mg 2x/dia até à consulta"
+      : "Alta com dabigatrano 150 mg 2x/dia até à consulta (parentérico ≥5 dias cumprido no internamento)";
   } else if (drug==="apx"){
-    l1 = "Alta medicado com apixabano 10 mg 2x/dia durante 7 dias (até "+fmtD(7)+"), depois 5 mg 2x/dia até à consulta";
+    l1 = "Alta com apixabano 10 mg 2x/dia durante 7 dias (até "+fmtD(7)+"), depois 5 mg 2x/dia até à consulta";
   } else if (drug==="rvx"){
-    l1 = "Alta medicado com rivaroxabano 15 mg 2x/dia durante 21 dias (até "+fmtD(21)+"), depois 20 mg 1x/dia (com alimentos) até à consulta";
+    l1 = "Alta com rivaroxabano 15 mg 2x/dia durante 21 dias (até "+fmtD(21)+"), depois 20 mg 1x/dia (com alimentos) até à consulta";
+  } else if (drug==="avk"){
+    l1 = "Alta com AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia até INR ≥2 em duas determinações; referenciado à consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0 a 3,0)";
   } else {
     ST.data._hbpmFrom = "alta"; go("ac_hbpm","Dose"); return;
   }
   ST.data._altaDrug = drug;
-  ST.data.altaInt = [l1, "Marcada consulta Medicina Interna - TEV em 3 meses"];
+  ST.data.altaInt = [l1, "Marcada consulta de Medicina Interna (TEV) em 3 meses"];
   go("alta_fim","Concluído");
 }
 const ALTA_CHK = {
@@ -436,7 +444,8 @@ const ALTA_CHK = {
   apx: "Deixar <b>por escrito a data da passagem de 10 mg → 5 mg 2x/dia</b>; é 2x/dia: reforçar a adesão.",
   rvx: "Deixar <b>por escrito a data da passagem de 15 mg 2x/dia → 20 mg 1x/dia</b>; tomar sempre <b>com alimentos</b> (absorção).",
   dab: "Reduzir para <b>110 mg 2x/dia se ≥80 anos</b> (ou verapamilo); não abrir as cápsulas; dispepsia é frequente: tomar com água e às refeições.",
-  eno: "Ensinar a <b>autoadministração</b> (ou assegurar quem administra) e entregar material; verificar função renal e plaquetas na consulta."
+  eno: "Ensinar a <b>autoadministração</b> (ou assegurar quem administra) e entregar material; verificar função renal e plaquetas na consulta.",
+  avk: "Manter a enoxaparina até <b>INR ≥2 em duas determinações</b>; INR de controlo em 2 a 3 dias; entregar o esquema por escrito e a data da consulta de hipocoagulação."
 };
 SCREENS.alta_fim = { crumb:"Concluído", html: () => `
   <p class="kick">Alta · concluído</p>

@@ -78,7 +78,7 @@ SCREENS.tvp_eco = { crumb:"Eco-doppler", html: () => `
     <button class="opt" onclick="ecoSet('proximal');go('tvp_prox','Proximal')"><b>TVP proximal</b><small>VCI · ilíaca comum · ilíaca externa · femoral comum · femoral · femoral profunda · poplítea</small></button>
     <button class="opt" onclick="ecoSet('distal');go('tvp_distal','Distal')"><b>TVP distal isolada</b><small>Abaixo da poplítea: tibiais/peronial ou musculares (solear, gemelar)</small></button>
     <button class="opt" onclick="ecoSet('tvs');go('tvp_tvs','TVS')"><b>Trombose venosa superficial</b><small>Cordão em veia superficial, sem envolvimento profundo</small></button>
-    <button class="opt" onclick="ecoSet('neg');go('tvp_econeg','Negativa')"><b>Negativa</b></button>
+    <button class="opt" onclick="econegGo()"><b>Negativa</b></button>
     <button class="opt" onclick="go('tvp_noite','Sem eco')"><b>Eco não disponível de imediato</b><small>Noite / fim-de-semana sem ecografista</small></button>
   </div>
   <details class="paste" id="ecoBox" ${ST.data.ecoFull?"open":""}>
@@ -89,6 +89,13 @@ SCREENS.tvp_eco = { crumb:"Eco-doppler", html: () => `
     </div>
   </details>
 `};
+function econegGo(){
+  ecoSet('neg');
+  /* Wells provável com eco negativa não é exclusão definitiva: repetir a eco em 5 a 7 dias se a suspeita persistir (ESVS 2021) */
+  if (ST.data.wtvp>=2) ST.data.ecoConduta = "sem TVP na eco de todo o membro; repetir eco em 5 a 7 dias se a suspeita persistir; procurar diagnóstico alternativo";
+  else delete ST.data.ecoConduta;
+  go('tvp_econeg','Negativa');
+}
 function ecoSet(v){
   ST.data.eco=v;
   ST.data.ecoTxt = {proximal:"TVP proximal",distal:"TVP distal isolada",tvs:"trombose venosa superficial",neg:"sem trombose"}[v];
@@ -185,7 +192,7 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>A distância à junção decide: não o aspeto</h2>
   <div class="opts">
-    <button class="opt" onclick="ST.data.ecoConduta='TVS a <3 cm da junção safeno-femoral > tratada como TVP: anticoagulação em dose de tratamento.';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
+    <button class="opt" onclick="ST.data.ecoConduta='TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP, anticoagulação em dose de tratamento até reavaliação em consulta';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
     <button class="opt" onclick="ST.data.tvs45=true;go('tvp_tvs45','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
     <button class="opt" onclick="ST.data.ecoConduta='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
   </div>
@@ -245,7 +252,7 @@ const AC = {
   edox: "edoxabano 60 mg 1x/dia, após 5 dias de enoxaparina (manter até à consulta)",
   dabi: "dabigatrano 150 mg 2x/dia, após 5 dias de enoxaparina (manter até à consulta)",
   hbpm: "enoxaparina em dose de tratamento (manter até à consulta)",
-  avk:  "AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia ≥5 dias e até INR ≥2 (×2); referenciar a consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0–3,0)"
+  avk:  "AVK (varfarina 5 mg 1x/dia, ou 2,5 mg se idoso/frágil, ou acenocumarol) com sobreposição de enoxaparina 1 mg/kg 2x/dia ≥5 dias e até INR ≥2 em duas determinações; referenciar à consulta de hipocoagulação/Imuno-Hemoterapia (alvo 2,0 a 3,0)"
 };
 const AC_KEY = {apix:"apix",riva:"riva",edox:"edox",dabi:"dabi",hbpm:"hbpm",avk:"avk"};
 SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
@@ -262,7 +269,7 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
     <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (neoplasia GI, gravidez, instabilidade)</small></button>
-    <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 ×2; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
+    <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 em duas determinações; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
   </div>
   <p class="mini">NOAC preferido ao AVK (ESC I A; ESVS 2021 I A). Se parentérico inicial: HBPM &gt; HNF (AHA 2026, Classe 1 B-R).</p>
   ${ciAC()}
@@ -311,11 +318,11 @@ function hbpmGo(){
   ST.data._hbpmDose = dose;
   if (ST.data._hbpmFrom==="alta"){
     ST.data._altaDrug = "eno";
-    ST.data.altaInt = ["Alta medicado com "+dose+" até à consulta", "Marcada consulta Medicina Interna - TEV em 3 meses"];
+    ST.data.altaInt = ["Alta com "+dose+" até à consulta", "Marcada consulta de Medicina Interna (TEV) em 3 meses"];
     go("alta_fim","Concluído");
   } else if (ST.data._hbpmFrom==="falencia"){
     if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica - "+dose;
-    else { ST.data.local = "internamento (TEP diagnosticado sob anticoagulação)"; ST.data.falenciaLinha = falenciaTxt(dose); }
+    else { ST.data.local = "internamento em enfermaria"; ST.data.falenciaLinha = falenciaTxt(dose); }
     drawNote();
     go("ac_falencia","Falência");
   } else if (ST.data.gravidaTvp){

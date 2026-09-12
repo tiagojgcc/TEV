@@ -47,8 +47,6 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Meia elástica na TVP proximal: texto fixado pelo Tiago (apenas se sintomática; SOX). Não substituir pela recomendação da ESVS.
 - TVP distal: 3 meses; prolongar decide-se em consulta. TVS ≥5 cm e ≥3 cm da junção: fondaparinux primeiro (ESVS I B), rivaroxabano como alternativa oral fora da indicação aprovada; a <3 cm da junção trata-se como TVP.
 - Enoxaparina em dose de tratamento: 1 mg/kg 2x/dia; 1x/dia se ClCr <30 mL/min (Cockcroft-Gault). A nota tem de refletir a dose renal sempre que a ClCr calculada for <30. Dose em mg arredondada aos 5 mg (`enoxDose`).
-- TEV diagnosticado sob anticoagulação (falência): a nota leva sempre a linha `FALENCIA_TXT` (HBPM, internamento, estudo de SAF e neoplasia), quer se chegue pelo botão "Já estava anticoagulado" quer pelo critério de Hestia.
-- Contraindicação à anticoagulação: a nota leva sempre a linha `CONTRA_TXT` (fundamentação, filtro removível, reavaliação) e a abordagem deixa de dizer "anticoagulação em ambulatório".
 - Edoxabano: reduzir a 30 mg 1x/dia se peso ≤60 kg, ClCr 15 a 50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol (rótulo e suplemento da ESC 2019).
 - Ventrículo direito não avaliado: o TEP classifica-se como **"NÃO-ALTO RISCO"**, nunca como intermédio. A abordagem é ecocardiograma ou ecoscopia à cabeceira e, se não houver, pedir ao radiologista a avaliação da sobrecarga do VD na angio-TC já feita (rácio VD/VE >1,0 no corte de 4 câmaras). O ecrã da angio-TC lembra que o pedido deve referir a suspeita de TEP e solicitar essa avaliação.
 - Hipotensão transitória não altera a classe da ESC: com sPESI 0, VD normal e troponina negativa o doente é de **baixo risco pela ESC**. Quem manda internar com monitorização é a categoria D da AHA/ACC, e `stratGo` encaminha por ela.
@@ -62,7 +60,14 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Contraindicação à anticoagulação: uma só linha de abordagem, "com contraindicação à anticoagulação - internamento (ponderar filtro da veia cava inferior - a discutir com cirurgia vascular)".
 - TVS ≥5 cm e ≥3 cm da junção: o ecrã `tvp_tvs45` obriga a escolher entre fondaparinux e rivaroxabano, e a nota leva o que foi escolhido.
 - Nota do doente instável, texto fixado pelo Tiago: título "# Suspeita de TEP" e a linha "- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI".
-- Escrita da nota: usar sempre `fim()` (ponto final), `plural()` (1 ponto / 2 pontos) e `maiusc()` (inicial maiúscula). Não repetir a frequência da dose, e não repetir na "Abordagem" o que já vai numa linha própria.
+- Escrita da nota: usar sempre `fim()` (ponto final), `plural()` (1 ponto / 2 pontos) e `maiusc()` (inicial maiúscula). Não repetir na "Abordagem" o que já vai numa linha própria. "Alta com ...", nunca "Alta medicado com". "Marcada consulta de Medicina Interna (TEV) em 3 meses." Instruções ao utilizador (por exemplo "classificar pela AHA") ficam no ecrã e nunca entram na nota.
+- Subsegmentar: a marcha regista sempre a releitura ("TEP subsegmentar isolado, confirmado na releitura com o radiologista"); se o achado não se confirma mas há TVP proximal, o diagnóstico da nota é a TVP (`sspeTvp`); a abordagem do subsegmentar é "alta precoce (Hestia 0)", sem "baixo risco", porque não se estratificou.
+- Hestia positivo: a abordagem leva os critérios assinalados, "internamento em enfermaria (Hestia: ...)", e apaga a linha da consulta.
+- Grávida, nas duas vias: título com "(Grávida)", abordagem igual à dose seguida de "; DOAC e AVK contraindicados", e a linha "Plano discutido com Obstetrícia.".
+- AHA D2 (choque normotensivo): o título lidera pela AHA, "# TEP, AHA/ACC D2 (choque normotensivo); ESC: baixo risco". D1 mantém o título ESC.
+- Angio-TC não exequível: o ecrã `tep_ctpaci` recolhe o resultado da imagem alternativa (V/Q de alta probabilidade ou eco com TVP proximal seguem para a estratificação; negativa exclui; inconclusiva termina em `tep_alt_fim`), e a marcha regista-o (`altImg`).
+- Wells provável com eco de todo o membro negativa: título "eco negativa", não "excluída", e abordagem com a repetição da eco em 5 a 7 dias se a suspeita persistir.
+- Alta do internado tem cinco opções: edoxabano, apixabano, rivaroxabano, dabigatrano, AVK, e manter enoxaparina (com dose).
 
 ## Regras de percurso (não regredir)
 

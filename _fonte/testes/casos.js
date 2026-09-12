@@ -120,6 +120,35 @@ const CASOS = [
   { id: 'C26', titulo: 'TVS ≥5 cm: escolher o rivaroxabano em vez do fondaparinux',
     caso: 'Homem, 66 anos, TVS da pequena safena com 7 cm, a 5 cm da junção safeno-poplítea. Recusa injeções.',
     passos: [["card","TEV confirmado"],["click","TVP"],["click","Trombose venosa superficial"],["click","≥5 cm de extensão"],["click","Rivaroxabano 10 mg"]] },
+  { id: 'C27', titulo: 'Subsegmentar não confirmado, mas TVP proximal: o diagnóstico é a TVP',
+    caso: 'Homem, 64 anos, defeito subsegmentar duvidoso. Radiologista de tórax não confirma. Eco: TVP poplítea.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Subsegmentar isolado"],["click","O achado não se confirmou"],["click","Há TVP proximal"],["btnin","hbtn"],["click","Edoxabano"]] },
+  { id: 'C28', titulo: 'Subsegmentar confirmado, Hestia positivo: internamento com o critério na nota',
+    caso: 'Mulher, 70 anos, subsegmentar confirmado na releitura, vive sozinha sem apoio.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Subsegmentar isolado"],["click","Confirmado: anticoagular"],["check","h6"],["btnin","hbtn"],["fill","pw","62"],["click","Concluir: nota do episódio"]] },
+  { id: 'C29', titulo: 'Angio-TC não exequível, cintigrafia V/Q de alta probabilidade, baixo risco',
+    caso: 'Homem, 49 anos, alergia grave ao contraste. Probabilidade intermédia, D-dímeros 2,1. V/Q de alta probabilidade. VD normal na eco, troponina negativa.',
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["check","g0"],["check","g2"],["radio","gfc","3"],["click","Continuar"],
+             ["fill","ddage","49"],["fill","ddval","2.1"],["check","y2"],["btnin","ddbtns"],["click","Não exequível"],["click","Cintigrafia V/Q de alta probabilidade"],
+             ["radio","q_inst","nao"],["radio","q_vd","nao"],["radio","q_tp","neg"],["btnin","stratbtn"],["btnin","hbtn"],["click","Apixabano"]] },
+  { id: 'C30', titulo: 'Angio-TC não exequível, imagem alternativa inconclusiva',
+    caso: 'Mulher, 58 anos, sem angio-TC disponível, cintigrafia inconclusiva. Probabilidade intermédia.',
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],["check","g0"],["check","g2"],["radio","gfc","3"],["click","Continuar"],
+             ["fill","ddage","58"],["fill","ddval","1.5"],["check","y2"],["btnin","ddbtns"],["click","Não exequível"],["click","Inconclusiva"]] },
+  { id: 'C31', titulo: 'TVP: Wells provável com eco negativa (repetir em 5 a 7 dias)',
+    caso: 'Mulher, 44 anos, edema de todo o membro e dor no trajeto. Eco de todo o membro negativa.',
+    passos: [["card","Suspeita de TEV"],["click","TVP"],["check","wt3"],["check","wt4"],["click","Continuar"],["click","Negativa"]] },
+  { id: 'C32', titulo: 'Alta do internado com varfarina (SAF)',
+    caso: 'Mulher, 39 anos, SAF triplo-positivo, TEP internado, 7 dias de enoxaparina, passa a varfarina.',
+    passos: [["hdr","Anticoagulação para casa"],["fill","aidays","7"],["click","Varfarina"]] },
+  { id: 'C33', titulo: 'AHA D2 (choque normotensivo) com ESC baixo risco: título pela AHA',
+    caso: 'Homem, 50 anos, TA 84/50 transitória com lactato 3,1. VD normal, troponina negativa, sPESI 0.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["radio","q_vd","nao"],["radio","q_tp","neg"],
+             ["open","ahaBox"],["radio","q_ht","sim"],["radio","q_hp","sim"],["btnin","stratbtn"],["fill","pw","70"],["click","Concluir: nota do episódio"]] },
+  { id: 'C34', titulo: 'AHA A1: TEP incidental subsegmentar em TC de estadiamento, alta direta',
+    caso: 'Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["check","sp1"],["radio","q_vd","nao"],["radio","q_tp","neg"],
+             ["open","ahaBox"],["radio","q_pres","inc"],["radio","q_ext","sub"],["btnin","stratbtn"],["fill","pw","80"],["click","Concluir: nota do episódio"]] },
 ];
 
 (async () => {
@@ -141,7 +170,7 @@ const CASOS = [
         if (op === 'card') await p.locator('button.card', { hasText: a }).first().click();
         else if (op === 'hr') await p.locator('div.hr', { hasText: a }).first().click();
         else if (op === 'click') await p.locator('.scr button', { hasText: a }).first().click();
-        else if (op === 'check') await p.locator('#' + a).check({ force: true });
+        else if (op === 'check') await p.evaluate(id => { const e = document.getElementById(id); if (!e.checked) { e.checked = true; e.dispatchEvent(new Event('change', { bubbles: true })); } }, a);
         else if (op === 'fill') await p.locator('#' + a).fill(v);
         else if (op === 'radio') await p.locator('#' + a + ' label[data-v="' + v + '"]').click();
         else if (op === 'open') { const d = p.locator('#' + a); if (!(await d.evaluate(e => e.open))) await d.locator('> summary').click(); }

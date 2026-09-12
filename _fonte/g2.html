@@ -56,16 +56,24 @@ function marchaTEP(d){
   const seg = [];
   if (d.percN!=null) seg.push("PERC "+d.percN+"/8");
   if (d.dd){
-    let ddtxt = "D-dímeros "+ddFmt(d.dd.val)+" (";
+    let ddtxt = "D-dímeros "+ddFmt(d.dd.val)+(d.dd.ac? " sob anticoagulação":"")+" (";
+    if (d.dd.ac) ddtxt += "limiares não validados; ";
     ddtxt += d.dd.years>=1 ? ("YEARS ≥1, limiar "+(d.dd.ageAdj?"ajustado à idade ":"")+ddFmt(d.dd.thr)) : ("YEARS 0, limiar "+ddFmt(1000));
     ddtxt += ")";
-    if (d.dd.ac) ddtxt += " [sob anticoagulação: limiares não validados]";
     seg.push(ddtxt);
     if (d.dd.excl){ seg.push("TEP excluído sem imagem"); return seg.join(" > "); }
   }
   const direta = d.probCls==="alta" && !d.dd;
   const pref = direta ? "angio-TC direta" : "angio-TC";
-  if (d.ctpa==="pos") seg.push(pref+": TEP confirmado"+(d.anat? " ("+d.anat+")":""));
+  if (d.altImg){
+    /* a angio-TC não foi exequível: o diagnóstico veio da cintigrafia V/Q ou da eco-doppler dos MI */
+    const alt = { vq_pos:"cintigrafia V/Q de alta probabilidade: TEP confirmado", eco_pos:"eco-doppler dos MI: TVP proximal, tratada como TEV",
+                  neg:"V/Q ou eco-doppler negativa: TEP excluído", inc:"V/Q ou eco-doppler inconclusiva" }[d.altImg];
+    seg.push(pref+" não exequível > "+alt);
+  }
+  else if (d.sspeTvp) seg.push(pref+": achado subsegmentar não confirmado na releitura > eco-doppler dos MI: TVP proximal");
+  else if (d.ctpa==="pos" && d.sspe) seg.push(pref+": TEP subsegmentar isolado, confirmado na releitura com o radiologista"+(d.anatFull? " ("+d.anatFull+")":""));
+  else if (d.ctpa==="pos") seg.push(pref+": TEP confirmado"+(d.anat? " ("+d.anat+")":""));
   else if (d.ctpa==="neg") seg.push(pref+": TEP excluído");
   else if (d.ctpa==="ci")  seg.push(pref+" não exequível > V/Q ou eco-doppler dos MI");
   return seg.join(" > ");
@@ -76,13 +84,19 @@ function buildNote(){
   if (tep){
     /* título */
     if (d.sspeExcl) L.push("# Suspeita de TEP subsegmentar: não confirmada (sem TEV)");
-    else if (d.ctpa==="pos" && d.sspe) L.push("# TEP subsegmentar isolado");
-    else if (d.ctpa==="pos" && d.confCls){ const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : (cl==="não-alto risco"? "não-alto risco" : "risco "+cl); L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":"")); }
+    else if (d.sspeTvp) L.push("# TVP proximal (achado subsegmentar não confirmado)"+(d.falencia? " sob anticoagulação":""));
+    else if (d.ctpa==="pos" && d.sspe) L.push("# TEP subsegmentar isolado"+(d.falencia? " sob anticoagulação":""));
+    else if (d.ctpa==="pos" && d.confCls){
+      const cl=d.confCls.toLowerCase(); const ph=(cl==="baixo"||cl==="alto")? cl+" risco" : (cl==="não-alto risco"? "não-alto risco" : "risco "+cl);
+      /* D2 é choque normotensivo: o título lidera pela AHA e a classe ESC vem a seguir */
+      if (d.ahaCat && /^D2/.test(d.ahaCat)) L.push("# TEP, AHA/ACC "+d.ahaCat+" (choque normotensivo); ESC: "+ph+(d.falencia? "; sob anticoagulação":""));
+      else L.push("# TEP de "+ph+(d.ahaCat? " (AHA/ACC: "+d.ahaCat+")":"")+(d.falencia? " sob anticoagulação":""));
+    }
     else if (d.gravida){
-      L.push(d.gravRes==="tvp"? "# TVP proximal na gravidez"
-           : d.gravRes==="tep"? "# TEP na gravidez"
-           : d.gravRes==="excl"? "# Suspeita de TEP na gravidez: excluída"
-           : "# Suspeita de TEP: gravidez");
+      L.push(d.gravRes==="tvp"? "# TVP proximal (Grávida)"
+           : d.gravRes==="tep"? "# TEP (Grávida)"
+           : d.gravRes==="excl"? "# Suspeita de TEP (Grávida): excluída"
+           : "# Suspeita de TEP (Grávida)");
     }
     else if (d.ctpa==="pos") L.push("# TEP");
     else if (d.instavel==="sim") L.push("# Suspeita de TEP");
@@ -92,7 +106,7 @@ function buildNote(){
     if (d.gravida){
       if (d.gravMarch) L.push("- "+fim(maiusc(d.gravMarch)));
       else if (!d.gravConf) L.push("- Grávida > via própria: YEARS adaptado à gravidez + eco-doppler dos MI se sintomas do membro; angio-TC de dose reduzida como imagem torácica de primeira linha; HBPM; discutir com Medicina Interna/Obstetrícia.");
-      if (d.gravPlan) L.push("- Abordagem: "+fim(d.gravPlan));
+      if (d.gravPlan){ L.push("- Abordagem: "+fim(d.gravPlan)); L.push("- Plano discutido com Obstetrícia."); }
     }
     if (d.probScore!=null) L.push("- Probabilidade clínica ("+(d.probTool==="wells"?"Wells":"Genebra revisto")+"): "+plural(d.probScore,"ponto","pontos")+" - "+d.probCls+".");
     if (d.percN===0) L.push("- PERC 0/8 > TEP excluído sem D-dímeros. Alta com sinais de alarme explicados.");
@@ -101,6 +115,7 @@ function buildNote(){
   if (d.via==="tvp"){
     const gr = !!d.gravidaTvp;
     if (d.eco && d.eco!=="neg") L.push("# "+maiusc(d.ecoTxt)+(gr?" (Grávida)":"")+(d.falencia? " sob anticoagulação":""));
+    else if (d.eco==="neg" && d.wtvp>=2) L.push("# Suspeita de TVP: eco negativa"+(gr?" (Grávida)":""));
     else if (d.eco==="neg" || (d.tvpdd&&d.tvpdd.excl)) L.push("# Suspeita de TVP: excluída"+(gr?" (Grávida)":""));
     else L.push("# Suspeita de TVP"+(gr?" (Grávida)":""));
     if (d.wtvp!=null){
@@ -111,18 +126,18 @@ function buildNote(){
     } else if (d.eco) L.push("- Eco-doppler de todo o membro: "+fim(d.ecoFull||d.ecoTxt));
     if (d.ecoNoite) L.push("- Eco indisponível de imediato > TVP provável > anticoagulação empírica iniciada; eco-doppler nas primeiras 24 h.");
     /* na grávida o tratamento é sempre HBPM: a abordagem é a própria dose */
-    if (gr && d._hbpmDose) L.push("- Abordagem: "+fim(d._hbpmDose));
+    if (gr && d._hbpmDose) L.push("- Abordagem: "+d._hbpmDose+"; DOAC e AVK contraindicados.");
     else if (d.ecoConduta) L.push("- Abordagem: "+fim(d.ecoConduta));
   }
-  if (tep && (d.confCls||d.stratTxt||d.local)){
-    if (d.stratTxt) L.push("- Estratificação: "+d.stratTxt+".");
-    if (d.local) L.push("- Abordagem: "+d.local+".");
-  }
-  if (d.sspePlan) L.push((d.local? "- " : "- Abordagem: ")+d.sspePlan+".");
+  if (tep && d.stratTxt) L.push("- Estratificação: "+d.stratTxt+".");
+  if (d.sspePlan && d.local) L.push("- "+fim(d.sspePlan));
+  if (tep && d.local) L.push("- Abordagem: "+fim(d.local));
+  if (d.sspePlan && !d.local) L.push("- Abordagem: "+fim(d.sspePlan));
+  if (d.altImg==="inc") L.push("- Abordagem: a definir com a especialidade competente; anticoagulação empírica se probabilidade clínica alta e baixo risco hemorrágico.");
   if (d.cdtNote) L.push("- "+fim(maiusc(d.cdtNote)));
   if (d.falenciaLinha) L.push("- "+fim(d.falenciaLinha));
   if (d.gravidaTvp) L.push("- Plano discutido com Obstetrícia.");
-  else if (d.acCtx) L.push(d.via==="tvp"? "- Pedido de consulta de Medicina Interna e cirurgia vascular." : "- Pedido de consulta de Medicina Interna - TEV.");
+  else if (d.acCtx) L.push((d.via==="tvp"||d.sspeTvp)? "- Pedido de consulta de Medicina Interna e cirurgia vascular." : "- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime && !d.gravidaTvp) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
     if (d.via==="alta" && !L.length) L.push("# Passagem a anticoagulante oral (TEV)");
