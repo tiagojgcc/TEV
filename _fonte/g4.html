@@ -92,8 +92,8 @@ SCREENS.tvp_eco = { crumb:"Eco-doppler", html: () => `
 function econegGo(){
   ecoSet('neg');
   /* Wells provável com eco negativa não é exclusão definitiva: repetir a eco em 5 a 7 dias se a suspeita persistir (ESVS 2021) */
-  if (ST.data.wtvp>=2) ST.data.ecoConduta = "sem TVP na eco de todo o membro; repetir eco em 5 a 7 dias se a suspeita persistir; procurar diagnóstico alternativo";
-  else delete ST.data.ecoConduta;
+  if (ST.data.wtvp>=2) ST.data.ecoAbordagem = "sem TVP na eco de todo o membro; repetir eco em 5 a 7 dias se a suspeita persistir; procurar diagnóstico alternativo";
+  else delete ST.data.ecoAbordagem;
   go('tvp_econeg','Negativa');
 }
 function ecoSet(v){
@@ -118,7 +118,7 @@ SCREENS.tvp_noite = { crumb:"Sem eco", html: () => `
 `};
 function noiteGo(){
   ST.data.ecoNoite = true;
-  ST.data.ecoConduta = "a definir após eco-doppler";
+  ST.data.ecoAbordagem = "a definir após eco-doppler";
   go('tvp_fim','Plano');
 }
 SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
@@ -139,10 +139,10 @@ SCREENS.tvp_prox = { crumb:"Proximal", html: () => `
 `};
 function proxGo(dest){
   if (dest==='amb'){
-    ST.data.ecoConduta = "anticoagulação em dose de tratamento, em ambulatório.";
+    ST.data.ecoAbordagem = "anticoagulação em dose de tratamento, em ambulatório.";
     ST.data.acCtx = 'amb';
   } else {
-    ST.data.ecoConduta = "internamento";
+    ST.data.ecoAbordagem = "internamento";
     delete ST.data.acCtx;
   }
   go('ac_pick','Anticoagulação');
@@ -159,7 +159,7 @@ SCREENS.tvp_distal = { crumb:"Distal", html: () => `
   ${bleedInfo("distal")}
 
   ${info("O que reforça a decisão de tratar",`
-    <p style="margin:0 0 6px">Neoplasia ativa, TEV prévio, TVP não provocada, trombo extenso (mais de 5 cm, várias veias, junto à trifurcação poplítea ou com mais de 7 mm) e internamento ou imobilidade persistente. As veias axiais (tibiais e peronial) estendem mais do que as musculares (solear e gemelar), mas a conduta por defeito é a mesma.</p>
+    <p style="margin:0 0 6px">Neoplasia ativa, TEV prévio, TVP não provocada, trombo extenso (mais de 5 cm, várias veias, junto à trifurcação poplítea ou com mais de 7 mm) e internamento ou imobilidade persistente. As veias axiais (tibiais e peronial) estendem mais do que as musculares (solear e gemelar), mas a abordagem por defeito é a mesma.</p>
     <p style="margin:0">Dois critérios do CHEST, "sintomas graves" e "D-dímeros muito elevados", são qualitativos e sem valor de corte: servem de juízo clínico, não de número.</p>`,
     "CHEST 2016 (Kearon, Chest 2016;149:315); update 2021 (Stevens, Chest 2021;160:e545)")}
 
@@ -173,17 +173,17 @@ SCREENS.tvp_distal = { crumb:"Distal", html: () => `
 `};
 function distalGo(ac){
   if (ac){
-    ST.data.ecoConduta = "anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta)";
+    ST.data.ecoAbordagem = "anticoagulação em dose de tratamento, 3 meses (prolongamento a decidir em consulta)";
     ST.data.acCtx='amb'; go("ac_pick","Anticoagulação");
   } else {
-    ST.data.ecoConduta = "risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14)";
+    ST.data.ecoAbordagem = "risco hemorrágico elevado > vigilância ecográfica (repetir eco de todo o membro ao dia 7 e, se negativa, ao dia 14)";
     go("tvp_fim","Plano");
   }
 }
 SCREENS.tvp_fim = { crumb:"Concluído", html: () => `
   <p class="kick">TVP · concluído</p>
   <h2><span class="tag t-ac">PLANO DEFINIDO</span></h2>
-  <div class="verdict v-ac"><h3>${esc(ST.data.ecoConduta||"")}</h3>
+  <div class="verdict v-ac"><h3>${esc(ST.data.ecoAbordagem||"")}</h3>
   <ul><li>Explicar sinais de extensão/TEP (edema de todo o membro, dispneia).</li><li>Assegurar a reavaliação${ST.data.tvs45?" no fim dos 45 dias":ST.data.ecoNoite?" com a eco das 24 h":" em consulta"}.</li></ul></div>
   <button class="go" onclick="$('notebody').classList.add('open')">📋 Ver a nota</button>
   <button class="go sec" onclick="restart()">⟳ Novo doente</button>
@@ -192,9 +192,9 @@ SCREENS.tvp_tvs = { crumb:"TVS", html: () => `
   <p class="kick">Trombose venosa superficial</p>
   <h2>A distância à junção decide: não o aspeto</h2>
   <div class="opts">
-    <button class="opt" onclick="ST.data.ecoConduta='TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP, anticoagulação em dose de tratamento até reavaliação em consulta';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
+    <button class="opt" onclick="ST.data.ecoAbordagem='TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP, anticoagulação em dose de tratamento até reavaliação em consulta';go('tvp_tvs_ac','Anticoagular')"><b>&lt;3 cm da junção safeno-femoral (ou safeno-poplítea)</b><small>Tratar como TVP: anticoagulação em dose de tratamento, até reavaliação em consulta</small></button>
     <button class="opt" onclick="ST.data.tvs45=true;go('tvp_tvs45','45 dias')"><b>≥5 cm de extensão e ≥3 cm da junção</b><small>Fondaparinux 2,5 mg sc 1x/dia × 45 dias (ESVS 2021 I B; CALISTO) · alternativa oral: rivaroxabano 10 mg 1x/dia × 45 dias (SURPRISE; fora da indicação aprovada)</small></button>
-    <button class="opt" onclick="ST.data.ecoConduta='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
+    <button class="opt" onclick="ST.data.ecoAbordagem='TVS <5 cm, distal, em veia varicosa, sem fatores de alto risco > tratamento sintomático (AINE, compressão) e reavaliação; vigilância se progressão.';go('tvp_fim','Sintomático')"><b>&lt;5 cm, distal, em veia varicosa, sem fatores de alto risco</b><small>Sem neoplasia, trombofilia ou proximidade ao sistema profundo: sintomático (AINE, compressão) + vigilância. O AINE alivia a dor mas não reduz o risco trombótico.</small></button>
   </div>
   ${info("Evidência que sustenta os 45 dias",`
     <table class="itb"><tr><th>Ensaio</th><th>Comparação</th><th>Resultado</th></tr>
@@ -218,7 +218,7 @@ SCREENS.tvp_tvs45 = { crumb:"45 dias", html: () => `
   ${ciAC()}
 `};
 function tvs45Go(k){
-  ST.data.ecoConduta = k==="fonda"
+  ST.data.ecoAbordagem = k==="fonda"
     ? "TVS ≥5 cm e ≥3 cm da junção: fondaparinux 2,5 mg sc 1x/dia durante 45 dias"
     : "TVS ≥5 cm e ≥3 cm da junção: rivaroxabano 10 mg 1x/dia durante 45 dias (fora da indicação aprovada)";
   go("tvp_fim","Plano");
@@ -321,7 +321,7 @@ function hbpmGo(){
     ST.data.altaInt = ["Alta com "+dose+" até à consulta", "Marcada consulta de Medicina Interna (TEV) em 3 meses"];
     go("alta_fim","Concluído");
   } else if (ST.data._hbpmFrom==="falencia"){
-    if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica - "+dose;
+    if (ST.data.via==="tvp") ST.data.ecoAbordagem = (ST.data.ecoTxt||"TVP")+" sob anticoagulação (falência) > internamento; HBPM em dose terapêutica - "+dose;
     else { ST.data.local = "internamento em enfermaria"; ST.data.falenciaLinha = falenciaTxt(dose); }
     drawNote();
     go("ac_falencia","Falência");
@@ -347,7 +347,7 @@ function contraGo(){
   ST.data.contraAC = true;
   delete ST.data.regime; delete ST.data.acCtx; delete ST.data._hbpmDose;
   const plano = " com contraindicação à anticoagulação - internamento (ponderar filtro da veia cava inferior - a discutir com cirurgia vascular)";
-  if (ST.data.via==="tvp") ST.data.ecoConduta = (ST.data.ecoTxt||"TVP")+plano;
+  if (ST.data.via==="tvp") ST.data.ecoAbordagem = (ST.data.ecoTxt||"TVP")+plano;
   else ST.data.local = "TEP"+plano;
   drawNote();
   go('ac_contra','Contraindicação');

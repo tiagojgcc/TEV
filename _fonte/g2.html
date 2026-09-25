@@ -14,9 +14,22 @@ function render(id){
   const scr = SCREENS[id];
   document.body.classList.toggle('v-home', id==="home");
   $("app").innerHTML = id==="home" ? scr.html() : '<div class="scr">'+scr.html()+'</div>';
+  botoesAcima();
   if (scr.after) scr.after();
   drawCrumbs(); drawNote();
   window.scrollTo({top:0});
+}
+/* os botões de decisão ficam sempre acima dos ⓘ: um bloco de ⓘ seguido de botões passa para baixo deles */
+function botoesAcima(){
+  const scr = document.querySelector("#app .scr"); if (!scr) return;
+  const isInfo = el => el && el.matches("details.info");
+  const isBtn = el => el && el.matches("button.go");
+  [...scr.children].forEach(el=>{
+    if (!isInfo(el) || isInfo(el.previousElementSibling)) return; /* primeiro ⓘ de cada bloco */
+    let fim = el; while (isInfo(fim.nextElementSibling)) fim = fim.nextElementSibling;
+    const btns = []; let b = fim.nextElementSibling; while (isBtn(b)){ btns.push(b); b = b.nextElementSibling; }
+    btns.forEach(x=>scr.insertBefore(x, el));
+  });
 }
 function backTo(i){
   ST.trail = ST.trail.slice(0, i+1);
@@ -127,7 +140,7 @@ function buildNote(){
     if (d.ecoNoite) L.push("- Eco indisponível de imediato > TVP provável > anticoagulação empírica iniciada; eco-doppler nas primeiras 24 h.");
     /* na grávida o tratamento é sempre HBPM: a abordagem é a própria dose */
     if (gr && d._hbpmDose) L.push("- Abordagem: "+d._hbpmDose+"; DOAC e AVK contraindicados.");
-    else if (d.ecoConduta) L.push("- Abordagem: "+fim(d.ecoConduta));
+    else if (d.ecoAbordagem) L.push("- Abordagem: "+fim(d.ecoAbordagem));
   }
   if (tep && d.stratTxt) L.push("- Estratificação: "+d.stratTxt+".");
   if (d.sspePlan && d.local) L.push("- "+fim(d.sspePlan));

@@ -79,6 +79,7 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Toda a decisão que muda a abordagem tem de deixar linha na nota: falência, contraindicação, vigilância, internamento vs ambulatório.
 - Gravidez: não é um ecrã próprio. É um desvio a partir do ecrã da probabilidade (TEP) e do Wells (TVP), com `ST.data.gravida`/`gravidaTvp`.
 - A angio-TC tem um único ecrã, `tep_ctpa`, com três saídas: positiva, negativa, não exequível.
+- Os botões de decisão ficam sempre acima dos ⓘ. O `render()` aplica-o sozinho (`botoesAcima`, em g2) aos botões `.go` que vêm logo a seguir a um bloco de ⓘ; botões dentro de contentores (como o `#hbtn` do Hestia) põem-se acima dos ⓘ na própria fonte.
 - Cuidado com a altura dos ecrãs: a barra fixa da nota tapa os últimos ~60 px da janela. Não pôr checkboxes nem botões de decisão no fim de um ecrã longo.
 
 ## Feedback dos pares

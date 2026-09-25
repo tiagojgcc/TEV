@@ -331,8 +331,8 @@ SCREENS.conf_hestia = { crumb:"Alta precoce", html: () => `
   <p class="sub">${ST.data.sspe? "No subsegmentar isolado o risco é baixo pelo próprio calibre do trombo, por isso não se pedem VD nem troponina: o Hestia serve aqui só para decidir a disposição (casa ou enfermaria)." : "Alta precoce (ESC IIa A) exige: baixo risco confirmado <b>com VD e troponina</b>; sem comorbilidade que exija internamento; circuito ambulatório e consulta assegurados."}</p>
   ${HESTIA.map((h,i)=>chk("h"+i,h[0]+(h[1]?'<span class="hdef">'+h[1]+'</span>':""))).join("")}
   <div class="verdict" id="hout"></div>
-  ${bleedInfo("hestia")}
   <div id="hbtn"></div>
+  ${bleedInfo("hestia")}
   ${info("A evidência da alta precoce",`
     <p style="margin:0 0 8px">A alta precoce (ou o tratamento no domicílio) é segura no TEP de baixo risco selecionado. O que a sustenta:</p>
     <table class="itb"><tr><th>Estudo</th><th>O que mostrou</th></tr>
