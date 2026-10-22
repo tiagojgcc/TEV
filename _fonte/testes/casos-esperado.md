@@ -3,13 +3,22 @@
 Gerado a partir de `_fonte/testes/casos.js`. Cada bloco tem o caso clínico, o percurso na ferramenta e a nota que deve sair.
 Se uma alteração mudar algum destes resultados, a mudança tem de ser intencional e este ficheiro atualiza-se no mesmo commit.
 
-Última atualização: 2026-09-12. Casos: 35.
+Última atualização: 2026-10-22. Casos: 41 (34 percursos distintos).
+
+Contagem de cliques (uso no computador, como um utilizador real): cada passo é um clique; num campo conta o clique para o abrir, não o que se escreve; cada pergunta de escolha visível no ecrã conta um clique, mesmo quando vem pré-preenchida; o caso termina em "ver a nota" e "copiar". Os critérios ausentes (caixas por assinalar) não contam.
+
+- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,6.
+- Desde a suspeita (15 casos, inclui as exclusões): mínimo 8, máximo 30, mediana 12, média 14,2.
+- Desde a suspeita até ao TEP confirmado e estratificado (3 casos): mínimo 21, máximo 30, mediana 25, média 25,3.
+- Desde o TEV confirmado (23 casos): mínimo 6, máximo 17, mediana 9, média 10,7.
+- Anticoagulação para casa (2 casos): mínimo 5, máximo 11, mediana 8, média 8,0.
+- Doente instável (1 caso): 3 cliques.
 
 ## C1 · Suspeita TEP, probabilidade baixa, PERC 0
 
 Homem, 38 anos, dor torácica pleurítica há 1 dia. FC 88, SpO2 97% aa, sem estrogénios, sem TEV prévio, sem cirurgia, sem hemoptises, sem edema. Sem fatores de risco.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > PERC > PERC 0  [tep_perc0]  ·  6 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > PERC > PERC 0  [tep_perc0]  ·  8 cliques
 
 ```
 # Suspeita de TEP: excluída
@@ -21,7 +30,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > PERC > PERC 0  [tep_perc0] 
 
 Mulher, 72 anos, dispneia súbita. FC 98. Sem TEV prévio, sem neoplasia, sem cirurgia. TEP é a hipótese mais provável. D-dímeros 0,68 mg/L.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Excluído  [tep_excl]  ·  10 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Excluído  [tep_excl]  ·  12 cliques
 
 ```
 # Suspeita de TEP: excluída
@@ -33,7 +42,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Excluído  [te
 
 Mulher, 68 anos, TVP prévia, dor unilateral MI e edema, FC 98, SpO2 93%. Angio-TC: TEP segmentar bilateral, VD/VE 1,1. Troponina positiva. Sem neoplasia nem doença cardiopulmonar. TA 125/80. Sem O2. Peso 70 kg.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > Prob. alta > Angio-TC > TEP+ > Estratificar > Abordagem > Plano  [conf_fim]  ·  20 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > Prob. alta > Angio-TC > TEP+ > Estratificar > Abordagem > Plano  [conf_fim]  ·  25 cliques
 
 ```
 # TEP de risco intermédio-alto (AHA/ACC: C3R)
@@ -49,7 +58,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Prob. alta > Angio-TC > TEP
 
 Homem, 45 anos, TEP segmentar direito após viagem longa. FC 92, TA 130/80, SpO2 96% aa. VD/VE 0,8 na angio-TC. Troponina negativa. Sem comorbilidades, apoio social.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  9 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  11 cliques
 
 ```
 # TEP de baixo risco
@@ -64,7 +73,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagul
 
 Mulher, 84 anos, 55 kg, creatinina 1,6 mg/dL (Cockcroft-Gault ≈ 23 mL/min). TEP segmentar, FC 90, TA 140/85, SpO2 95%. VD normal, troponina negativa. sPESI 1 (idade).
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  14 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  16 cliques
 
 ```
 # TEP de risco intermédio-baixo
@@ -78,7 +87,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 
 Homem, 58 anos, TEP subsegmentar único confirmado pelo radiologista de tórax. Sem neoplasia, estável, SpO2 97%. Sem contraindicações.
 
-Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  6 toques
+Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  8 cliques
 
 ```
 # TEP subsegmentar isolado
@@ -92,7 +101,7 @@ Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Anticoagul
 
 Homem, 61 anos, síncope, TA 78/40 persistente, lactato 4, ecocardiograma com VD dilatado. Suspeita de TEP.
 
-Percurso: Início > Alto risco  [tep_inst_sim]  ·  1 toques
+Percurso: Início > Alto risco  [tep_inst_sim]  ·  3 cliques
 
 ```
 # Suspeita de TEP
@@ -103,7 +112,7 @@ Percurso: Início > Alto risco  [tep_inst_sim]  ·  1 toques
 
 Mulher, 30 anos, 28 semanas de gestação, dispneia ligeira. Sem sintomas de TVP, sem hemoptises, TEP não é a hipótese mais provável. D-dímeros 0,85 mg/L.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Excluído  [grav_excl]  ·  8 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Excluído  [grav_excl]  ·  11 cliques
 
 ```
 # Suspeita de TEP (Grávida): excluída
@@ -114,7 +123,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Excluíd
 
 Homem, 68 anos, dor gemelar, perímetro +2 cm, sem outros critérios; Wells 1 (dor no trajeto). D-dímeros 0,70 mg/L. Eco de todo o membro: trombose da veia peronial.
 
-Percurso: Início > Suspeita > TVP > D-dímeros > Eco-doppler > Distal > Anticoagulação > Plano  [ac_fim]  ·  10 toques
+Percurso: Início > Suspeita > TVP > D-dímeros > Eco-doppler > Distal > Anticoagulação > Plano  [ac_fim]  ·  12 cliques
 
 ```
 # TVP distal isolada
@@ -128,7 +137,7 @@ Percurso: Início > Suspeita > TVP > D-dímeros > Eco-doppler > Distal > Anticoa
 
 Mulher, 52 anos, cordão doloroso na coxa. Eco bilateral: TVS da grande safena com 8 cm, a 6 cm da junção safeno-femoral, sem TVP.
 
-Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  5 toques
+Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  7 cliques
 
 ```
 # Trombose venosa superficial
@@ -140,7 +149,7 @@ Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  5 t
 
 Homem, 60 anos, TVP há 4 meses sob rivaroxabano 20 mg (adesão referida boa). TEP segmentar, FC 88, VD normal, troponina negativa, sPESI 0.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  11 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  13 cliques
 
 ```
 # TEP de baixo risco sob anticoagulação
@@ -154,7 +163,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem 
 
 Mulher, 40 anos, TEP lobar, estável, SpO2 96%. Troponina negativa. Radiologista não mediu VD/VE; sem eco disponível.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  9 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  11 cliques
 
 ```
 # TEP de não-alto risco
@@ -168,7 +177,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 
 Homem, 55 anos, TEP bilateral central. TA 85/50 à entrada, 118/70 após 500 mL de soro em 10 min. Lactato 1,4. VD/VE 0,9. Troponina negativa. SpO2 95%.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  12 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  17 cliques
 
 ```
 # TEP de baixo risco (AHA/ACC: D1)
@@ -183,7 +192,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 
 Homem, 79 anos, hemorragia digestiva alta há 10 dias. Eco: trombose da veia solear. Wells 2.
 
-Percurso: Início > Confirmado > TVP > Distal > Plano  [tvp_fim]  ·  4 toques
+Percurso: Início > Confirmado > TVP > Distal > Plano  [tvp_fim]  ·  6 cliques
 
 ```
 # TVP distal isolada
@@ -195,7 +204,7 @@ Percurso: Início > Confirmado > TVP > Distal > Plano  [tvp_fim]  ·  4 toques
 
 Mulher, 47 anos, LES, TVP femoral sob apixabano 5 mg 2x/dia há 2 meses. Eco: TVP femoral nova contralateral.
 
-Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Falência  [ac_falencia]  ·  7 toques
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Falência  [ac_falencia]  ·  9 cliques
 
 ```
 # TVP proximal sob anticoagulação
@@ -207,7 +216,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Fal�
 
 Mulher, 29 anos, 24 semanas de gestação, edema e dor da perna esquerda. Eco de todo o membro: TVP femoral.
 
-Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  8 toques
+Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  10 cliques
 
 ```
 # TVP proximal (Grávida)
@@ -220,7 +229,7 @@ Percurso: Início > Suspeita > TVP > Eco-doppler > Proximal > Anticoagulação >
 
 Igual ao C12, mas abre o ecrã de falência a partir da abordagem e volta para concluir a nota.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  13 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  15 cliques
 
 ```
 # TEP de baixo risco sob anticoagulação
@@ -234,7 +243,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem 
 
 Mulher, 32 anos, 30 semanas, eco MI negativa, YEARS 1 (TEP mais provável), D-dímeros 1,4; cintigrafia positiva. Peso 68 kg.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > Eco MI > YEARS > Imagem > Resultado > Tratar > Concluído  [grav_fim]  ·  13 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > Eco MI > YEARS > Imagem > Resultado > Tratar > Concluído  [grav_fim]  ·  16 cliques
 
 ```
 # TEP (Grávida)
@@ -247,7 +256,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > Eco MI > YEARS >
 
 Homem, 71 anos, hemorragia digestiva ativa. Eco: TVP femoral. Anticoagulação contraindicada.
 
-Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Contraindicação  [ac_contra]  ·  5 toques
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Contraindicação  [ac_contra]  ·  7 cliques
 
 ```
 # TVP proximal
@@ -259,7 +268,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Contraindic
 
 Mulher, 63 anos, madrugada de sábado, sem ecografista. Wells 3. Sem risco hemorrágico.
 
-Percurso: Início > Suspeita > TVP > Eco-doppler > Sem eco > Plano  [tvp_fim]  ·  7 toques
+Percurso: Início > Suspeita > TVP > Eco-doppler > Sem eco > Plano  [tvp_fim]  ·  9 cliques
 
 ```
 # Suspeita de TVP
@@ -272,7 +281,7 @@ Percurso: Início > Suspeita > TVP > Eco-doppler > Sem eco > Plano  [tvp_fim]  �
 
 Homem, 55 anos, TVP iliofemoral sintomática com 5 dias de evolução, membro muito edemaciado.
 
-Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  7 toques
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  9 cliques
 
 ```
 # TVP proximal
@@ -285,7 +294,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plan
 
 Homem, 58 anos, TEP intermédio-baixo internado, 6 dias de enoxaparina, passa a edoxabano.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano > Para casa > Concluído  [alta_fim]  ·  12 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano > Para casa > Concluído  [alta_fim]  ·  14 cliques
 
 ```
 # TEP de risco intermédio-baixo
@@ -301,7 +310,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano > Para c
 
 Mulher, 34 anos, 26 semanas, angio-TC já feita noutro hospital com TEP segmentar. Peso 72 kg.
 
-Percurso: Início > Confirmado > Gravidez > Tratar > Concluído  [grav_fim]  ·  5 toques
+Percurso: Início > Confirmado > Gravidez > Tratar > Concluído  [grav_fim]  ·  7 cliques
 
 ```
 # TEP (Grávida)
@@ -313,7 +322,7 @@ Percurso: Início > Confirmado > Gravidez > Tratar > Concluído  [grav_fim]  · 
 
 Homem, 62 anos, 90 kg, TVP proximal, neoplasia gástrica ativa. Creatinina 1,0 mg/dL.
 
-Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  11 toques
+Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plano  [ac_fim]  ·  13 cliques
 
 ```
 # TVP proximal
@@ -327,7 +336,7 @@ Percurso: Início > Confirmado > TVP > Proximal > Anticoagulação > Dose > Plan
 
 Mulher, 77 anos, 58 kg, neoplasia do cólon, 4 dias de enoxaparina no internamento. Creatinina 1,4 mg/dL.
 
-Percurso: Início > Para casa > Dose > Concluído  [alta_fim]  ·  9 toques
+Percurso: Início > Para casa > Dose > Concluído  [alta_fim]  ·  11 cliques
 
 ```
 # Passagem a anticoagulante oral (TEV)
@@ -339,7 +348,7 @@ Percurso: Início > Para casa > Dose > Concluído  [alta_fim]  ·  9 toques
 
 Mulher, 31 anos, 22 semanas, alergia grave prévia ao contraste iodado. YEARS 1, D-dímeros 1,6.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Imagem > Resultado > Excluído  [grav_excl]  ·  10 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Imagem > Resultado > Excluído  [grav_excl]  ·  13 cliques
 
 ```
 # Suspeita de TEP (Grávida): excluída
@@ -350,7 +359,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > Gravidez > YEARS > Imagem >
 
 Homem, 66 anos, TVS da pequena safena com 7 cm, a 5 cm da junção safeno-poplítea. Recusa injeções.
 
-Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  5 toques
+Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  7 cliques
 
 ```
 # Trombose venosa superficial
@@ -362,7 +371,7 @@ Percurso: Início > Confirmado > TVP > TVS > 45 dias > Plano  [tvp_fim]  ·  5 t
 
 Homem, 64 anos, defeito subsegmentar duvidoso. Radiologista de tórax não confirma. Eco: TVP poplítea.
 
-Percurso: Início > Confirmado > TEP > Subsegmentar > Não confirmado > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  7 toques
+Percurso: Início > Confirmado > TEP > Subsegmentar > Não confirmado > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  9 cliques
 
 ```
 # TVP proximal (achado subsegmentar não confirmado)
@@ -376,7 +385,7 @@ Percurso: Início > Confirmado > TEP > Subsegmentar > Não confirmado > Alta pre
 
 Mulher, 70 anos, subsegmentar confirmado na releitura, vive sozinha sem apoio.
 
-Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  8 toques
+Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  10 cliques
 
 ```
 # TEP subsegmentar isolado
@@ -389,7 +398,7 @@ Percurso: Início > Confirmado > TEP > Subsegmentar > Alta precoce? > Abordagem 
 
 Homem, 49 anos, alergia grave ao contraste. Probabilidade intermédia, D-dímeros 2,1. V/Q de alta probabilidade. VD normal na eco, troponina negativa.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alternativas > Estratificar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  19 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alternativas > Estratificar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  21 cliques
 
 ```
 # TEP de baixo risco
@@ -405,7 +414,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alt
 
 Mulher, 58 anos, sem angio-TC disponível, cintigrafia inconclusiva. Probabilidade intermédia.
 
-Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alternativas > Concluído  [tep_alt_fim]  ·  13 toques
+Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alternativas > Concluído  [tep_alt_fim]  ·  15 cliques
 
 ```
 # Suspeita de TEP
@@ -418,7 +427,7 @@ Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Alt
 
 Mulher, 44 anos, edema de todo o membro e dor no trajeto. Eco de todo o membro negativa.
 
-Percurso: Início > Suspeita > TVP > Eco-doppler > Negativa  [tvp_econeg]  ·  6 toques
+Percurso: Início > Suspeita > TVP > Eco-doppler > Negativa  [tvp_econeg]  ·  8 cliques
 
 ```
 # Suspeita de TVP: eco negativa
@@ -430,7 +439,7 @@ Percurso: Início > Suspeita > TVP > Eco-doppler > Negativa  [tvp_econeg]  ·  6
 
 Mulher, 39 anos, SAF triplo-positivo, TEP internado, 7 dias de enoxaparina, passa a varfarina.
 
-Percurso: Início > Para casa > Concluído  [alta_fim]  ·  3 toques
+Percurso: Início > Para casa > Concluído  [alta_fim]  ·  5 cliques
 
 ```
 # Passagem a anticoagulante oral (TEV)
@@ -442,7 +451,7 @@ Percurso: Início > Para casa > Concluído  [alta_fim]  ·  3 toques
 
 Homem, 50 anos, TA 84/50 transitória com lactato 3,1. VD normal, troponina negativa, sPESI 0.
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  12 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  17 cliques
 
 ```
 # TEP, AHA/ACC D2 (choque normotensivo); ESC: baixo risco
@@ -457,7 +466,7 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 
 Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  13 toques
+Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  17 cliques
 
 ```
 # TEP de risco intermédio-baixo (AHA/ACC: A1)
@@ -465,4 +474,80 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 - Estratificação: sem instabilidade HD, achado incidental, sem disfunção do VD, troponina negativa, sPESI 1.
 - Abordagem: internamento em enfermaria.
 - Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia).
+```
+
+## C35 · Prob. intermédia, D-dímeros positivos, angio-TC+, sPESI 3, VD+ e troponina negativa, AHA com O₂ (caso típico, contado à mão pelo Tiago)
+
+Doente de 70 anos, TVP prévia, neoplasia ativa, estável. D-dímeros 1,0 mg/L, sem critérios YEARS. Angio-TC: TEP segmentar. FC 115, VD/VE 1,1, troponina negativa, sob O₂. Peso 65 kg.
+
+Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > TEP+ > Estratificar > Abordagem > Plano  [conf_fim]  ·  30 cliques
+
+```
+# TEP de risco intermédio-baixo (AHA/ACC: C2R)
+- Probabilidade clínica (Genebra revisto): 6 pontos - intermédia.
+- D-dímeros 1,00 mg/L (YEARS 0, limiar 1,00 mg/L) > angio-TC: TEP confirmado.
+- Estratificação: sem instabilidade HD, sob O₂ suplementar, com disfunção do VD, troponina negativa, sPESI 3.
+- Abordagem: internamento em enfermaria.
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (65 mg 2x/dia).
+```
+
+## C36 · Suspeita TEP, prob. intermédia, D-dímeros positivos, angio-TC negativa
+
+Mulher, 71 anos, dispneia e dor na perna direita, FC 80. D-dímeros 1,8 mg/L, TEP é a hipótese mais provável. Angio-TC sem TEP.
+
+Percurso: Início > Suspeita > TEP > Probabilidade > D-dímeros > Angio-TC > Negativa  [tep_ctpaneg]  ·  14 cliques
+
+```
+# Suspeita de TEP: excluída
+- Probabilidade clínica (Genebra revisto): 7 pontos - intermédia.
+- D-dímeros 1,80 mg/L (YEARS ≥1, limiar ajustado à idade 0,71 mg/L) > angio-TC: TEP excluído.
+```
+
+## C37 · Suspeita TVP, Wells 1, D-dímeros abaixo do limiar: excluída sem imagem
+
+Homem, 45 anos, dor na barriga da perna sem edema. Wells 1 (dor no trajeto venoso). D-dímeros 0,35 mg/L.
+
+Percurso: Início > Suspeita > TVP > D-dímeros > Excluída  [tvp_excl]  ·  9 cliques
+
+```
+# Suspeita de TVP: excluída
+- Wells de TVP 1 ponto (improvável) > D-dímeros 0,35 mg/L (limiar 0,50 mg/L) > TVP excluída sem imagem.
+```
+
+## C38 · TEP confirmado com instabilidade hemodinâmica: alto risco
+
+Homem, 66 anos, TEP central na angio-TC, TA 82/50 persistente com hipoperfusão, a iniciar noradrenalina.
+
+Percurso: Início > Confirmado > TEP > Estratificar > Alto risco  [conf_alto]  ·  7 cliques
+
+```
+# TEP de alto risco
+- Angio-TC: TEP confirmado.
+- Estratificação: instabilidade hemodinâmica.
+- Abordagem: UCI; trombólise sistémica; HNF na fase aguda, com transição para HBPM após a lise; centro de referência com capacidade de reperfusão contactado.
+```
+
+## C39 · Subsegmentar não confirmado na releitura e sem TVP: sem TEV
+
+Mulher, 52 anos, defeito subsegmentar duvidoso que o radiologista de tórax não confirma. Eco dos membros inferiores sem TVP.
+
+Percurso: Início > Confirmado > TEP > Subsegmentar > Não confirmado > Concluído  [tep_sspe_fim]  ·  7 cliques
+
+```
+# Suspeita de TEP subsegmentar: não confirmada (sem TEV)
+- Abordagem: achado subsegmentar não confirmado na releitura com o radiologista; eco-doppler dos MI sem TVP proximal > sem diagnóstico de TEV; anticoagulação não iniciada; reavaliar a causa dos sintomas.
+```
+
+## C40 · TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP
+
+Homem, 59 anos, TVS da grande safena com 6 cm, a 2 cm da junção safeno-femoral.
+
+Percurso: Início > Confirmado > TVP > TVS > Anticoagular > Anticoagulação > Plano  [ac_fim]  ·  8 cliques
+
+```
+# Trombose venosa superficial
+- Eco-doppler de todo o membro: trombose venosa superficial.
+- Abordagem: TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP, anticoagulação em dose de tratamento até reavaliação em consulta.
+- Pedido de consulta de Medicina Interna e cirurgia vascular.
+- Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
 ```

@@ -149,6 +149,34 @@ const CASOS = [
     caso: 'Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).',
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["check","sp1"],["radio","q_vd","nao"],["radio","q_tp","neg"],
              ["open","ahaBox"],["radio","q_pres","inc"],["radio","q_ext","sub"],["btnin","stratbtn"],["fill","pw","80"],["click","Concluir: nota do episódio"]] },
+  { id: 'C35', titulo: 'Prob. intermédia, D-dímeros positivos, angio-TC+, sPESI 3, VD+ e troponina negativa, AHA com O₂ (caso típico, contado à mão pelo Tiago)',
+    caso: 'Doente de 70 anos, TVP prévia, neoplasia ativa, estável. D-dímeros 1,0 mg/L, sem critérios YEARS. Angio-TC: TEP segmentar. FC 115, VD/VE 1,1, troponina negativa, sob O₂. Peso 65 kg.',
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],
+             ["check","g0"],["check","g1"],["check","g3"],["click","Continuar"],
+             ["fill","ddage","70"],["fill","ddval","1"],["check","ynone"],["click","Prosseguir para angio-TC"],
+             ["click","Positiva: TEP confirmado"],["click","Segmentar, lobar"],
+             ["radio","q_inst","nao"],["check","sp0"],["check","sp1"],["check","sp3"],["radio","q_vd","sim"],["radio","q_tp","neg"],
+             ["open","ahaBox"],["radio","q_ht","nao"],["radio","q_pres","sint"],["radio","q_ext","seg"],["radio","q_resp","o2"],
+             ["btnin","stratbtn"],["fill","pw","65"],["click","Concluir: nota do episódio"]] },
+  { id: 'C36', titulo: 'Suspeita TEP, prob. intermédia, D-dímeros positivos, angio-TC negativa',
+    caso: 'Mulher, 71 anos, dispneia e dor na perna direita, FC 80. D-dímeros 1,8 mg/L, TEP é a hipótese mais provável. Angio-TC sem TEP.',
+    passos: [["card","Suspeita de TEV"],["click","TEP"],["click","Não, estável"],
+             ["check","g0"],["check","g4"],["radio","gfc","3"],["click","Continuar"],
+             ["fill","ddage","71"],["fill","ddval","1.8"],["check","y2"],["click","Prosseguir para angio-TC"],["click","Negativa"]] },
+  { id: 'C37', titulo: 'Suspeita TVP, Wells 1, D-dímeros abaixo do limiar: excluída sem imagem',
+    caso: 'Homem, 45 anos, dor na barriga da perna sem edema. Wells 1 (dor no trajeto venoso). D-dímeros 0,35 mg/L.',
+    passos: [["card","Suspeita de TEV"],["click","TVP"],["check","wt3"],["click","Continuar"],
+             ["fill","tdage","45"],["fill","tdval","0.35"],["click","Concluir: excluída"]] },
+  { id: 'C38', titulo: 'TEP confirmado com instabilidade hemodinâmica: alto risco',
+    caso: 'Homem, 66 anos, TEP central na angio-TC, TA 82/50 persistente com hipoperfusão, a iniciar noradrenalina.',
+    semResposta: ["q_vd","q_tp"],
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","sim"],["btnin","stratbtn"]] },
+  { id: 'C39', titulo: 'Subsegmentar não confirmado na releitura e sem TVP: sem TEV',
+    caso: 'Mulher, 52 anos, defeito subsegmentar duvidoso que o radiologista de tórax não confirma. Eco dos membros inferiores sem TVP.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Subsegmentar isolado"],["click","O achado não se confirmou"],["click","Sem TVP"]] },
+  { id: 'C40', titulo: 'TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP',
+    caso: 'Homem, 59 anos, TVS da grande safena com 6 cm, a 2 cm da junção safeno-femoral.',
+    passos: [["card","TEV confirmado"],["click","TVP"],["click","Trombose venosa superficial"],["click","<3 cm da junção"],["click","Escolher o anticoagulante"],["click","Apixabano"]] },
 ];
 
 (async () => {
@@ -163,10 +191,16 @@ const CASOS = [
     p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
     p.on('dialog', d => d.accept());
     await p.goto(URL);
-    let toques = 0, falha = null;
+    // contagem de cliques como um utilizador real no computador: cada passo é um clique (num campo, o clique para o abrir;
+    // o que se escreve não conta); cada pergunta de escolha visível a que o caso não respondeu conta um clique, porque quem
+    // usa a ferramenta responde a todas, mesmo às que vêm pré-preenchidas; no fim, "ver a nota" e "copiar".
+    let toques = 0, falha = null, respondidas = new Set();
+    const visiveis = () => p.evaluate(() => [...document.querySelectorAll('.scr .radio3')].filter(e => e.offsetParent && !e.closest('details:not([open])')).map(e => e.id));
+    const marca = () => p.evaluate(() => { const s = document.querySelector('.scr') || document.body; if (!s.__m) s.__m = Math.random(); return s.__m; });
     try {
       for (const s of c.passos) {
         const [op, a, v] = s;
+        const antes = await visiveis(), m0 = await marca();
         if (op === 'card') await p.locator('button.card', { hasText: a }).first().click();
         else if (op === 'hr') await p.locator('div.hr', { hasText: a }).first().click();
         else if (op === 'click') await p.locator('.scr button', { hasText: a }).first().click();
@@ -177,8 +211,19 @@ const CASOS = [
         else if (op === 'btnin') await p.locator('#' + a + ' button').first().click();
         else if (op === 'hdr') await p.locator('header button', { hasText: a }).first().click();
         toques++;
+        if (op === 'radio') respondidas.add(a);
         await p.waitForTimeout(60);
+        if (await marca() !== m0) {
+          toques += antes.filter(id => !respondidas.has(id) && !(c.semResposta || []).includes(id)).length;
+          respondidas = new Set();
+        }
       }
+      if (!(await p.evaluate(() => document.getElementById('notebody').classList.contains('open')))) {
+        const ver = p.locator('.scr button', { hasText: 'Ver a nota' });
+        if (await ver.count()) await ver.first().click(); else await p.locator('.notehead').click();
+        toques++;
+      }
+      await p.locator('.copybtn').click(); toques++;
     } catch (e) { falha = String(e).split('\n')[0]; }
     const r = await p.evaluate(() => {
       const scr = document.querySelector('.scr') || document.body;
@@ -201,7 +246,7 @@ const CASOS = [
   require('fs').writeFileSync(path.join(os.tmpdir(), 'tev-casos-out.json'), JSON.stringify(out, null, 2));
   for (const o of out) {
     console.log('\n########## ' + o.id + ' · ' + o.titulo);
-    console.log('toques: ' + o.toques + (o.falha ? '   FALHA: ' + o.falha : '') + (o.erros.length ? '   ERROS JS: ' + o.erros.join(' | ') : '') + (o.sw > 400 ? '   TRANSBORDO ' + o.sw : ''));
+    console.log('cliques: ' + o.toques + (o.falha ? '   FALHA: ' + o.falha : '') + (o.erros.length ? '   ERROS JS: ' + o.erros.join(' | ') : '') + (o.sw > 400 ? '   TRANSBORDO ' + o.sw : ''));
     console.log('percurso: ' + o.crumbs.join(' > ') + '   [' + o.ecra + ']');
     console.log('h2: ' + o.h2);
     o.verdicts.forEach(v => console.log('  ▌' + v.replace(/\n/g, '\n  ▌')));
