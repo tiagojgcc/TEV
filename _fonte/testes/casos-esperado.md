@@ -3,12 +3,12 @@
 Gerado a partir de `_fonte/testes/casos.js`. Cada bloco tem o caso clínico, o percurso na ferramenta e a nota que deve sair.
 Se uma alteração mudar algum destes resultados, a mudança tem de ser intencional e este ficheiro atualiza-se no mesmo commit.
 
-Última atualização: 2026-10-22. Casos: 43 (36 percursos distintos).
+Última atualização: 2026-10-22. Casos: 45 (38 percursos distintos).
 
 Contagem de cliques (uso no computador, como um utilizador real): cada passo é um clique; num campo conta o clique para o abrir, não o que se escreve; cada pergunta de escolha visível no ecrã conta um clique, mesmo quando vem pré-preenchida; o caso termina em "ver a nota" e "copiar". Os critérios ausentes (caixas por assinalar) não contam.
 
-- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,8.
-- Desde a suspeita (15 casos, inclui as exclusões): mínimo 8, máximo 30, mediana 12, média 14,2.
+- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,6.
+- Desde a suspeita (16 casos, inclui as exclusões): mínimo 8, máximo 30, mediana 12, média 13,8.
 - Desde a suspeita até ao TEP confirmado e estratificado (3 casos): mínimo 21, máximo 30, mediana 25, média 25,3.
 - Desde o TEV confirmado (25 casos): mínimo 6, máximo 19, mediana 10, média 11,1.
 - Anticoagulação para casa (2 casos): mínimo 5, máximo 11, mediana 8, média 8,0.
@@ -579,4 +579,28 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Alto risco
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 0; na reavaliação, instabilidade hemodinâmica.
 - Abordagem: UCI; trombólise sistémica; HNF na fase aguda, com transição para HBPM após a lise; centro de referência com capacidade de reperfusão contactado.
+```
+
+## C43 · Grávida com TVS ≥5 cm: sem rivaroxabano, fica o fondaparinux (decisão com Obstetrícia)
+
+Mulher, 30 anos, 20 semanas, TVS da grande safena com 7 cm, a 5 cm da junção safeno-femoral.
+
+Percurso: Início > Suspeita > TVP > Eco-doppler > TVS > 45 dias > Plano  [tvp_fim]  ·  8 cliques
+
+```
+# Trombose venosa superficial (Grávida)
+- Eco-doppler de todo o membro: trombose venosa superficial.
+- Abordagem: TVS ≥5 cm e ≥3 cm da junção: fondaparinux 2,5 mg sc 1x/dia durante 45 dias.
+- Plano discutido com Obstetrícia.
+```
+
+## C44 · Grávida com TEP já confirmado que fica instável: nota do doente instável
+
+Mulher, 33 anos, 30 semanas, TEP confirmado noutro hospital, chega hipotensa (TA 80/45 persistente).
+
+Percurso: Início > Confirmado > Gravidez > Alto risco  [tep_inst_sim]  ·  5 cliques
+
+```
+# Suspeita de TEP (Grávida)
+- Instabilidade hemodinâmica - contacto imediato com Medicina Interna/UCI
 ```

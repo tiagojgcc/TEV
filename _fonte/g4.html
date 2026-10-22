@@ -212,7 +212,7 @@ SCREENS.tvp_tvs45 = { crumb:"45 dias", html: () => `
   <h2>Qual dos dois vai fazer?</h2>
   <p class="sub">São 45 dias em qualquer dos casos. A nota leva o que escolher aqui.</p>
   <button class="go blk" onclick="tvs45Go('fonda')">Fondaparinux 2,5 mg sc 1x/dia durante 45 dias</button>
-  <button class="go sec blk" onclick="tvs45Go('riva')">Rivaroxabano 10 mg 1x/dia durante 45 dias</button>
+  ${ST.data.gravidaTvp ? '<div class="warnband"><b>Grávida:</b> os DOAC estão contraindicados, pelo que o rivaroxabano não é opção. A escolha entre fondaparinux e HBPM na gravidez decide-se com Obstetrícia.</div>' : `<button class="go sec blk" onclick="tvs45Go('riva')">Rivaroxabano 10 mg 1x/dia durante 45 dias</button>`}
   <p class="mini" style="margin-top:14px">O fondaparinux é a recomendação formal (ESVS 2021, Classe I B, com base no CALISTO). O rivaroxabano apoia-se num único ensaio de não-inferioridade (SURPRISE), em TVS acima do joelho com pelo menos um fator de risco, e <b>não tem esta indicação aprovada</b>. A HBPM em dose intermédia é a outra alternativa (ESVS IIa B).</p>
   ${situInfo()}
   ${ciAC()}
@@ -263,14 +263,15 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
     <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
     <button class="wchip w-red" onclick="contraGo()">⚠ Contraindicação à anticoagulação</button>
   </div>
-  <div class="opts">
+  ${ST.data.gravida||ST.data.gravidaTvp ? `<div class="warnband"><b>Grávida:</b> DOAC e AVK estão contraindicados em toda a gravidez. O tratamento é a enoxaparina ajustada ao peso.</div>
+  <div class="opts"><button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia (peso atual)</small></button></div>` : `<div class="opts">
     <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 15–50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
     <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (neoplasia GI, gravidez, instabilidade)</small></button>
     <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 em duas determinações; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
-  </div>
+  </div>`}
   <p class="mini">NOAC preferido ao AVK (ESC I A; ESVS 2021 I A). Se parentérico inicial: HBPM &gt; HNF (AHA 2026, Classe 1 B-R).</p>
   ${ciAC()}
 `};

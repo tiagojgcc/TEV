@@ -187,6 +187,12 @@ const CASOS = [
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],
              ["radio","q_inst","nao"],["radio","q_vd","nao"],["radio","q_tp","neg"],["btnin","stratbtn"],
              ["check","h0"],["btnin","hbtn"]] },
+  { id: 'C43', titulo: 'Grávida com TVS ≥5 cm: sem rivaroxabano, fica o fondaparinux (decisão com Obstetrícia)',
+    caso: 'Mulher, 30 anos, 20 semanas, TVS da grande safena com 7 cm, a 5 cm da junção safeno-femoral.',
+    passos: [["card","Suspeita de TEV"],["click","TVP"],["click","Grávida: ir diretamente"],["click","Trombose venosa superficial"],["click","≥5 cm de extensão"],["click","Fondaparinux"]] },
+  { id: 'C44', titulo: 'Grávida com TEP já confirmado que fica instável: nota do doente instável',
+    caso: 'Mulher, 33 anos, 30 semanas, TEP confirmado noutro hospital, chega hipotensa (TA 80/45 persistente).',
+    passos: [["card","TEV confirmado"],["click","Ir para a via da grávida"],["click","Ir para a via do alto risco"]] },
 ];
 
 (async () => {

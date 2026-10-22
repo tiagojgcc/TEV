@@ -484,7 +484,7 @@ function buildNote(){
   else if (d.acCtx) L.push((d.via==="tvp"||d.sspeTvp)? "- Pedido de consulta de Medicina Interna e cirurgia vascular." : "- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime && !d.gravidaTvp) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
-    if (d.via==="alta" && !L.length) L.push("# Passagem a anticoagulante oral (TEV)");
+    if (!L.some(l=>l.startsWith("# "))) L.unshift("# Passagem a anticoagulante oral (TEV)");
     d.altaInt.forEach? d.altaInt.forEach(x=>L.push("- "+fim(x))) : L.push("- "+fim(d.altaInt));
   }
   return L.length? L.join("\n") : "Percorra o algoritmo: a nota constrói-se automaticamente.";
@@ -841,6 +841,8 @@ function gwCalc(){
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
+  /* a nota leva sempre a dose de enoxaparina em mg: sem peso não se conclui */
+  if (!w){ if($("gwout")) $("gwout").innerHTML='<b style="color:var(--red)">Falta o peso: a nota leva a dose em mg.</b>'; if($("gw")) $("gw").focus(); return; }
   ST.data.gravPlan = "enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados";
   drawNote();
   go("grav_fim","Concluído");
@@ -1503,7 +1505,7 @@ SCREENS.tvp_tvs45 = { crumb:"45 dias", html: () => `
   <h2>Qual dos dois vai fazer?</h2>
   <p class="sub">São 45 dias em qualquer dos casos. A nota leva o que escolher aqui.</p>
   <button class="go blk" onclick="tvs45Go('fonda')">Fondaparinux 2,5 mg sc 1x/dia durante 45 dias</button>
-  <button class="go sec blk" onclick="tvs45Go('riva')">Rivaroxabano 10 mg 1x/dia durante 45 dias</button>
+  ${ST.data.gravidaTvp ? '<div class="warnband"><b>Grávida:</b> os DOAC estão contraindicados, pelo que o rivaroxabano não é opção. A escolha entre fondaparinux e HBPM na gravidez decide-se com Obstetrícia.</div>' : `<button class="go sec blk" onclick="tvs45Go('riva')">Rivaroxabano 10 mg 1x/dia durante 45 dias</button>`}
   <p class="mini" style="margin-top:14px">O fondaparinux é a recomendação formal (ESVS 2021, Classe I B, com base no CALISTO). O rivaroxabano apoia-se num único ensaio de não-inferioridade (SURPRISE), em TVS acima do joelho com pelo menos um fator de risco, e <b>não tem esta indicação aprovada</b>. A HBPM em dose intermédia é a outra alternativa (ESVS IIa B).</p>
   ${situInfo()}
   ${ciAC()}
@@ -1554,14 +1556,15 @@ SCREENS.ac_pick = { crumb:"Anticoagulação", html: () => `
     <button class="wchip w-org" onclick="falenciaGo()">⚠ Já estava anticoagulado</button>
     <button class="wchip w-red" onclick="contraGo()">⚠ Contraindicação à anticoagulação</button>
   </div>
-  <div class="opts">
+  ${ST.data.gravida||ST.data.gravidaTvp ? `<div class="warnband"><b>Grávida:</b> DOAC e AVK estão contraindicados em toda a gravidez. O tratamento é a enoxaparina ajustada ao peso.</div>
+  <div class="opts"><button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia (peso atual)</small></button></div>` : `<div class="opts">
     <button class="opt" onclick="acGo('edox')"><b>Edoxabano</b><small>60 mg 1x/dia após ≥5 d de HBPM (30 mg se peso ≤60 kg, ClCr 15–50 mL/min, ou ciclosporina/dronedarona/eritromicina/cetoconazol)</small></button>
     <button class="opt" onclick="acGo('apix')"><b>Apixabano</b><small>10 mg 2x/dia × 7 d → 5 mg 2x/dia · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('riva')"><b>Rivaroxabano</b><small>15 mg 2x/dia × 21 d → 20 mg 1x/dia (com alimentos) · sem heparina inicial</small></button>
     <button class="opt" onclick="acGo('dabi')"><b>Dabigatrano</b><small>150 mg 2x/dia após ≥5 d de HBPM (110 se ≥80 anos)</small></button>
     <button class="opt" onclick="acGo('hbpm')"><b>Enoxaparina</b><small>1 mg/kg 2x/dia; 1x/dia se ClCr &lt;30 mL/min (neoplasia GI, gravidez, instabilidade)</small></button>
     <button class="opt" onclick="acGo('avk')"><b>Varfarina (AVK) / acenocumarol</b><small>Sobreposição de enoxaparina ≥5 dias e até INR ≥2 em duas determinações; referenciar à consulta de hipocoagulação (SAF; ClCr &lt;15)</small></button>
-  </div>
+  </div>`}
   <p class="mini">NOAC preferido ao AVK (ESC I A; ESVS 2021 I A). Se parentérico inicial: HBPM &gt; HNF (AHA 2026, Classe 1 B-R).</p>
   ${ciAC()}
 `};
@@ -1709,7 +1712,7 @@ SCREENS.conf_grav = { crumb:"Gravidez", html: () => `
     <button class="opt" onclick="ST.data.via='tep';ST.data.gravConf=true;ST.data.grav={};gravSetNote('tvp');go('grav_trat','Tratar')"><b>🦵 TVP proximal</b></button>
   </div>
   <div class="warnband"><b>Instável?</b> Choque, hipotensão persistente ou paragem: a gravidez não muda a via do alto risco.
-    <div style="margin-top:10px"><button class="go sec" style="margin:0" onclick="ST.data.instavel='sim';go('tep_inst_sim','Alto risco')">Ir para a via do alto risco</button></div></div>
+    <div style="margin-top:10px"><button class="go sec" style="margin:0" onclick="ST.data.via='tep';ST.data.gravConf=true;ST.data.instavel='sim';go('tep_inst_sim','Alto risco')">Ir para a via do alto risco</button></div></div>
 `};
 function radioRow(id, opts, sel){
   return '<div class="radio3" id="'+id+'">'+opts.map((o,i)=>
@@ -1770,7 +1773,7 @@ SCREENS.conf_strat = { crumb:"Estratificação", html: () => `
   <div id="stratbtn"></div>
 `, after: ()=>{
   SPESI.forEach((s,i)=>$("sp"+i).addEventListener("change",stratCalc));
-  $("ahaBox").addEventListener("toggle",()=>{ ST.data._ahaOn=$("ahaBox").open; stratCalc(); });
+  const ab=$("ahaBox"); ab.addEventListener("toggle",()=>{ if (ab.isConnected){ ST.data._ahaOn=ab.open; stratCalc(); } });
   const r=ST.data._stratRaw;
   if (r){
     setRadio("q_inst",r.inst); setRadio("q_vd",r.vd); setRadio("q_tp",r.tp);
@@ -1989,6 +1992,8 @@ function destGo(){
   const ahaDone = ia && !!cat && !/^C\?/.test(cat);
   const cdt = ahaDone ? cdtCat(cat) : null;
   const w = ST.data._pw;
+  /* a nota leva sempre a dose de enoxaparina em mg: sem peso não se conclui */
+  if (w==null){ const o=$("pwout"); if(o) o.innerHTML='<b style="color:var(--red)">Falta o peso: a nota leva a dose em mg.</b>'; if($("pw")) $("pw").focus(); return; }
   ST.data.local = (ia? "internamento com monitorização"
         : inc? "internamento até completar a estratificação (ecocardiograma ou ecoscopia; se indisponíveis, pedir ao radiologista o rácio VD/VE no corte de 4 câmaras da angio-TC; troponina)"
         : "internamento em enfermaria"+(ST.data.hestiaFail && ST.data.hestiaWhy? " (Hestia: "+ST.data.hestiaWhy+")":""));
@@ -2098,6 +2103,8 @@ function aiCalc(){
   ST.data._aidays = has? d : null; snapTop("alta_int");
   const box = $("aiopts");
   if (!has){ box.innerHTML = '<div class="verdict v-blu">Indique os dias de anticoagulação já cumpridos: os planos ajustam-se automaticamente (com datas reais).</div>'; return; }
+  /* grávida: DOAC e AVK contraindicados, a única opção é manter a enoxaparina */
+  if (ST.data.gravida || ST.data.gravidaTvp){ box.innerHTML = '<div class="warnband"><b>Grávida:</b> DOAC e AVK estão contraindicados em toda a gravidez. Mantém-se a enoxaparina.</div><button class="opt" onclick="aiGo(\'eno\')"><b>Manter enoxaparina</b><small>1 mg/kg 2x/dia (peso atual)</small></button>'; return; }
   const faltam5 = Math.max(0, 5-dd);
   const edoSub = faltam5>0
     ? "enoxaparina mais "+faltam5+" dia"+(faltam5>1?"s":"")+" (termina "+fmtD(faltam5)+") &gt; depois edoxabano 60 mg 1x/dia"

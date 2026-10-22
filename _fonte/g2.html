@@ -155,7 +155,7 @@ function buildNote(){
   else if (d.acCtx) L.push((d.via==="tvp"||d.sspeTvp)? "- Pedido de consulta de Medicina Interna e cirurgia vascular." : "- Pedido de consulta de Medicina Interna - TEV.");
   if (d.regime && !d.gravidaTvp) L.push("- Anticoagulação: "+d.regime);
   if (d.altaInt){
-    if (d.via==="alta" && !L.length) L.push("# Passagem a anticoagulante oral (TEV)");
+    if (!L.some(l=>l.startsWith("# "))) L.unshift("# Passagem a anticoagulante oral (TEV)");
     d.altaInt.forEach? d.altaInt.forEach(x=>L.push("- "+fim(x))) : L.push("- "+fim(d.altaInt));
   }
   return L.length? L.join("\n") : "Percorra o algoritmo: a nota constrói-se automaticamente.";

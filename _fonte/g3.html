@@ -219,6 +219,8 @@ function gwCalc(){
 }
 function gravTratGo(){
   const w=ST.data.grav._w;
+  /* a nota leva sempre a dose de enoxaparina em mg: sem peso não se conclui */
+  if (!w){ if($("gwout")) $("gwout").innerHTML='<b style="color:var(--red)">Falta o peso: a nota leva a dose em mg.</b>'; if($("gw")) $("gw").focus(); return; }
   ST.data.gravPlan = "enoxaparina 1 mg/kg 2x/dia"+(w? " ("+enoxDose(w)+" mg 2x/dia)":"")+"; DOAC e AVK contraindicados";
   drawNote();
   go("grav_fim","Concluído");
