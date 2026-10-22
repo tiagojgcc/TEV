@@ -3,14 +3,14 @@
 Gerado a partir de `_fonte/testes/casos.js`. Cada bloco tem o caso clínico, o percurso na ferramenta e a nota que deve sair.
 Se uma alteração mudar algum destes resultados, a mudança tem de ser intencional e este ficheiro atualiza-se no mesmo commit.
 
-Última atualização: 2026-10-22. Casos: 41 (34 percursos distintos).
+Última atualização: 2026-10-22. Casos: 42 (35 percursos distintos).
 
 Contagem de cliques (uso no computador, como um utilizador real): cada passo é um clique; num campo conta o clique para o abrir, não o que se escreve; cada pergunta de escolha visível no ecrã conta um clique, mesmo quando vem pré-preenchida; o caso termina em "ver a nota" e "copiar". Os critérios ausentes (caixas por assinalar) não contam.
 
-- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,6.
+- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,9.
 - Desde a suspeita (15 casos, inclui as exclusões): mínimo 8, máximo 30, mediana 12, média 14,2.
 - Desde a suspeita até ao TEP confirmado e estratificado (3 casos): mínimo 21, máximo 30, mediana 25, média 25,3.
-- Desde o TEV confirmado (23 casos): mínimo 6, máximo 17, mediana 9, média 10,7.
+- Desde o TEV confirmado (24 casos): mínimo 6, máximo 19, mediana 9,5, média 11,1.
 - Anticoagulação para casa (2 casos): mínimo 5, máximo 11, mediana 8, média 8,0.
 - Doente instável (1 caso): 3 cliques.
 
@@ -69,17 +69,17 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagul
 - Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
 ```
 
-## C5 · TEP baixo risco mas ClCr <30 (Hestia+): dose de enoxaparina na nota
+## C5 · TEP intermédio-baixo só pelo sPESI (idade), ClCr <30 (Hestia+): internamento e dose de enoxaparina na nota
 
 Mulher, 84 anos, 55 kg, creatinina 1,6 mg/dL (Cockcroft-Gault ≈ 23 mL/min). TEP segmentar, FC 90, TA 140/85, SpO2 95%. VD normal, troponina negativa. sPESI 1 (idade).
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  16 cliques
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Abordagem > Plano  [conf_fim]  ·  18 cliques
 
 ```
 # TEP de risco intermédio-baixo
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 1.
-- Abordagem: internamento em enfermaria.
+- Abordagem: internamento em enfermaria (Hestia: ClCr <30 mL/min).
 - Anticoagulação: enoxaparina 1 mg/kg 1x/dia (55 mg 1x/dia), dose reduzida por ClCr ≈ 23 mL/min (Cockcroft-Gault).
 ```
 
@@ -462,18 +462,19 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 - Anticoagulação: enoxaparina 1 mg/kg 2x/dia (70 mg 2x/dia).
 ```
 
-## C34 · AHA A1: TEP incidental subsegmentar em TC de estadiamento, alta direta
+## C34 · AHA A1: TEP incidental subsegmentar, sPESI 1 só pela neoplasia, Hestia 0: alta precoce com enoxaparina
 
 Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).
 
-Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_fim]  ·  17 cliques
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagulação > Dose > Plano  [ac_fim]  ·  19 cliques
 
 ```
 # TEP de risco intermédio-baixo (AHA/ACC: A1)
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, achado incidental, sem disfunção do VD, troponina negativa, sPESI 1.
-- Abordagem: internamento em enfermaria.
-- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia).
+- Abordagem: alta precoce (triagem pelo Hestia: Hestia 0).
+- Pedido de consulta de Medicina Interna - TEV.
+- Anticoagulação: enoxaparina 1 mg/kg 2x/dia (80 mg 2x/dia), manter até à consulta.
 ```
 
 ## C35 · Prob. intermédia, D-dímeros positivos, angio-TC+, sPESI 3, VD+ e troponina negativa, AHA com O₂ (caso típico, contado à mão pelo Tiago)
@@ -549,5 +550,20 @@ Percurso: Início > Confirmado > TVP > TVS > Anticoagular > Anticoagulação > P
 - Eco-doppler de todo o membro: trombose venosa superficial.
 - Abordagem: TVS a menos de 3 cm da junção safeno-femoral: tratada como TVP, anticoagulação em dose de tratamento até reavaliação em consulta.
 - Pedido de consulta de Medicina Interna e cirurgia vascular.
+- Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
+```
+
+## C41 · sPESI 1 só pela idade, VD e troponina negativos, AHA ligada, Hestia 0: alta precoce e categoria B
+
+Mulher, 83 anos, autónoma, com apoio familiar. TEP segmentar, FC 92, TA 135/80, SpO2 95% aa. VD/VE 0,8, troponina negativa. ClCr 55 mL/min. Sem comorbilidades.
+
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagulação > Plano  [ac_fim]  ·  17 cliques
+
+```
+# TEP de risco intermédio-baixo (AHA/ACC: B2)
+- Angio-TC: TEP confirmado.
+- Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 1.
+- Abordagem: alta precoce (triagem pelo Hestia: Hestia 0).
+- Pedido de consulta de Medicina Interna - TEV.
 - Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
 ```

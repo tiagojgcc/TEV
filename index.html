@@ -1796,8 +1796,11 @@ function stratGo(){
   const s=ST.data._strat;
   ST.data.confCls=s.esc.replace(" (a completar)",""); ST.data.ahaCat=s.aha||null; ST.data.stratTxt=s.txt;
   const catD = !!(s.aha && /^D/.test(s.aha)); /* pré-falência cardiopulmonar da AHA: monitorização, mesmo com classe ESC baixa */
+  /* sPESI ≥1 com VD normal e troponina negativa: a triagem para alta precoce pode fazer-se pelo Hestia (ESC 2019, secção 7.2.3; AHA/ACC 2026, 2a B-R; HOME-PE) */
+  const r=ST.data._stratRaw||{};
+  ST.data.hestiaTriagem = s.esc==="INTERMÉDIO-BAIXO" && s.sp>0 && r.vd==="nao" && r.tp==="neg" && !catD;
   if (s.esc==="ALTO") go("conf_alto","Alto risco");
-  else if (s.esc==="BAIXO" && !catD) go("conf_hestia","Alta precoce?");
+  else if ((s.esc==="BAIXO" || ST.data.hestiaTriagem) && !catD) go("conf_hestia","Alta precoce?");
   else go("conf_dest","Abordagem");
 }
 const ALTO_TXT = "UCI; trombólise sistémica; HNF na fase aguda, com transição para HBPM após a lise; centro de referência com capacidade de reperfusão contactado";
@@ -1839,7 +1842,7 @@ SCREENS.conf_dest = { crumb:"Abordagem", html: () => {
   const tagIA = ST.data.confCls==="INTERMÉDIO-ALTO" ? "INTERMÉDIO-ALTO" : "AHA/ACC "+esc(cat);
   return `
   <p class="kick">${ST.data.sspe? "TEP subsegmentar isolado" : "TEP · "+esc((ST.data.confCls||"").toLowerCase())}${hf?" · Hestia positivo":""}</p>
-  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">NÃO-ALTO RISCO</span> Internar e completar a estratificação':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
+  <h2>${ia?'<span class="tag t-amb">'+tagIA+'</span> Internamento com monitorização':inc?'<span class="tag t-blu">NÃO-ALTO RISCO</span> Internar e completar a estratificação':hf&&ST.data.hestiaTriagem?'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria (Hestia positivo)':hf?'<span class="tag t-grn">BAIXO RISCO</span> Internamento (Hestia positivo)':'<span class="tag t-blu">INTERMÉDIO-BAIXO</span> Internamento em enfermaria'}</h2>
   ${cdt ? `<div class="verdict v-ac" style="border-width:2px"><h3>➤ Reperfusão dirigida por cateter <span class="mini">(AHA/ACC ${esc(cat)})</span></h3>${cdt.ecra}${info("Trombólise dirigida por cateter e trombectomia mecânica: o que diz a AHA/ACC 2026",`
     <table class="itb"><tr><th>Categoria</th><th>Trombólise dirigida por cateter</th><th>Trombectomia mecânica</th></tr>
       <tr><td>A a C1</td><td>Não recomendada (3: sem benefício)</td><td>Não recomendada (3: sem benefício)</td></tr>
@@ -1968,9 +1971,9 @@ const HESTIA = [
   ["História de trombocitopenia induzida pela heparina?","Documentada."]
 ];
 SCREENS.conf_hestia = { crumb:"Alta precoce", html: () => `
-  <p class="kick">TEP · baixo risco</p>
+  <p class="kick">TEP · ${ST.data.hestiaTriagem? "intermédio-baixo pelo sPESI" : "baixo risco"}</p>
   <h2>Alta precoce: Hestia (qualquer "sim" exclui)</h2>
-  <p class="sub">${ST.data.sspe? "No subsegmentar isolado o risco é baixo pelo próprio calibre do trombo, por isso não se pedem VD nem troponina: o Hestia serve aqui só para decidir a disposição (casa ou enfermaria)." : "Alta precoce (ESC IIa A) exige: baixo risco confirmado <b>com VD e troponina</b>; sem comorbilidade que exija internamento; circuito ambulatório e consulta assegurados."}</p>
+  <p class="sub">${ST.data.hestiaTriagem? "O sPESI é ≥1, mas o VD é normal e a troponina negativa. Para decidir a alta precoce, a ESC 2019 admite o Hestia em alternativa ao sPESI (secção 7.2.3) e a AHA/ACC 2026 considera razoável usar qualquer um dos dois (2a B-R). Com Hestia 0, o doente é candidato a alta precoce com seguimento assegurado." : ST.data.sspe? "No subsegmentar isolado o risco é baixo pelo próprio calibre do trombo, por isso não se pedem VD nem troponina: o Hestia serve aqui só para decidir a disposição (casa ou enfermaria)." : "Alta precoce (ESC IIa A) exige: baixo risco confirmado <b>com VD e troponina</b>; sem comorbilidade que exija internamento; circuito ambulatório e consulta assegurados."}</p>
   ${HESTIA.map((h,i)=>chk("h"+i,h[0]+(h[1]?'<span class="hdef">'+h[1]+'</span>':""))).join("")}
   <div class="verdict" id="hout"></div>
   <div id="hbtn"></div>
@@ -1997,7 +2000,9 @@ const HESTIA_CURTO = ["instabilidade hemodinâmica","necessidade de trombólise 
 function hGo(){
   if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
-    ST.data.local = ST.data.sspe? "alta precoce (Hestia 0)" : "alta precoce (baixo risco, Hestia 0)";
+    /* triagem pelo Hestia: com Hestia 0 a categoria AHA/ACC passa de C1 a B (a AHA/ACC 2026 inclui "Hestia=0" na definição da categoria B) */
+    if (ST.data.hestiaTriagem && /^C1/.test(ST.data.ahaCat||"")){ const r=ST.data._stratRaw||{}; ST.data.ahaCat = "B"+(r.ext==="sub"?"1":"2")+(/R$/.test(ST.data.ahaCat)?"R":""); }
+    ST.data.local = ST.data.sspe? "alta precoce (Hestia 0)" : ST.data.hestiaTriagem? "alta precoce (triagem pelo Hestia: Hestia 0)" : "alta precoce (baixo risco, Hestia 0)";
     ST.data.acCtx='alta'; go("ac_pick","Anticoagulação");
   } else {
     ST.data.hestiaFail=true;
