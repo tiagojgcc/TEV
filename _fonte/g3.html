@@ -348,7 +348,7 @@ function probCalc(){
   ST.data._ps = s; ST.data._pc = cls;
   const o = $("probout");
   if (o){ o.style.display="block";
-    o.innerHTML = "<h3>"+s+" pontos: probabilidade <b>"+cls+"</b> <span class='mini'>("+det+")</span></h3>"+
+    o.innerHTML = "<h3>"+numPt(s)+" pontos: probabilidade <b>"+cls+"</b> <span class='mini'>("+det+")</span></h3>"+
       (cls==="baixa"?"Pode aplicar o PERC antes de pedir D-dímeros.":cls==="intermédia"?"Seguir para D-dímeros com limiar ajustado.":"Angio-TC direta: sem D-dímeros.");
   }
 }

@@ -182,6 +182,11 @@ const CASOS = [
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["check","sp0"],["radio","q_vd","nao"],["radio","q_tp","neg"],
              ["open","ahaBox"],["radio","q_ht","nao"],["radio","q_pres","sint"],["radio","q_ext","seg"],["radio","q_resp","nenhum"],
              ["btnin","stratbtn"],["btnin","hbtn"],["click","Apixabano"]] },
+  { id: 'C42', titulo: 'Baixo risco que fica instável antes da alta: "instável" no Hestia encaminha para o alto risco',
+    caso: 'Homem, 59 anos, TEP segmentar, VD normal, troponina negativa, sPESI 0. Na reavaliação antes da alta, TA 84/50 persistente.',
+    passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],
+             ["radio","q_inst","nao"],["radio","q_vd","nao"],["radio","q_tp","neg"],["btnin","stratbtn"],
+             ["check","h0"],["btnin","hbtn"]] },
 ];
 
 (async () => {

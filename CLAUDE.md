@@ -7,7 +7,8 @@ Ler também `_fonte/ESTADO-E-CONVENCOES.md` (histórico, convenções de linguag
 ## Como trabalhar
 
 - Responder sempre em português europeu (pt-PT). Nunca pt-BR. Termos técnicos em inglês quando é o padrão.
-- Editar apenas as partes em `_fonte/` (`g1` a `g5`). Nunca editar `index.html` à mão.
+- Editar apenas as partes em `_fonte/` (`g1` a `g5`). Nunca editar `index.html` à mão. O build põe no rodapé a data do dia (`__DATA_ATUALIZACAO__`).
+- Bibliografia (`m_bib`, em g1): cada referência completa, com DOI e PubMed confirmados no PubMed. Não acrescentar links sem os confirmar.
 - Depois de qualquer alteração: `bash _fonte/build.sh` (gera `index.html`, verifica travessões e sintaxe), verificar a renderização (Playwright com o Chromium do ambiente, viewport 400 px, sem erros de página nem transbordo horizontal) e fazer commit direto no `main`. O push publica a página em cerca de um minuto. Não abrir pull requests salvo pedido.
 - Depois do build, correr também os casos de regressão: `NODE_PATH=$(npm root -g) node _fonte/testes/casos.js` percorre a ferramenta com os casos clínicos de `_fonte/testes/casos.js` e imprime o percurso e a nota de cada um; comparar com `_fonte/testes/casos-esperado.md`. Uma diferença só é aceitável se for intencional, e nesse caso atualiza-se o esperado no mesmo commit. Casos novos (bugs encontrados, feedback de colegas) acrescentam-se aos dois ficheiros.
 - Mensagem de commit curta, em pt-PT, a dizer o que mudou clinicamente (ex.: "TVP distal: duração 3 meses (ESVS 2021)").
@@ -33,11 +34,12 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Títulos dos ⓘ têm de dizer o que está dentro (ex.: "Tratar ou vigiar: o que dizem os estudos"), nunca formulações do tipo "porque isto parece controverso".
 - Detalhe não essencial vai para um ⓘ (`info(titulo, corpo, referencias)`), escrito para ser lido.
 - Uma decisão por ecrã. A ação principal é um botão cheio (`.go.blk`); a exceção é um botão secundário (`.go.sec.blk`); nunca um cartão verde que pareça clicável.
+- Números decimais com vírgula (`numPt`; `plural()` já a usa): "6,5 pontos", nunca "6.5".
 - Frequência das doses: `1x/dia`, `2x/dia`. "D-dímeros" no plural. "Abordagem", nunca "Conduta".
 
 ## Blocos partilhados (em `g2`)
 
-- `bleedInfo(ctx)`: ⓘ "Como avaliar o risco hemorrágico". Mesma janela em todos os ecrãs; só a frase de abertura e a de fecho mudam com o contexto (`sspe`, `distal`, `hestia`, `emp`). Não criar janelas de risco hemorrágico próprias noutros ecrãs.
+- `bleedInfo(ctx)`: ⓘ "Como avaliar o risco hemorrágico". Mesma janela em todos os ecrãs; só a frase de abertura e a de fecho mudam com o contexto (`sspe`, `distal`, `hestia`, `emp`). Texto curto à esquerda e, à direita (empilhada no telemóvel), a calculadora do VTE-BLEED com os pesos e o corte ≥2 da Tabela suplementar 14 da ESC 2019 (`VTEBLEED`, os mesmos da TEV Consulta). A calculadora serve para estruturar a avaliação e não entra na nota. Não criar janelas de risco hemorrágico próprias noutros ecrãs.
 - `ciTromb()`: contraindicações à trombólise (absolutas e relativas). `ciAC()`: contraindicações à anticoagulação (absolutas, e "situações de elevado risco hemorrágico, decisão individual"). Listas definidas pelo Tiago; não acrescentar itens (idade, retinopatia, quedas, neoplasia, etc.).
 - `situInfo()` e `SITU_TABLE`: tabela "Situações que mudam a escolha do anticoagulante" (seis linhas, duas colunas). Aparece como ⓘ em todos os ecrãs onde se decide iniciar ou manter anticoagulação, e como botão âmbar nos ecrãs de escolha do fármaco.
 - Regra: em todos os ecrãs com decisão de trombolisar ou anticoagular têm de aparecer o ⓘ das contraindicações respetivas e, quando se escolhe fármaco, o ⓘ das situações que mudam a escolha.
@@ -66,6 +68,7 @@ Nas sessões trabalha-se com os dois repositórios selecionados: `tiagojgcc/TEV`
 - Escrita da nota: usar sempre `fim()` (ponto final), `plural()` (1 ponto / 2 pontos) e `maiusc()` (inicial maiúscula). Não repetir na "Abordagem" o que já vai numa linha própria. "Alta com ...", nunca "Alta medicado com". "Marcada consulta de Medicina Interna (TEV) em 3 meses." Instruções ao utilizador (por exemplo "classificar pela AHA") ficam no ecrã e nunca entram na nota.
 - Subsegmentar: a marcha regista sempre a releitura ("TEP subsegmentar isolado, confirmado na releitura com o radiologista"); se o achado não se confirma mas há TVP proximal, o diagnóstico da nota é a TVP (`sspeTvp`); a abordagem do subsegmentar é "alta precoce (Hestia 0)", sem "baixo risco", porque não se estratificou.
 - sPESI ≥1 com VD normal e troponina negativa (`hestiaTriagem`): passa pelo Hestia antes de decidir o internamento (ESC 2019, secção 7.2.3: Hestia ou sPESI para a triagem da alta precoce; AHA/ACC 2026, 2a B-R; HOME-PE). Com Hestia 0, a abordagem é "alta precoce (triagem pelo Hestia: Hestia 0)" e a categoria AHA/ACC C1 passa a B (a AHA inclui "Hestia=0" na categoria B). A classe ESC no título mantém-se intermédio-baixo.
+- "Instável" assinalado no Hestia: deterioração depois da estratificação. Passa a alto risco (`conf_alto`), sem categoria AHA, e a estratificação na nota acaba em "; na reavaliação, instabilidade hemodinâmica".
 - Hestia positivo: a abordagem leva os critérios assinalados, "internamento em enfermaria (Hestia: ...)", e apaga a linha da consulta.
 - Grávida, nas duas vias: título com "(Grávida)", abordagem igual à dose seguida de "; DOAC e AVK contraindicados", e a linha "Plano discutido com Obstetrícia.".
 - AHA D2 (choque normotensivo): o título lidera pela AHA, "# TEP, AHA/ACC D2 (choque normotensivo); ESC: baixo risco". D1 mantém o título ESC.

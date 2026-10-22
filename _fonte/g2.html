@@ -62,7 +62,9 @@ window.addEventListener("beforeunload",e=>{ if(ST.trail.length>1){ e.preventDefa
 /* fecha a frase com ponto final quando ainda não tem */
 function fim(s){ s=String(s).trim(); return /[.!?]$/.test(s)? s : s+"."; }
 /* concordância de número: "1 ponto" / "2 pontos" */
-function plural(n, sing, plur){ return n+" "+(Math.abs(n)===1? sing : plur); }
+/* números com vírgula decimal (pt-PT): 6,5 e não 6.5 */
+function numPt(n){ return String(n).replace(".",","); }
+function plural(n, sing, plur){ return numPt(n)+" "+(Math.abs(n)===1? sing : plur); }
 /* primeira letra em maiúscula */
 function maiusc(s){ return s? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function marchaTEP(d){
@@ -184,28 +186,48 @@ function falenciaTxt(dose){ return "TEV diagnosticado sob anticoagulação (fal�
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }
-/* ⓘ partilhado: como avaliar o risco hemorrágico (mesma janela em todos os ecrãs; só a frase de abertura muda com o contexto) */
+/* ⓘ partilhado: como avaliar o risco hemorrágico (mesma janela em todos os ecrãs; só a frase de abertura e a de fecho mudam com o contexto).
+   À esquerda, o essencial; à direita, a calculadora do VTE-BLEED (pesos e corte da Tabela suplementar 14 da ESC 2019, os mesmos da TEV Consulta). Não entra na nota. */
+const VTEBLEED = [["Neoplasia ativa",1.5],["Homem com hipertensão não controlada",2],["Anemia",1],["História de hemorragia",1.5],["Idade ≥60 anos",1.5],["Disfunção renal (ClCr 30 a 60 mL/min)",1.5]];
+function vbCalc(){
+  let n=0; VTEBLEED.forEach((v,i)=>{ if($("vb"+i)&&$("vb"+i).checked) n+=v[1]; });
+  const o=$("vbout"); if(!o) return;
+  o.className="vbres "+(n>=2?"hi":"lo");
+  o.innerHTML="<b>"+plural(n,"ponto","pontos")+": risco "+(n>=2?"alto":"baixo")+"</b> (corte ≥2)";
+}
 function bleedInfo(ctx){
   const open = ctx==="sspe"
-    ? "Não existe um score validado para decidir não anticoagular um TEP subsegmentar isolado. A decisão é individual e resulta da ponderação entre o risco de recorrência do TEV, o risco de hemorragia e a confiança de que o achado imagiológico corresponde a um verdadeiro TEP."
+    ? "Não existe um score validado para decidir não anticoagular um TEP subsegmentar isolado: a decisão é individual."
     : ctx==="distal"
-    ? "Não existe um score validado para decidir não anticoagular uma TVP distal isolada. A decisão é individual e resulta da ponderação entre o risco de extensão ou recorrência do TEV e o risco de hemorragia."
+    ? "Não existe um score validado para decidir não anticoagular uma TVP distal isolada: a decisão é individual."
     : ctx==="emp"
-    ? "Não existe um score validado para decidir anticoagular antes da imagem. A decisão é individual e resulta da ponderação entre a probabilidade clínica de TEP, o risco de hemorragia e o tempo previsto até à angio-TC. A anticoagulação empírica é de curta duração, pelo que o que pesa é o risco de hemorragia imediata."
-    : "Não existe um score validado para classificar o risco hemorrágico neste contexto. A avaliação é individual e resulta da ponderação entre o risco de recorrência do TEV e o risco de hemorragia.";
-  const tool = ctx==="hestia"
-    ? "Ferramentas como o VTE-BLEED podem ajudar a estruturar a avaliação do risco hemorrágico, mas não foram desenvolvidas nem validadas para esta decisão."
-    : "Ferramentas como o VTE-BLEED podem ajudar a estruturar a avaliação do risco hemorrágico, mas não foram desenvolvidas nem validadas para decidir omitir anticoagulação.";
+    ? "Não existe um score validado para decidir anticoagular antes da imagem. Como a anticoagulação empírica é curta, pesa sobretudo o risco de hemorragia imediata."
+    : "Não existe um score validado para classificar o risco hemorrágico neste contexto: a avaliação é individual.";
   const close = ctx==="hestia"
-    ? "Em caso de dúvida, o critério considera-se presente e o doente não é candidato a alta precoce."
+    ? "<b>Na dúvida, o critério considera-se presente</b> e o doente não é candidato a alta precoce."
     : ctx==="emp"
-    ? "Com probabilidade clínica alta e angio-TC adiada, anticoagula-se enquanto se aguarda a imagem, salvo contraindicação (ESC 2019, Classe I; AHA/ACC 2026, Classe 2a). Se a angio-TC for imediata, ou na dúvida quanto ao risco hemorrágico, aguarda-se o resultado."
-    : "Na dúvida, anticoagula-se. A exceção deve reservar-se para doentes cuidadosamente selecionados, com risco hemorrágico claramente elevado.";
-  return info("Como avaliar o risco hemorrágico",`
-    <p style="margin:0 0 6px">${open}</p>
-    <p style="margin:0 0 6px">Pesam a favor de risco hemorrágico elevado: hemorragia major recente, hemorragia intracraniana prévia, trombocitopenia ou coagulopatia, insuficiência renal ou hepática avançada, idade muito avançada com fragilidade ou quedas de repetição, e necessidade de terapêutica antiagregante, sobretudo quando associada a outros fatores de risco.</p>
-    <p style="margin:0 0 6px">${tool}</p>
-    <p style="margin:0">${close}</p>`,"AHA/ACC 2026; ESC 2019; CHEST 2021; VTE-BLEED (Klok, Eur Respir J 2016)");
+    ? "<b>Com probabilidade clínica alta e angio-TC adiada, anticoagula-se enquanto se aguarda</b>, salvo contraindicação (ESC 2019, Classe I; AHA/ACC 2026, Classe 2a). Se a angio-TC for imediata, ou na dúvida, aguarda-se o resultado."
+    : "<b>Na dúvida, anticoagula-se.</b> Não anticoagular é a exceção, reservada a doentes com risco hemorrágico claramente elevado.";
+  return info("Como avaliar o risco hemorrágico",`<div class="bcols">
+    <div>
+      <p style="margin:0 0 6px">${open}</p>
+      <p style="margin:0 0 4px"><b>Pesam a favor de risco elevado:</b></p>
+      <ul style="margin:0 0 8px;padding-left:18px;line-height:1.55">
+        <li>Hemorragia major recente ou hemorragia intracraniana prévia.</li>
+        <li>Trombocitopenia ou coagulopatia.</li>
+        <li>Insuficiência renal ou hepática avançada.</li>
+        <li>Idade muito avançada com fragilidade ou quedas de repetição.</li>
+        <li>Terapêutica antiagregante associada.</li>
+      </ul>
+      <p style="margin:0">${close}</p>
+    </div>
+    <div class="bcalc">
+      <p style="margin:0 0 4px"><b>VTE-BLEED</b> <span class="mini">(para estruturar, não para decidir)</span></p>
+      ${VTEBLEED.map((v,i)=>'<label class="chk sm"><input type="checkbox" id="vb'+i+'" onchange="vbCalc()"><span>'+v[0]+'</span><span class="pt">+'+numPt(v[1])+'</span></label>').join("")}
+      <div id="vbout" class="vbres lo"><b>0 pontos: risco baixo</b> (corte ≥2)</div>
+      <p class="mini" style="margin:6px 0 0">Prevê a hemorragia major durante a anticoagulação estável, a partir do dia 30. Não foi desenvolvido nem validado para decidir omitir ou adiar a anticoagulação.</p>
+    </div>
+  </div>`,"ESC 2019 (Tabela suplementar 14); AHA/ACC 2026; CHEST 2021; VTE-BLEED: Klok, Eur Respir J 2016;48:1369");
 }
 /* Tabela partilhada: situações que mudam a escolha do anticoagulante (modal em ac_pick / alta_int e ⓘ nos ecrãs de decisão) */
 const SITU_TABLE = `<table class="itb" style="margin:0"><tr><th>Situação</th><th>Escolha preferencial</th></tr>
@@ -265,7 +287,7 @@ function ciAC(){
     </ul>`,CI_REF);
 }
 function chk(id, label, pts){
-  return '<label class="chk"><input type="checkbox" id="'+id+'"><span>'+label+'</span>'+(pts!=null?'<span class="pt">'+(pts>0?'+':'')+pts+'</span>':'')+'</label>';
+  return '<label class="chk"><input type="checkbox" id="'+id+'"><span>'+label+'</span>'+(pts!=null?'<span class="pt">'+(pts>0?'+':'')+numPt(pts)+'</span>':'')+'</label>';
 }
 const SCREENS = {};
 </script>

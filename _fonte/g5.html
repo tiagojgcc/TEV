@@ -350,12 +350,19 @@ SCREENS.conf_hestia = { crumb:"Alta precoce", html: () => `
 function hCalc(){
   let n=0; HESTIA.forEach((h,i)=>{ if($("h"+i).checked) n++; });
   ST.data._hn=n; const o=$("hout");
-  o.className="verdict "+(n===0?"v-grn":"v-amb");
-  o.innerHTML = n===0? "<h3>Hestia 0 → elegível para alta precoce com DOAC</h3>" : "<h3>"+n+" critério(s) presente(s) → internar</h3>";
-  $("hbtn").innerHTML='<button class="go" onclick="hGo()">Continuar</button>';
+  const inst = $("h0") && $("h0").checked;
+  o.className="verdict "+(inst?"v-red":n===0?"v-grn":"v-amb");
+  o.innerHTML = inst? "<h3>Instabilidade hemodinâmica: TEP de alto risco</h3>A instabilidade que surge depois da estratificação muda a classe da ESC para alto risco, e a abordagem passa a ser a do alto risco." : n===0? "<h3>Hestia 0 → elegível para alta precoce com DOAC</h3>" : "<h3>"+n+" critério(s) presente(s) → internar</h3>";
+  $("hbtn").innerHTML = inst? '<button class="go" onclick="hGo()">Seguir para a abordagem do alto risco</button>' : '<button class="go" onclick="hGo()">Continuar</button>';
 }
 const HESTIA_CURTO = ["instabilidade hemodinâmica","necessidade de trombólise ou embolectomia","hemorragia ativa ou alto risco hemorrágico","necessidade de O₂ mais de 24 h","TEP diagnosticado sob anticoagulação","dor grave com analgesia EV","razão médica ou social","ClCr <30 mL/min","compromisso hepático grave","gravidez","trombocitopenia induzida pela heparina"];
 function hGo(){
+  /* instabilidade assinalada no Hestia: deterioração depois da estratificação, passa a alto risco (ESC 2019, Tabela 8) */
+  if ($("h0") && $("h0").checked){
+    ST.data.confCls = "ALTO"; ST.data.ahaCat = null;
+    ST.data.stratTxt = (ST.data.stratTxt? ST.data.stratTxt+"; " : "")+"na reavaliação, instabilidade hemodinâmica";
+    go("conf_alto","Alto risco"); return;
+  }
   if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
     /* triagem pelo Hestia: com Hestia 0 a categoria AHA/ACC passa de C1 a B (a AHA/ACC 2026 inclui "Hestia=0" na definição da categoria B) */

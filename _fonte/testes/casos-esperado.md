@@ -3,14 +3,14 @@
 Gerado a partir de `_fonte/testes/casos.js`. Cada bloco tem o caso clínico, o percurso na ferramenta e a nota que deve sair.
 Se uma alteração mudar algum destes resultados, a mudança tem de ser intencional e este ficheiro atualiza-se no mesmo commit.
 
-Última atualização: 2026-10-22. Casos: 42 (35 percursos distintos).
+Última atualização: 2026-10-22. Casos: 43 (36 percursos distintos).
 
 Contagem de cliques (uso no computador, como um utilizador real): cada passo é um clique; num campo conta o clique para o abrir, não o que se escreve; cada pergunta de escolha visível no ecrã conta um clique, mesmo quando vem pré-preenchida; o caso termina em "ver a nota" e "copiar". Os critérios ausentes (caixas por assinalar) não contam.
 
-- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,9.
+- Todos os casos: mínimo 3, máximo 30, mediana 11, média 11,8.
 - Desde a suspeita (15 casos, inclui as exclusões): mínimo 8, máximo 30, mediana 12, média 14,2.
 - Desde a suspeita até ao TEP confirmado e estratificado (3 casos): mínimo 21, máximo 30, mediana 25, média 25,3.
-- Desde o TEV confirmado (24 casos): mínimo 6, máximo 19, mediana 9,5, média 11,1.
+- Desde o TEV confirmado (25 casos): mínimo 6, máximo 19, mediana 10, média 11,1.
 - Anticoagulação para casa (2 casos): mínimo 5, máximo 11, mediana 8, média 8,0.
 - Doente instável (1 caso): 3 cliques.
 
@@ -566,4 +566,17 @@ Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagul
 - Abordagem: alta precoce (triagem pelo Hestia: Hestia 0).
 - Pedido de consulta de Medicina Interna - TEV.
 - Anticoagulação: apixabano 10 mg 2x/dia × 7 dias, depois 5 mg 2x/dia (manter até à consulta).
+```
+
+## C42 · Baixo risco que fica instável antes da alta: "instável" no Hestia encaminha para o alto risco
+
+Homem, 59 anos, TEP segmentar, VD normal, troponina negativa, sPESI 0. Na reavaliação antes da alta, TA 84/50 persistente.
+
+Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Alto risco  [conf_alto]  ·  11 cliques
+
+```
+# TEP de alto risco
+- Angio-TC: TEP confirmado.
+- Estratificação: sem instabilidade HD, sem disfunção do VD, troponina negativa, sPESI 0; na reavaliação, instabilidade hemodinâmica.
+- Abordagem: UCI; trombólise sistémica; HNF na fase aguda, com transição para HBPM após a lise; centro de referência com capacidade de reperfusão contactado.
 ```

@@ -31,7 +31,7 @@ function wtCalc(){
   let s=0; WTVP.forEach((w,i)=>{ if($("wt"+i).checked) s+=w[1]; });
   ST.data._wtRaw=WTVP.map((w,i)=>!!($("wt"+i)&&$("wt"+i).checked)); snapTop("tvp_wells");
   ST.data._wt=s; const o=$("wtout"); o.style.display="block";
-  o.innerHTML="<h3>"+s+" pontos: TVP "+(s>=2?"<b>provável</b> → eco-doppler direto":"<b>improvável</b> → D-dímeros primeiro")+"</h3>";
+  o.innerHTML="<h3>"+numPt(s)+" pontos: TVP "+(s>=2?"<b>provável</b> → eco-doppler direto":"<b>improvável</b> → D-dímeros primeiro")+"</h3>";
 }
 function wtGo(){ ST.data.wtvp=ST.data._wt; if(ST.data.wtvp>=2) go("tvp_eco","Eco-doppler"); else go("tvp_dd","D-dímeros"); }
 SCREENS.tvp_dd = { crumb:"D-dímeros", html: () => `

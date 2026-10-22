@@ -4,6 +4,8 @@
 set -e
 cd "$(dirname "$0")"
 cat g1.html g2.html g3.html g4.html g5.html > ../index.html
+# data de atualização no rodapé (dia em que a página foi construída)
+sed -i "s#__DATA_ATUALIZACAO__#$(date +%d/%m/%Y)#" ../index.html
 # verificações mínimas: sem travessões, sintaxe JavaScript válida
 if grep -q '—' ../index.html; then echo "ERRO: travessão (—) encontrado em index.html"; exit 1; fi
 node -e "const fs=require('fs');const h=fs.readFileSync('../index.html','utf8');for(const m of h.matchAll(/<script>([\s\S]*?)<\/script>/g)){new Function(m[1])}console.log('index.html: sintaxe ok')"

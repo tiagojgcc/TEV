@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TEV na Prática: apoio à decisão</title>
+<meta name="description" content="Apoio à decisão no tromboembolismo venoso (TEP e TVP) na urgência e na enfermaria, da suspeita à nota clínica. Baseado nas guidelines ESC 2019, AHA/ACC 2026, ESVS 2021, ASH 2020 e CHEST 2021.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_PT">
+<meta property="og:title" content="TEV na Prática: apoio à decisão">
+<meta property="og:description" content="Apoio à decisão no tromboembolismo venoso (TEP e TVP) na urgência e na enfermaria, da suspeita à nota clínica.">
+<meta property="og:url" content="https://tiagojgcc.github.io/TEV/">
+<meta name="twitter:card" content="summary">
 <style>
 :root{
   --bg:#FAF8F4; --card:#FFFFFF; --ink:#2A2A26; --mut:#71716A; --line:#E6E1D8;
@@ -36,7 +43,7 @@ header{background:var(--card);border-bottom:1px solid var(--line);position:stick
 .hb .brand .dot{width:26px;height:26px;border-radius:7px;background:var(--ac-soft);border:1px solid var(--ac-line);display:flex;align-items:center;justify-content:center;flex:none}
 .hb .brand .dot svg{width:17px;height:17px}
 .hb .brand .nm{color:var(--ac)}
-@media(max-width:600px){.hbtn.ghost{display:none}}
+@media(max-width:600px){.hb{gap:6px}.hbtn{padding:5px 9px;font-size:12.5px}.hbtn svg{width:13px;height:13px}}
 #crumbs{max-width:860px;margin:0 auto;padding:8px 16px 0;display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
 #crumbs:empty{display:none}
 .crumb{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;
@@ -134,6 +141,13 @@ details.info .db .ref{display:block;margin-top:6px;font-size:12px;color:var(--mu
 .jump button{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
 .jump button:hover{border-color:var(--ac);color:var(--ac-dark)}
 footer{max-width:860px;margin:26px auto 0;padding:0 16px 190px;font-size:11.5px;color:var(--mut);text-align:center}
+.bcols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bcols .bcalc{border-left:1px solid var(--line);padding-left:16px}
+@media(max-width:600px){.bcols{grid-template-columns:1fr;gap:12px}.bcols .bcalc{border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:10px}}
+.chk.sm{font-size:13.5px;padding:4px 6px}
+.vbres{margin-top:6px;padding:7px 10px;border-radius:7px;font-size:13.5px}
+.vbres.lo{background:var(--grn-bg);color:var(--grn)}
+.vbres.hi{background:var(--red-bg);color:var(--red)}
 table.itb{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:13px;background:var(--card)}
 .itb th{background:var(--ac-soft);color:var(--ac-dark);text-align:left;padding:6px 10px;border:1px solid var(--line);font-size:11px;letter-spacing:.5px;text-transform:uppercase}
 .itb td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;line-height:1.45}
@@ -249,7 +263,7 @@ body.v-home footer{padding:10px 16px 16px;border-top:1px solid var(--line);margi
 </div></header>
 <div id="crumbs"></div>
 <main><div id="app"></div>
-<footer>Apoio à decisão. Não substitui o juízo clínico. ESC 2019 · AHA/ACC 2026. Não cobre tromboses de localização atípica, pediatria nem profilaxia.<br>Tiago Guimarães Costa · Medicina Interna · 2026</footer>
+<footer>Apoio à decisão. Não substitui o juízo clínico. ESC 2019 · AHA/ACC 2026. Não cobre tromboses de localização atípica, pediatria nem profilaxia.<br>Tiago Guimarães Costa · Medicina Interna · Atualizado a 22/10/2026</footer>
 </main>
 
 <div class="notewrap"><div class="notecard"><div class="notein">
@@ -282,18 +296,29 @@ body.v-home footer{padding:10px 16px 16px;border-top:1px solid var(--line);margi
   <button class="close" onclick="closeModals()">✕</button>
   <h3>Bibliografia</h3>
   <ul>
-    <li><b>ESC 2019</b>: Konstantinides SV et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. <i>Eur Heart J</i> 2020;41:543–603. (Referencial principal.)</li>
-    <li><b>AHA/ACC 2026</b>: Creager MA et al. 2026 Guideline for the Evaluation and Management of Acute Pulmonary Embolism. <i>Circulation</i> 2026;153:e977–e1051. (Categorias A–E; HBPM&gt;HNF; Figura 1 diagnóstica.)</li>
-    <li><b>YEARS</b>: van der Hulle T et al. <i>Lancet</i> 2017. · <b>YEARS + idade</b>: ensaio europeu cluster-randomizado (Freund et al.), doentes com probabilidade &lt;50%.</li>
-    <li><b>D-dímeros ajustados à idade</b>: ADJUST-PE, Righini M et al. <i>JAMA</i> 2014.</li>
-    <li><b>PERC</b>: Kline JA et al. <i>JTH</i> 2008; PROPER, Freund Y et al. <i>JAMA</i> 2018.</li>
-    <li><b>Genebra revisto</b>: Le Gal G et al. <i>Ann Intern Med</i> 2006. · <b>Wells</b>: Wells PS et al. 2000.</li>
-    <li><b>sPESI</b>: Jiménez D et al. <i>Arch Intern Med</i> 2010. · <b>Hestia</b>: Zondag W et al. 2011; HOME-PE, <i>Eur Heart J</i> 2021.</li>
-    <li><b>PEITHO</b>: Meyer G et al. <i>NEJM</i> 2014. · <b>HI-PEITHO</b>: <i>NEJM</i> 2026 (CDT no intermédio-alto selecionado).</li>
-    <li><b>CALISTO</b> (fondaparinux na TVS): Decousus H et al. <i>NEJM</i> 2010. · <b>SURPRISE</b>: <i>Lancet Haematol</i> 2017.</li>
-    <li><b>TVP distal</b>: CACTUS, <i>Lancet Haematol</i> 2016; consenso ESC WG 2022.</li>
-    <li><b>SAF</b>: TRAPS, <i>Blood</i> 2018 (AVK, não DOAC). · <b>Neoplasia GI</b>: Hokusai-VTE Cancer; SELECT-D.</li>
-    <li><b>TVP ambulatório e distal</b>: ASH 2020; CHEST 2021 (é daqui que vêm a vigilância na distal e o tratamento ambulatório).</li>
+    <li><b>ESC 2019</b>: Konstantinides SV et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. <i>Eur Heart J</i> 2020;41:543–603. (Referencial principal.) <span class="mini">(<a href="https://doi.org/10.1093/eurheartj/ehz405" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/31504429/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>AHA/ACC 2026</b>: Creager MA et al. 2026 Guideline for the Evaluation and Management of Acute Pulmonary Embolism. <i>Circulation</i> 2026;153:e977–e1051. (Categorias A a E; HBPM preferida à HNF; Figura 1 diagnóstica.) <span class="mini">(<a href="https://doi.org/10.1161/CIR.0000000000001415" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/41712677/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>ESVS 2021</b>: Kakkos SK et al. European Society for Vascular Surgery 2021 Clinical Practice Guidelines on the Management of Venous Thrombosis. <i>Eur J Vasc Endovasc Surg</i> 2021;61:9–82. <span class="mini">(<a href="https://doi.org/10.1016/j.ejvs.2020.09.023" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/33334670/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>ASH 2020</b>: Ortel TL et al. American Society of Hematology 2020 guidelines for management of venous thromboembolism: treatment of deep vein thrombosis and pulmonary embolism. <i>Blood Adv</i> 2020;4:4693–4738. <span class="mini">(<a href="https://doi.org/10.1182/bloodadvances.2020001830" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/33007077/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>CHEST 2021</b>: Stevens SM et al. Antithrombotic Therapy for VTE Disease: Second Update of the CHEST Guideline and Expert Panel Report. <i>Chest</i> 2021;160:e545–e608. (Vigilância na TVP distal e tratamento ambulatório.) <span class="mini">(<a href="https://doi.org/10.1016/j.chest.2021.07.055" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/34352278/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>YEARS</b>: van der Hulle T et al. Simplified diagnostic management of suspected pulmonary embolism (the YEARS study). <i>Lancet</i> 2017;390:289–297. <span class="mini">(<a href="https://doi.org/10.1016/S0140-6736(17)30885-1" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/28549662/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>YEARS com limiar ajustado à idade</b>: Freund Y et al. Effect of a Diagnostic Strategy Using an Elevated and Age-Adjusted D-Dimer Threshold on Thromboembolic Events in Emergency Department Patients With Suspected Pulmonary Embolism. <i>JAMA</i> 2021;326:2141–2149. <span class="mini">(<a href="https://doi.org/10.1001/jama.2021.20750" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/34874418/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>D-dímeros ajustados à idade</b>: Righini M et al. Age-adjusted D-dimer cutoff levels to rule out pulmonary embolism: the ADJUST-PE study. <i>JAMA</i> 2014;311:1117–1124. <span class="mini">(<a href="https://doi.org/10.1001/jama.2014.2135" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/24643601/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>PERC</b>: Kline JA et al. Prospective multicenter evaluation of the pulmonary embolism rule-out criteria. <i>J Thromb Haemost</i> 2008;6:772–780. <span class="mini">(<a href="https://doi.org/10.1111/j.1538-7836.2008.02944.x" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/18318689/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>PROPER</b>: Freund Y et al. Effect of the Pulmonary Embolism Rule-Out Criteria on Subsequent Thromboembolic Events Among Low-Risk Emergency Department Patients. <i>JAMA</i> 2018;319:559–566. <span class="mini">(<a href="https://doi.org/10.1001/jama.2017.21904" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/29450523/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>Genebra revisto</b>: Le Gal G et al. Prediction of pulmonary embolism in the emergency department: the revised Geneva score. <i>Ann Intern Med</i> 2006;144:165–171. <span class="mini">(<a href="https://doi.org/10.7326/0003-4819-144-3-200602070-00004" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/16461960/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>Wells (TEP)</b>: Wells PS et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism. <i>Thromb Haemost</i> 2000;83:416–420. <span class="mini">(<a href="https://pubmed.ncbi.nlm.nih.gov/10744147/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>sPESI</b>: Jiménez D et al. Simplification of the pulmonary embolism severity index for prognostication in patients with acute symptomatic pulmonary embolism. <i>Arch Intern Med</i> 2010;170:1383–1389. <span class="mini">(<a href="https://doi.org/10.1001/archinternmed.2010.199" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/20696966/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>Hestia</b>: Zondag W et al. Outpatient treatment in patients with acute pulmonary embolism: the Hestia Study. <i>J Thromb Haemost</i> 2011;9:1500–1507. <span class="mini">(<a href="https://doi.org/10.1111/j.1538-7836.2011.04388.x" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/21645235/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>HOME-PE</b>: Roy PM et al. Triaging acute pulmonary embolism for home treatment by Hestia or simplified PESI criteria. <i>Eur Heart J</i> 2021;42:3146–3157. <span class="mini">(<a href="https://doi.org/10.1093/eurheartj/ehab373" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/34363386/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>PEITHO</b>: Meyer G et al. Fibrinolysis for patients with intermediate-risk pulmonary embolism. <i>N Engl J Med</i> 2014;370:1402–1411. <span class="mini">(<a href="https://doi.org/10.1056/NEJMoa1302097" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/24716681/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>HI-PEITHO</b>: Rosenfield K et al. Ultrasound-Facilitated, Catheter-Directed Fibrinolysis for Acute Pulmonary Embolism. <i>N Engl J Med</i> 2026;394:1979–1990. (Trombólise dirigida por cateter no intermédio-alto selecionado.) <span class="mini">(<a href="https://doi.org/10.1056/NEJMoa2516567" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/41910345/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>CALISTO</b> (fondaparinux na TVS): Decousus H et al. Fondaparinux for the treatment of superficial-vein thrombosis in the legs. <i>N Engl J Med</i> 2010;363:1222–1232. <span class="mini">(<a href="https://doi.org/10.1056/NEJMoa0912072" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/20860504/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>SURPRISE</b> (rivaroxabano na TVS): Beyer-Westendorf J et al. Prevention of thromboembolic complications in patients with superficial-vein thrombosis given rivaroxaban or fondaparinux. <i>Lancet Haematol</i> 2017;4:e105–e113. <span class="mini">(<a href="https://doi.org/10.1016/S2352-3026(17)30014-5" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/28219692/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>CACTUS</b> (TVP distal): Righini M et al. Anticoagulant therapy for symptomatic calf deep vein thrombosis. <i>Lancet Haematol</i> 2016;3:e556–e562. <span class="mini">(<a href="https://doi.org/10.1016/S2352-3026(16)30131-4" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/27836513/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>TRAPS</b> (SAF: AVK, não DOAC): Pengo V et al. Rivaroxaban vs warfarin in high-risk patients with antiphospholipid syndrome. <i>Blood</i> 2018;132:1365–1371. <span class="mini">(<a href="https://doi.org/10.1182/blood-2018-04-848333" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/30002145/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>Hokusai-VTE Cancer</b>: Raskob GE et al. Edoxaban for the Treatment of Cancer-Associated Venous Thromboembolism. <i>N Engl J Med</i> 2018;378:615–624. <span class="mini">(<a href="https://doi.org/10.1056/NEJMoa1711948" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/29231094/" target="_blank" rel="noopener">PubMed</a>)</span></li>
+    <li><b>SELECT-D</b>: Young AM et al. Comparison of an Oral Factor Xa Inhibitor With Low Molecular Weight Heparin in Patients With Cancer With Venous Thromboembolism. <i>J Clin Oncol</i> 2018;36:2017–2023. <span class="mini">(<a href="https://doi.org/10.1200/JCO.2018.78.8034" target="_blank" rel="noopener">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/29746227/" target="_blank" rel="noopener">PubMed</a>)</span></li>
   </ul>
 </div></div>
 
@@ -366,7 +391,9 @@ window.addEventListener("beforeunload",e=>{ if(ST.trail.length>1){ e.preventDefa
 /* fecha a frase com ponto final quando ainda não tem */
 function fim(s){ s=String(s).trim(); return /[.!?]$/.test(s)? s : s+"."; }
 /* concordância de número: "1 ponto" / "2 pontos" */
-function plural(n, sing, plur){ return n+" "+(Math.abs(n)===1? sing : plur); }
+/* números com vírgula decimal (pt-PT): 6,5 e não 6.5 */
+function numPt(n){ return String(n).replace(".",","); }
+function plural(n, sing, plur){ return numPt(n)+" "+(Math.abs(n)===1? sing : plur); }
 /* primeira letra em maiúscula */
 function maiusc(s){ return s? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function marchaTEP(d){
@@ -488,28 +515,48 @@ function falenciaTxt(dose){ return "TEV diagnosticado sob anticoagulação (fal�
 function info(sum, body, ref){
   return '<details class="info"><summary>'+sum+'</summary><div class="db">'+body+(ref?'<span class="ref">'+ref+'</span>':'')+'</div></details>';
 }
-/* ⓘ partilhado: como avaliar o risco hemorrágico (mesma janela em todos os ecrãs; só a frase de abertura muda com o contexto) */
+/* ⓘ partilhado: como avaliar o risco hemorrágico (mesma janela em todos os ecrãs; só a frase de abertura e a de fecho mudam com o contexto).
+   À esquerda, o essencial; à direita, a calculadora do VTE-BLEED (pesos e corte da Tabela suplementar 14 da ESC 2019, os mesmos da TEV Consulta). Não entra na nota. */
+const VTEBLEED = [["Neoplasia ativa",1.5],["Homem com hipertensão não controlada",2],["Anemia",1],["História de hemorragia",1.5],["Idade ≥60 anos",1.5],["Disfunção renal (ClCr 30 a 60 mL/min)",1.5]];
+function vbCalc(){
+  let n=0; VTEBLEED.forEach((v,i)=>{ if($("vb"+i)&&$("vb"+i).checked) n+=v[1]; });
+  const o=$("vbout"); if(!o) return;
+  o.className="vbres "+(n>=2?"hi":"lo");
+  o.innerHTML="<b>"+plural(n,"ponto","pontos")+": risco "+(n>=2?"alto":"baixo")+"</b> (corte ≥2)";
+}
 function bleedInfo(ctx){
   const open = ctx==="sspe"
-    ? "Não existe um score validado para decidir não anticoagular um TEP subsegmentar isolado. A decisão é individual e resulta da ponderação entre o risco de recorrência do TEV, o risco de hemorragia e a confiança de que o achado imagiológico corresponde a um verdadeiro TEP."
+    ? "Não existe um score validado para decidir não anticoagular um TEP subsegmentar isolado: a decisão é individual."
     : ctx==="distal"
-    ? "Não existe um score validado para decidir não anticoagular uma TVP distal isolada. A decisão é individual e resulta da ponderação entre o risco de extensão ou recorrência do TEV e o risco de hemorragia."
+    ? "Não existe um score validado para decidir não anticoagular uma TVP distal isolada: a decisão é individual."
     : ctx==="emp"
-    ? "Não existe um score validado para decidir anticoagular antes da imagem. A decisão é individual e resulta da ponderação entre a probabilidade clínica de TEP, o risco de hemorragia e o tempo previsto até à angio-TC. A anticoagulação empírica é de curta duração, pelo que o que pesa é o risco de hemorragia imediata."
-    : "Não existe um score validado para classificar o risco hemorrágico neste contexto. A avaliação é individual e resulta da ponderação entre o risco de recorrência do TEV e o risco de hemorragia.";
-  const tool = ctx==="hestia"
-    ? "Ferramentas como o VTE-BLEED podem ajudar a estruturar a avaliação do risco hemorrágico, mas não foram desenvolvidas nem validadas para esta decisão."
-    : "Ferramentas como o VTE-BLEED podem ajudar a estruturar a avaliação do risco hemorrágico, mas não foram desenvolvidas nem validadas para decidir omitir anticoagulação.";
+    ? "Não existe um score validado para decidir anticoagular antes da imagem. Como a anticoagulação empírica é curta, pesa sobretudo o risco de hemorragia imediata."
+    : "Não existe um score validado para classificar o risco hemorrágico neste contexto: a avaliação é individual.";
   const close = ctx==="hestia"
-    ? "Em caso de dúvida, o critério considera-se presente e o doente não é candidato a alta precoce."
+    ? "<b>Na dúvida, o critério considera-se presente</b> e o doente não é candidato a alta precoce."
     : ctx==="emp"
-    ? "Com probabilidade clínica alta e angio-TC adiada, anticoagula-se enquanto se aguarda a imagem, salvo contraindicação (ESC 2019, Classe I; AHA/ACC 2026, Classe 2a). Se a angio-TC for imediata, ou na dúvida quanto ao risco hemorrágico, aguarda-se o resultado."
-    : "Na dúvida, anticoagula-se. A exceção deve reservar-se para doentes cuidadosamente selecionados, com risco hemorrágico claramente elevado.";
-  return info("Como avaliar o risco hemorrágico",`
-    <p style="margin:0 0 6px">${open}</p>
-    <p style="margin:0 0 6px">Pesam a favor de risco hemorrágico elevado: hemorragia major recente, hemorragia intracraniana prévia, trombocitopenia ou coagulopatia, insuficiência renal ou hepática avançada, idade muito avançada com fragilidade ou quedas de repetição, e necessidade de terapêutica antiagregante, sobretudo quando associada a outros fatores de risco.</p>
-    <p style="margin:0 0 6px">${tool}</p>
-    <p style="margin:0">${close}</p>`,"AHA/ACC 2026; ESC 2019; CHEST 2021; VTE-BLEED (Klok, Eur Respir J 2016)");
+    ? "<b>Com probabilidade clínica alta e angio-TC adiada, anticoagula-se enquanto se aguarda</b>, salvo contraindicação (ESC 2019, Classe I; AHA/ACC 2026, Classe 2a). Se a angio-TC for imediata, ou na dúvida, aguarda-se o resultado."
+    : "<b>Na dúvida, anticoagula-se.</b> Não anticoagular é a exceção, reservada a doentes com risco hemorrágico claramente elevado.";
+  return info("Como avaliar o risco hemorrágico",`<div class="bcols">
+    <div>
+      <p style="margin:0 0 6px">${open}</p>
+      <p style="margin:0 0 4px"><b>Pesam a favor de risco elevado:</b></p>
+      <ul style="margin:0 0 8px;padding-left:18px;line-height:1.55">
+        <li>Hemorragia major recente ou hemorragia intracraniana prévia.</li>
+        <li>Trombocitopenia ou coagulopatia.</li>
+        <li>Insuficiência renal ou hepática avançada.</li>
+        <li>Idade muito avançada com fragilidade ou quedas de repetição.</li>
+        <li>Terapêutica antiagregante associada.</li>
+      </ul>
+      <p style="margin:0">${close}</p>
+    </div>
+    <div class="bcalc">
+      <p style="margin:0 0 4px"><b>VTE-BLEED</b> <span class="mini">(para estruturar, não para decidir)</span></p>
+      ${VTEBLEED.map((v,i)=>'<label class="chk sm"><input type="checkbox" id="vb'+i+'" onchange="vbCalc()"><span>'+v[0]+'</span><span class="pt">+'+numPt(v[1])+'</span></label>').join("")}
+      <div id="vbout" class="vbres lo"><b>0 pontos: risco baixo</b> (corte ≥2)</div>
+      <p class="mini" style="margin:6px 0 0">Prevê a hemorragia major durante a anticoagulação estável, a partir do dia 30. Não foi desenvolvido nem validado para decidir omitir ou adiar a anticoagulação.</p>
+    </div>
+  </div>`,"ESC 2019 (Tabela suplementar 14); AHA/ACC 2026; CHEST 2021; VTE-BLEED: Klok, Eur Respir J 2016;48:1369");
 }
 /* Tabela partilhada: situações que mudam a escolha do anticoagulante (modal em ac_pick / alta_int e ⓘ nos ecrãs de decisão) */
 const SITU_TABLE = `<table class="itb" style="margin:0"><tr><th>Situação</th><th>Escolha preferencial</th></tr>
@@ -569,7 +616,7 @@ function ciAC(){
     </ul>`,CI_REF);
 }
 function chk(id, label, pts){
-  return '<label class="chk"><input type="checkbox" id="'+id+'"><span>'+label+'</span>'+(pts!=null?'<span class="pt">'+(pts>0?'+':'')+pts+'</span>':'')+'</label>';
+  return '<label class="chk"><input type="checkbox" id="'+id+'"><span>'+label+'</span>'+(pts!=null?'<span class="pt">'+(pts>0?'+':'')+numPt(pts)+'</span>':'')+'</label>';
 }
 const SCREENS = {};
 </script>
@@ -923,7 +970,7 @@ function probCalc(){
   ST.data._ps = s; ST.data._pc = cls;
   const o = $("probout");
   if (o){ o.style.display="block";
-    o.innerHTML = "<h3>"+s+" pontos: probabilidade <b>"+cls+"</b> <span class='mini'>("+det+")</span></h3>"+
+    o.innerHTML = "<h3>"+numPt(s)+" pontos: probabilidade <b>"+cls+"</b> <span class='mini'>("+det+")</span></h3>"+
       (cls==="baixa"?"Pode aplicar o PERC antes de pedir D-dímeros.":cls==="intermédia"?"Seguir para D-dímeros com limiar ajustado.":"Angio-TC direta: sem D-dímeros.");
   }
 }
@@ -1275,7 +1322,7 @@ function wtCalc(){
   let s=0; WTVP.forEach((w,i)=>{ if($("wt"+i).checked) s+=w[1]; });
   ST.data._wtRaw=WTVP.map((w,i)=>!!($("wt"+i)&&$("wt"+i).checked)); snapTop("tvp_wells");
   ST.data._wt=s; const o=$("wtout"); o.style.display="block";
-  o.innerHTML="<h3>"+s+" pontos: TVP "+(s>=2?"<b>provável</b> → eco-doppler direto":"<b>improvável</b> → D-dímeros primeiro")+"</h3>";
+  o.innerHTML="<h3>"+numPt(s)+" pontos: TVP "+(s>=2?"<b>provável</b> → eco-doppler direto":"<b>improvável</b> → D-dímeros primeiro")+"</h3>";
 }
 function wtGo(){ ST.data.wtvp=ST.data._wt; if(ST.data.wtvp>=2) go("tvp_eco","Eco-doppler"); else go("tvp_dd","D-dímeros"); }
 SCREENS.tvp_dd = { crumb:"D-dímeros", html: () => `
@@ -1992,12 +2039,19 @@ SCREENS.conf_hestia = { crumb:"Alta precoce", html: () => `
 function hCalc(){
   let n=0; HESTIA.forEach((h,i)=>{ if($("h"+i).checked) n++; });
   ST.data._hn=n; const o=$("hout");
-  o.className="verdict "+(n===0?"v-grn":"v-amb");
-  o.innerHTML = n===0? "<h3>Hestia 0 → elegível para alta precoce com DOAC</h3>" : "<h3>"+n+" critério(s) presente(s) → internar</h3>";
-  $("hbtn").innerHTML='<button class="go" onclick="hGo()">Continuar</button>';
+  const inst = $("h0") && $("h0").checked;
+  o.className="verdict "+(inst?"v-red":n===0?"v-grn":"v-amb");
+  o.innerHTML = inst? "<h3>Instabilidade hemodinâmica: TEP de alto risco</h3>A instabilidade que surge depois da estratificação muda a classe da ESC para alto risco, e a abordagem passa a ser a do alto risco." : n===0? "<h3>Hestia 0 → elegível para alta precoce com DOAC</h3>" : "<h3>"+n+" critério(s) presente(s) → internar</h3>";
+  $("hbtn").innerHTML = inst? '<button class="go" onclick="hGo()">Seguir para a abordagem do alto risco</button>' : '<button class="go" onclick="hGo()">Continuar</button>';
 }
 const HESTIA_CURTO = ["instabilidade hemodinâmica","necessidade de trombólise ou embolectomia","hemorragia ativa ou alto risco hemorrágico","necessidade de O₂ mais de 24 h","TEP diagnosticado sob anticoagulação","dor grave com analgesia EV","razão médica ou social","ClCr <30 mL/min","compromisso hepático grave","gravidez","trombocitopenia induzida pela heparina"];
 function hGo(){
+  /* instabilidade assinalada no Hestia: deterioração depois da estratificação, passa a alto risco (ESC 2019, Tabela 8) */
+  if ($("h0") && $("h0").checked){
+    ST.data.confCls = "ALTO"; ST.data.ahaCat = null;
+    ST.data.stratTxt = (ST.data.stratTxt? ST.data.stratTxt+"; " : "")+"na reavaliação, instabilidade hemodinâmica";
+    go("conf_alto","Alto risco"); return;
+  }
   if ($("h4") && $("h4").checked) ST.data.falencia = true; /* TEP diagnosticado já sob anticoagulação */
   if (ST.data._hn===0){
     /* triagem pelo Hestia: com Hestia 0 a categoria AHA/ACC passa de C1 a B (a AHA/ACC 2026 inclui "Hestia=0" na definição da categoria B) */
