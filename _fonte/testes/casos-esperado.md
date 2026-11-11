@@ -462,14 +462,14 @@ Percurso: Início > Confirmado > TEP > Estratificar > Abordagem > Plano  [conf_f
 - Anticoagulação: enoxaparina 1 mg/kg 2x/dia (70 mg 2x/dia).
 ```
 
-## C34 · AHA A1: TEP incidental subsegmentar, sPESI 1 só pela neoplasia, Hestia 0: alta precoce com enoxaparina
+## C34 · AHA A: TEP incidental subsegmentar, sPESI 1 só pela neoplasia, Hestia 0: alta precoce com enoxaparina
 
 Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).
 
 Percurso: Início > Confirmado > TEP > Estratificar > Alta precoce? > Anticoagulação > Dose > Plano  [ac_fim]  ·  19 cliques
 
 ```
-# TEP de risco intermédio-baixo (AHA/ACC: A1)
+# TEP de risco intermédio-baixo (AHA/ACC: A)
 - Angio-TC: TEP confirmado.
 - Estratificação: sem instabilidade HD, achado incidental, sem disfunção do VD, troponina negativa, sPESI 1.
 - Abordagem: alta precoce (triagem pelo Hestia: Hestia 0).

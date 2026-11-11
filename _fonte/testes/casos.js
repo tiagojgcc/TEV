@@ -145,7 +145,7 @@ const CASOS = [
     caso: 'Homem, 50 anos, TA 84/50 transitória com lactato 3,1. VD normal, troponina negativa, sPESI 0.',
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["radio","q_vd","nao"],["radio","q_tp","neg"],
              ["open","ahaBox"],["radio","q_ht","sim"],["radio","q_hp","sim"],["btnin","stratbtn"],["fill","pw","70"],["click","Concluir: nota do episódio"]] },
-  { id: 'C34', titulo: 'AHA A1: TEP incidental subsegmentar, sPESI 1 só pela neoplasia, Hestia 0: alta precoce com enoxaparina',
+  { id: 'C34', titulo: 'AHA A: TEP incidental subsegmentar, sPESI 1 só pela neoplasia, Hestia 0: alta precoce com enoxaparina',
     caso: 'Homem, 67 anos, neoplasia do cólon, TEP subsegmentar em TC de estadiamento, assintomático. VD normal, troponina negativa, sPESI 1 (neoplasia).',
     passos: [["card","TEV confirmado"],["click","TEP"],["click","Segmentar, lobar"],["radio","q_inst","nao"],["check","sp1"],["radio","q_vd","nao"],["radio","q_tp","neg"],
              ["open","ahaBox"],["radio","q_pres","inc"],["radio","q_ext","sub"],["btnin","stratbtn"],["btnin","hbtn"],["click","Enoxaparina"],["fill","pw","80"],["btnin","hbpmbtn"]] },
