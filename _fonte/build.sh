@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reconstrói "TEV na Prática" a partir das partes g1..g5 e grava-o como index.html na raiz do repositório
+# Reconstrói "Lúmen" (TEV na Prática) a partir das partes g1..g5 e grava-o como index.html na raiz do repositório
 # (é o ficheiro que o GitHub Pages publica em https://tiagojgcc.github.io/TEV/).
 set -e
 cd "$(dirname "$0")"

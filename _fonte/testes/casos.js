@@ -1,4 +1,4 @@
-// Casos de regressão: percorre "TEV na Prática" (index.html) com casos clínicos e imprime o ecrã final e a nota.
+// Casos de regressão: percorre "Lúmen" (index.html) com casos clínicos e imprime o ecrã final e a nota.
 // Correr depois do build:  NODE_PATH=$(npm root -g) node _fonte/testes/casos.js   (opcional: CASE_IDS=C5,C12)
 // Cada caso tem o percurso esperado e a nota esperada registados em casos-esperado.md; comparar à mão ou com diff.
 const { chromium } = require('playwright');

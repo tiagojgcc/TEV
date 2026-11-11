@@ -1,4 +1,4 @@
-// Percursos aleatórios: percorre "TEV na Prática" (index.html) com escolhas ao acaso e verifica, no fim de cada percurso,
+// Percursos aleatórios: percorre "Lúmen" (index.html) com escolhas ao acaso e verifica, no fim de cada percurso,
 // regras que nunca podem falhar. Não compara com uma nota esperada (isso é o casos.js); serve para encontrar erros
 // e medir a cobertura (ecrãs visitados, botões clicados, tipos de linha da nota).
 // Correr depois do build:  NODE_PATH=$(npm root -g) node _fonte/testes/aleatorio.js [percursos] [semente]
